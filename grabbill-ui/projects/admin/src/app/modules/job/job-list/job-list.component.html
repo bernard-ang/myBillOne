@@ -1,0 +1,125 @@
+<div container class="mx-auto" *ngIf="jobSearchResult$ | async as jobSearchResult">
+  <div class="flex pb-8">
+    <div class="flex-grow">
+      <h2 title nz-typography class="flex-grow mb-8">Jobs</h2>
+      <div class="text-lg">You have {{jobSearchResult.totalItems | number: '1.0'}} job.</div>
+    </div>
+  </div>
+
+  <div *ngIf="jobPageable$ | async as jobPageable">
+    <div class="flex">
+      <div class="flex-grow">
+        <nz-input-group search-group [nzPrefix]="searchIcon" nzSize="large">
+          <input type="text" (input)="doSearch($event)" nz-input placeholder="Find by account name" />
+        </nz-input-group>
+        <ng-template #searchIcon>
+          <i nz-icon nzType="search" class="mr-2"></i>
+        </ng-template>
+      </div>
+      <div>
+        <div [formGroup]="form">
+          <nz-range-picker formControlName="range"
+                           (ngModelChange)="doDateRange($event)"
+                           nzSize="large">
+          </nz-range-picker>
+        </div>
+      </div>
+    </div>
+    <div toolbar class="flex items-center p-2">
+      <div class="flex-grow">
+        <nz-tag
+          *ngFor="let tag of getFilters(); let i = index"
+          nzMode="closeable"
+          (nzOnClose)="doRemoveFilter(tag[0])"
+        >
+          {{ getFilterLabel(tag[0]) }} = {{ tag[1] }}
+        </nz-tag>
+      </div>
+      <div>
+        <button nz-button (click)="doOpenFilterModal()"  nzType="link"><i nz-icon nzType="filter"></i>Add Filter</button>
+      </div>
+    </div>
+    <nz-table nzBordered
+              [nzLoading]="isTableLoading"
+              [nzData]="jobSearchResult.items"
+              [nzFrontPagination]="false"
+              [nzTotal]="jobSearchResult.totalItems"
+              [nzPageSize]="jobPageable.size"
+              [nzPageIndex]="jobPageable.page"
+              (nzQueryParams)="doQuery($event)"
+              nzSize="small"
+              nzTableLayout="fixed">
+      <thead>
+      <tr>
+        <th nzWidth="120px">Date</th>
+        <th>Account Name</th>
+        <th nzWidth="180px">Domain</th>
+        <th>Type</th>
+        <th>Activity</th>
+        <th>Event Type</th>
+        <th nzWidth="100px">Status</th>
+        <th nzWidth="88px">Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of jobSearchResult.items; let i = index">
+        <td>{{ data.createdTimestamp | date: dateTimeFormat() }}</td>
+        <td>{{ data.accountName }}</td>
+        <td><nz-tag>{{data.domainType}}</nz-tag></td>
+        <td>{{ data.typeName }}</td>
+        <td>{{ data.activityName }}</td>
+        <td>{{ data.eventType }} <i nz-tooltip [nzTooltipTitle]="data.scheduledExecutionTimestamp | date : dateTimeFormat()" *ngIf="data.executionMode === 'SCHEDULED'" nz-icon nzType="field-time"></i></td>
+        <td><nz-tag [nzColor]="getStatusTag(data)">{{data.status}}</nz-tag></td>
+        <td>
+          <div><a *ngIf="data.status === 'FAILED'" (click)="doRetry(data)"><i nz-icon nzType="redo" class="mr-2"></i>Retry</a></div>
+          <div><a [routerLink]="['/', 'job', 'detail', data.id]"><i nz-icon nzType="container" class="mr-2"></i>View</a></div>
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </div>
+
+  <nz-modal [nzVisible]="isFilterModalVisible" nzTitle="Add Filter" (nzOnCancel)="doCloseFilterModal()">
+    <div *nzModalContent>
+      <div>
+        <form nz-form [formGroup]="filterForm">
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Field</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <nz-select
+                formControlName="field"
+                (ngModelChange)="doFilterFieldChange($event)"
+              >
+                <ng-container *ngFor="let field of filterOptions; let i = index">
+                  <nz-option [nzValue]="field.key" [nzLabel]="field.label"></nz-option>
+                </ng-container>
+              </nz-select>
+              <input type="hidden" formControlName="type"/>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item *ngIf="filterForm.get('type')!.value === 'TEXT'">
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Value</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <input nz-input formControlName="value"/>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item *ngIf="filterForm.get('type')!.value === 'OPTION'">
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Value</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <nz-select formControlName="value">
+                <ng-container *ngFor="let option of options; let i = index">
+                  <nz-option [nzValue]="option" [nzLabel]="option"></nz-option>
+                </ng-container>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </form>
+      </div>
+    </div>
+    <div *nzModalFooter>
+      <button nz-button nzType="primary" (click)="doAddFilter()">Add</button>
+    </div>
+  </nz-modal>
+</div>

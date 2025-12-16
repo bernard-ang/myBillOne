@@ -1,0 +1,8 @@
+export enum JobStatus {
+  NEW = 'NEW',
+  QUEUED = 'QUEUED',
+  PROCESSING = 'PROCESSING',
+  FAILED = 'FAILED',
+  SUCCESS = 'SUCCESS',
+  SUBMITTED = 'SUBMITTED',
+}

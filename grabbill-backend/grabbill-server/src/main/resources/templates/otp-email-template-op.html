@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+    <style>
+        .otp-label {
+            background-color: coral;
+            border: none;
+            color: white;
+            padding: 10px 24px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <p style="margin-bottom:2cm;">
+            <img src='{{ companyLogo }}' />
+        </p>
+    </div>
+    <div>
+        <h2 style="margin-bottom:1cm;">Your MFA Login OTP</h2>
+    </div>
+
+    <div style="margin-top: 10px">Dear {{ name }},</div>
+        <br>
+    <div>Thank you for using Multi-Factor Authentication (MFA). As you're logging in, we've generated a One-Time Password (OTP) to ensure it's really you.</div>
+        <br/>
+    <div>Your OTP for login is:</div>
+        <br/>
+    <div>
+        <span class="otp-label">
+            <b>{{ otp }}</b>
+        </span>
+    </div>
+        <br>
+    </div>
+        <br><br><br>
+    <div>Best regards,</div>
+        <br>
+    <div>{{ companyName }} Team</div>
+</body>
+</html>

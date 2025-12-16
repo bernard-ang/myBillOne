@@ -1,0 +1,4 @@
+export enum DiscountType {
+  ABSOLUTE_AMOUNT = 'ABSOLUTE_AMOUNT',
+  PERCENTAGE = 'PERCENTAGE',
+}

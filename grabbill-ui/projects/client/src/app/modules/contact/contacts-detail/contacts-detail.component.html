@@ -1,0 +1,60 @@
+<div container class="mx-auto">
+  <div class="pb-4">
+    <grabbill-client-page-header
+      title="Contacts"
+      description="Stores your networking database in group and keep it up-to-date"> </grabbill-client-page-header>
+  </div>
+
+  <nz-tabset nzSize="large" nzLinkRouter>
+    <nz-tab>
+      <a
+        *nzTabLink
+        nz-tab-link
+        [routerLink]="['.']"
+        [queryParams]="{ tab: 'contacts' }"
+        queryParamsHandling="merge"
+      >
+        All Contacts
+      </a>
+
+      <grabbill-client-contact-list
+        [store]="store"
+        [messageService]="messageService"
+      ></grabbill-client-contact-list>
+    </nz-tab>
+
+    <nz-tab>
+      <a
+        *nzTabLink
+        nz-tab-link
+        [routerLink]="['.']"
+        [queryParams]="{ tab: 'groups' }"
+        queryParamsHandling="merge"
+      >
+        Groups
+      </a>
+
+      <grabbill-client-contact-group-list
+        [store]="store"
+        [messageService]="messageService"
+      ></grabbill-client-contact-group-list>
+    </nz-tab>
+
+    <nz-tab>
+      <a
+        *nzTabLink
+        nz-tab-link
+        [routerLink]="['.']"
+        [queryParams]="{ tab: 'fields' }"
+        queryParamsHandling="merge"
+      >
+        Fields
+      </a>
+
+      <grabbill-client-contact-field-list
+        [store]="store"
+        [messageService]="messageService"
+      ></grabbill-client-contact-field-list>
+    </nz-tab>
+  </nz-tabset>
+</div>

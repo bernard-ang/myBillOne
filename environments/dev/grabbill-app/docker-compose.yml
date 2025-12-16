@@ -1,0 +1,80 @@
+version: "3.9"
+
+services:
+  grabbill-website:
+    image: grabbill-website
+    restart: unless-stopped
+    networks:
+      - traefik-network
+    labels:
+      traefik.enable: true
+      traefik.docker.network: traefik-network
+      traefik.http.routers.grabbill-website.service: grabbill-website
+      traefik.http.routers.grabbill-website.rule: Host(`www.grabbill.localhost`)
+      traefik.http.routers.grabbill-website.entrypoints: websecure
+      traefik.http.routers.grabbill-website.tls: true
+      traefik.http.services.grabbill-website.loadbalancer.server.port: 80
+
+  grabbill-client:
+    image: grabbill-client
+    restart: unless-stopped
+    networks:
+      - traefik-network
+    labels:
+      traefik.enable: true
+      traefik.docker.network: traefik-network
+      traefik.http.routers.grabbill-client.service: grabbill-client
+      traefik.http.routers.grabbill-client.rule: Host(`app.grabbill.localhost`)
+      traefik.http.routers.grabbill-client.entrypoints: websecure
+      traefik.http.routers.grabbill-client.tls: true
+      traefik.http.services.grabbill-client.loadbalancer.server.port: 80
+
+  grabbill-admin:
+    image: grabbill-admin
+    restart: unless-stopped
+    networks:
+      - traefik-network
+    labels:
+      traefik.enable: true
+      traefik.docker.network: traefik-network
+      traefik.http.routers.grabbill-admin.service: grabbill-admin
+      traefik.http.routers.grabbill-admin.rule: Host(`admin.grabbill.localhost`)
+      traefik.http.routers.grabbill-admin.entrypoints: websecure
+      traefik.http.routers.grabbill-admin.tls: true
+      traefik.http.services.grabbill-admin.loadbalancer.server.port: 80
+
+  grabbill-server:
+    image: grabbill-server
+    restart: unless-stopped
+    networks:
+      - traefik-network
+    labels:
+      traefik.enable: true
+      traefik.docker.network: traefik-network
+      traefik.http.routers.grabbill-server.service: grabbill-server
+      traefik.http.routers.grabbill-server.rule: Host(`api.grabbill.localhost`)
+      traefik.http.routers.grabbill-server.entrypoints: websecure
+      traefik.http.routers.grabbill-server.tls: true
+      traefik.http.services.grabbill-server.loadbalancer.server.port: 8080
+    environment:
+      spring.datasource.url: jdbc:mariadb://mariadb:3306/grabbill
+
+  grabbill-engine:
+    image: grabbill-engine
+    restart: unless-stopped
+    networks:
+      - traefik-network
+    labels:
+      traefik.enable: true
+      traefik.docker.network: traefik-network
+      traefik.http.routers.grabbill-engine.service: grabbill-engine
+      traefik.http.routers.grabbill-engine.rule: Host(`engine.grabbill.localhost`)
+      traefik.http.routers.grabbill-engine.entrypoints: websecure
+      traefik.http.routers.grabbill-engine.tls: true
+      traefik.http.services.grabbill-engine.loadbalancer.server.port: 8080
+    environment:
+      spring.rabbitmq.host: rabbitmq
+
+networks:
+  traefik-network:
+    external: true

@@ -1,0 +1,58 @@
+<nz-spin [nzSpinning]="isLoading">
+  <div container class="mx-auto">
+    <div class="pb-2">
+      <grabbill-client-page-header
+        title="SFTP Settings"
+        [buttonTemplate]="buttonTemplate"
+      >
+        <ng-template #buttonTemplate>
+          <div class="mb-2">
+            <button (click)="doSave()" nz-button nzType="primary">Save</button>
+          </div>
+        </ng-template>
+      </grabbill-client-page-header>
+    </div>
+
+    <form nz-form [formGroup]="form" nzLayout="vertical">
+      <div class="flex gap-4 items-stretch">
+        <div class="flex-1">
+          <div class="pb-4">
+            <nz-card>
+              <div class="flex gap-4">
+                <nz-form-item class="flex-grow">
+                  <nz-form-label nzRequired>Host</nz-form-label>
+                  <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['host'])">
+                    <input nz-input formControlName="host" />
+                  </nz-form-control>
+                </nz-form-item>
+                <nz-form-item class="flex-grow">
+                  <nz-form-label nzRequired>Port</nz-form-label>
+                  <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['port'])">
+                    <nz-input-number
+                      formControlName="port"
+                      [nzMin]="0"
+                      [nzMax]="9999999"
+                      [nzStep]="1"
+                    ></nz-input-number>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <nz-form-item>
+                <nz-form-label nzRequired>Username</nz-form-label>
+                <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['username'])">
+                  <input nz-input formControlName="username" />
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label nzRequired>Password</nz-form-label>
+                <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['password'])">
+                  <input type="password" nz-input formControlName="password" />
+                </nz-form-control>
+              </nz-form-item>
+            </nz-card>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</nz-spin>

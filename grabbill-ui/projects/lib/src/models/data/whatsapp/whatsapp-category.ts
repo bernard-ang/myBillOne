@@ -1,0 +1,5 @@
+export enum WhatsappCategory {
+  UTILITY = 'UTILITY',
+  MARKETING = 'MARKETING',
+  AUTHENTICATION = 'AUTHENTICATION',
+}

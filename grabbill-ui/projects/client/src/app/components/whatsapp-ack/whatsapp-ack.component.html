@@ -1,0 +1,16 @@
+<div box>
+  <div title>Acknowledgement</div>
+  <div >
+    <div class="pt-4 pb-8 text-left">
+      <div *ngIf="status === 'success'; else failed">
+        You have successfully acknowledge following WhatsApp message.
+      </div>
+      <ng-template #failed>
+        You have failed acknowledge following WhatsApp message. Please contact administrator if you have any questions.
+      </ng-template>
+    </div>
+
+    <a [href]="environment.websiteUrl">Back to website</a>
+  </div>
+
+</div>

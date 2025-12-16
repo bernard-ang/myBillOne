@@ -1,0 +1,108 @@
+@import '../../../styles/variables';
+
+[main-section] {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: url("/assets/contact-us.jpg");
+  background-size: auto 180px;
+  height: 180px;
+
+  @media @media-md {
+    background-size: auto 300px;
+    height: 300px;
+  }
+
+  @media @media-lg {
+    background-size: auto 500px;
+    height: 500px;
+  }
+
+  @media @media-xl {
+    height: 540px;
+    background-size: cover;
+  }
+
+  [contact-us-container] {
+    height: 100%;
+    display: flex;
+    align-items: center;
+
+    [contact-us-line] {
+      border-left: 3px solid #f15a24;
+      margin-bottom: 52px;
+      height: 18px;
+      margin-right: 4px;
+
+      @media @media-md {
+        border-left: 4px solid @primary-color;
+        margin-bottom: 64px;
+        height: 26px;
+        margin-right: 8px;
+      }
+
+      @media @media-lg {
+        border-left: 6px solid @primary-color;
+        margin-bottom: 80px;
+        height: 34px;
+        margin-right: 12px;
+      }
+
+      @media @media-xl {
+        border-left: 8px solid @primary-color;
+        height: 40px;
+        margin-right: 22px;
+        margin-bottom: 90px;
+      }
+    }
+
+    [contact-us-title] {
+      font-weight: 600;
+      font-size: 20px;
+      line-height: 24px;
+      padding-bottom: 4px;
+
+      @media @media-md {
+        padding-bottom: 16px;
+        font-size: 38px;
+        line-height: 42px;
+      }
+
+      @media @media-lg {
+        font-size: 47px;
+        line-height: 53px;
+      }
+
+      @media @media-xl {
+        padding-bottom: 20px;
+        font-size: 58px;
+        line-height: 64px;
+      }
+    }
+
+    [contact-us-description] {
+      font-size: 10px;
+      line-height: 16px;
+
+      @media @media-md {
+        font-size: 15px;
+        line-height: 24px;
+      }
+
+      @media @media-lg {
+        font-size: 20px;
+        line-height: 32px;
+      }
+
+      @media @media-xl {
+        font-size: 23px;
+        line-height: 35px;
+      }
+    }
+  }
+}
+
+[contact-us-button] {
+  font-size: 23px;
+  width: 120px;
+  height: 50px;
+}

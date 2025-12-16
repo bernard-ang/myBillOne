@@ -1,0 +1,70 @@
+<div>
+  <div class="flex pb-4">
+    <div *ngIf="hasSearch" class="flex-1">
+      <nz-input-group [nzPrefix]="searchIcon">
+        <input type="text" (input)="doSearch($event)" nz-input [placeholder]="searchText" />
+      </nz-input-group>
+      <ng-template #searchIcon>
+        <i nz-icon nzType="search" class="mr-2"></i>
+      </ng-template>
+    </div>
+    <div *ngIf="hasSort" class="flex-1 text-right">
+      <span class="mr-2">Sort by</span>
+      <nz-select (ngModelChange)="doSortChange($event)" [formControl]="sortBy">
+        <nz-option nzValue="lastModifiedDate" nzLabel="Last Modified"></nz-option>
+        <nz-option nzValue="createdDate" nzLabel="Created Date"></nz-option>
+      </nz-select>
+    </div>
+    <ng-container *ngIf="additionalButtonTemplate">
+      <ng-container *ngTemplateOutlet="additionalButtonTemplate"></ng-container>
+    </ng-container>
+  </div>
+  <div *ngIf="isInitialize">
+    <nz-card>
+      <nz-list [nzLoading]="isListLoading" *ngIf="result$ | async as result">
+        <nz-empty *ngIf="result.totalItems === 0" [nzNotFoundContent]="noRecordText"></nz-empty>
+        <ng-container *ngIf="result.totalItems > 0">
+          <nz-list-item list-item *ngFor="let item of result.items">
+            <ng-container>
+              <div class="pr-4">
+                <nz-avatar [nzIcon]="icon" icon-background></nz-avatar>
+              </div>
+              <div class="w-5/12 pr-4">
+                <a (click)="doSelect(item)"
+                >
+                  <div list-title>{{ item.name }}</div>
+                </a
+                >
+                <div list-description *ngIf="getSubtitle">{{ getSubtitle(item) }}</div>
+                <ng-container *ngIf="subtitleTemplate">
+                  <ng-container *ngTemplateOutlet="subtitleTemplate; context: { $implicit: item }"></ng-container>
+                </ng-container>
+              </div>
+              <ng-container *ngIf="statusTemplate">
+                <ng-container *ngTemplateOutlet="statusTemplate; context: { $implicit: item }"></ng-container>
+              </ng-container>
+              <ng-container *ngIf="contentTemplate">
+                <ng-container *ngTemplateOutlet="contentTemplate; context: { $implicit: item }"></ng-container>
+              </ng-container>
+              <ng-container *ngIf="actionsTemplate">
+                <ng-container *ngTemplateOutlet="actionsTemplate; context: { $implicit: item }"></ng-container>
+              </ng-container>
+            </ng-container>
+          </nz-list-item>
+        </ng-container>
+        <div *ngIf="pageable$ | async as pageable">
+          <div *ngIf="pageable.page < result.totalPages" class="text-center m-4">
+            <button
+              (click)="doLoadMore()"
+              type="button"
+              nz-button
+              nzType="default"
+            >
+              Load more
+            </button>
+          </div>
+        </div>
+      </nz-list>
+    </nz-card>
+  </div>
+</div>

@@ -1,0 +1,44 @@
+<div box>
+  <div box-title>Set Up Your Account</div>
+  <div class="pb-4 text-left">
+  </div>
+  <form nz-form [formGroup]="form" nzLayout="vertical" (ngSubmit)="submitForm()">
+    <nz-form-item>
+      <nz-form-control [nzErrorTip]="getErrorMessage(form.controls['companyName'])">
+        <nz-form-label nzRequired>Company Name</nz-form-label>
+        <nz-input-group nzSize="large">
+          <input type="text" nz-input formControlName="companyName" placeholder="e.g. My Company Name"/>
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control [nzErrorTip]="getErrorMessage(form.controls['companyContactNo'])">
+        <nz-form-label nzRequired>Company Contact Number</nz-form-label>
+        <nz-input-group nzSize="large">
+          <input type="text" nz-input formControlName="companyContactNo" placeholder="e.g. +6012345689"/>
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control [nzErrorTip]="getErrorMessage(form.controls['country'])">
+        <nz-form-label nzRequired>Company Country</nz-form-label>
+        <nz-select nzShowSearch nzSize="large" formControlName="country" nzPlaceHolder="Select a country"
+                   class="activity-type-select flex-grow">
+          <nz-option *ngFor="let country of getCountries()" [nzValue]="country"
+                     [nzLabel]="country.name"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control [nzErrorTip]="getErrorMessage(form.controls['affiliateCode'])">
+        <nz-form-label>Affiliate Code</nz-form-label>
+        <nz-input-group nzSize="large">
+          <input type="text" nz-input formControlName="affiliateCode" placeholder="e.g. code"/>
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+    <button nzSize="large" nz-button nzBlock nzType="primary" [nzLoading]="isLoading">
+      Continue
+    </button>
+  </form>
+</div>

@@ -1,0 +1,155 @@
+<div container class="mx-auto">
+  <div class="mb-4">
+    <nz-breadcrumb>
+      <nz-breadcrumb-item [routerLink]="['/']">
+        <a><i nz-icon class="cursor-pointer" nzType="home"></i></a>
+      </nz-breadcrumb-item>
+      <nz-breadcrumb-item [routerLink]="['/', 'job', 'list']">
+        <a>
+          <i nz-icon nzType="container"></i>
+          <span>Job</span>
+        </a>
+      </nz-breadcrumb-item>
+    </nz-breadcrumb>
+  </div>
+
+  <ng-template #elseType>
+    <nz-skeleton [nzActive]="true" [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+  </ng-template>
+
+  <div *ngIf="job$|async as job; else elseType">
+    <div class="flex">
+      <div class="flex-grow mb-8">
+        <h2 nz-typography title>{{job.activityName}}</h2>
+      </div>
+    </div>
+
+    <div>
+      <div class="pb-8">
+        <nz-descriptions nzTitle="Information" nzBordered [nzColumn]="{ xxl: 4, xl: 4, lg: 4, md: 4, sm: 4, xs: 2 }">
+          <nz-descriptions-item nzTitle="Domain" [nzSpan]="2">{{job.domainType}}</nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Type name" [nzSpan]="2">{{job.typeName}}</nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Account name" [nzSpan]="2">{{job.accountName}}</nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Status" [nzSpan]="2">
+            <nz-tag [nzColor]="getStatusTag(job)">{{job.status}}</nz-tag>
+          </nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Event Type" [nzSpan]="2">{{job.eventType}}</nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Execution Mode" [nzSpan]="2">{{job.executionMode}}</nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Reason" [nzSpan]="2">{{job.reason}}</nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Schedule at" [nzSpan]="2">{{job.scheduledExecutionTimestamp | date: getDateTimeFormat()}}</nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Processing at" [nzSpan]="2">{{job.executionStartTimestamp | date: getDateTimeFormat()}}</nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Processed at" [nzSpan]="2">{{job.executionEndTimestamp | date: getDateTimeFormat()}}</nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Created by" [nzSpan]="2">{{job.createdBy}}</nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Created at" [nzSpan]="2">{{job.createdTimestamp | date: getDateTimeFormat()}}</nz-descriptions-item>
+        </nz-descriptions>
+      </div>
+
+      <div *ngIf="job.domainType === 'DIGITAL_FILING'">
+        <div class="pb-8">
+          <nz-descriptions nzTitle="Record Status" nzBordered [nzColumn]="{ xxl: 4, xl: 4, lg: 4, md: 4, sm: 4, xs: 2 }">
+            <nz-descriptions-item nzTitle="Total records" [nzSpan]="2">{{job.digitalFiling!.totalRecords | number: '1.0'}}</nz-descriptions-item>
+          </nz-descriptions>
+        </div>
+      </div>
+
+      <div *ngIf="job.domainType === 'EMAIL_CAMPAIGN' && job.emailCampaign">
+        <div class="pb-8">
+          <nz-descriptions nzTitle="Email Record Status" nzBordered [nzColumn]="{ xxl: 4, xl: 4, lg: 4, md: 4, sm: 4, xs: 2 }">
+            <nz-descriptions-item nzTitle="Total records" [nzSpan]="2">{{job.emailCampaign.totalRecords | number: '1.0'}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Total sent" [nzSpan]="2">{{job.emailCampaign.totalRecordsSent | number: '1.0'}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Total bounced" [nzSpan]="2">{{job.emailCampaign.totalRecordsBounced | number: '1.0'}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Total skipped" [nzSpan]="2">{{job.emailCampaign.totalRecordsSkipped | number: '1.0'}}</nz-descriptions-item>
+          </nz-descriptions>
+        </div>
+      </div>
+
+      <div *ngIf="job.domainType === 'SMS' && job.sms">
+        <div class="pb-8">
+          <nz-descriptions nzTitle="Record Status" nzBordered [nzColumn]="{ xxl: 4, xl: 4, lg: 4, md: 4, sm: 4, xs: 2 }">
+            <nz-descriptions-item nzTitle="Total records" [nzSpan]="2">{{job.sms.totalRecords | number: '1.0'}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Total sent" [nzSpan]="2">{{job.sms.totalRecordsSent | number: '1.0'}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Total credit used" [nzSpan]="2">{{job.sms.totalCreditUsed | number: '1.0'}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Total error" [nzSpan]="2">{{job.sms.totalRecordsError | number: '1.0'}}</nz-descriptions-item>
+          </nz-descriptions>
+        </div>
+      </div>
+
+      <div *ngIf="job.domainType === 'TRANSACTIONAL_EMAIL' && job.transactionalEmail">
+        <div class="pb-8">
+          <nz-descriptions nzTitle="Email Record Status" nzBordered [nzColumn]="{ xxl: 4, xl: 4, lg: 4, md: 4, sm: 4, xs: 2 }">
+            <nz-descriptions-item nzTitle="Total records" [nzSpan]="2">{{job.transactionalEmail.totalRecords | number: '1.0'}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Total sent" [nzSpan]="2">{{job.transactionalEmail.totalRecordsSent | number: '1.0'}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Total bounced" [nzSpan]="2">{{job.transactionalEmail.totalRecordsBounced | number: '1.0'}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Total skipped" [nzSpan]="2">{{job.transactionalEmail.totalRecordsSkipped | number: '1.0'}}</nz-descriptions-item>
+          </nz-descriptions>
+        </div>
+
+        <div class="pb-8">
+          <nz-descriptions nzTitle="WhatsApp Record Status" nzBordered [nzColumn]="{ xxl: 4, xl: 4, lg: 4, md: 4, sm: 4, xs: 2 }">
+            <nz-descriptions-item nzTitle="Total sent" [nzSpan]="2">{{job.transactionalEmail.whatsAppStatusSent | number: '1.0'}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Total skipped" [nzSpan]="2">{{job.transactionalEmail.whatsAppStatusSkip | number: '1.0'}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Total delivered" [nzSpan]="2">{{job.transactionalEmail.whatsAppStatusDelivered | number: '1.0'}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Total read" [nzSpan]="2">{{job.transactionalEmail.whatsAppStatusRead | number: '1.0'}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Total acknowledged" [nzSpan]="2">{{job.transactionalEmail.whatsAppStatusAcknowledge | number: '1.0'}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Total failed" [nzSpan]="2">{{job.transactionalEmail.whatsAppStatusFailed | number: '1.0'}}</nz-descriptions-item>
+          </nz-descriptions>
+        </div>
+
+        <div class="pb-8">
+          <h5 nz-typography>Email Settings</h5>
+          <nz-descriptions nzBordered [nzColumn]="{ xxl: 4, xl: 4, lg: 4, md: 4, sm: 4, xs: 2 }">
+            <nz-descriptions-item nzTitle="From Email" [nzSpan]="2">{{job.transactionalEmail.fromEmail}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="From Name" [nzSpan]="2">{{job.transactionalEmail.fromName}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Subject" [nzSpan]="4">{{job.transactionalEmail.subject}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Content" [nzSpan]="4">
+              <grabbill-admin-html-preview [html]="job.transactionalEmail.content"></grabbill-admin-html-preview>
+            </nz-descriptions-item>
+          </nz-descriptions>
+        </div>
+
+        <div class="pb-8">
+          <h5 nz-typography>WhatsApp Settings</h5>
+          <nz-descriptions nzBordered [nzColumn]="{ xxl: 4, xl: 4, lg: 4, md: 4, sm: 4, xs: 2 }">
+            <nz-descriptions-item nzTitle="Template Name" [nzSpan]="2">{{job.transactionalEmail.whatsAppTemplateName}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Body" [nzSpan]="2">{{job.transactionalEmail.whatsAppBodyContent}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Document" [nzSpan]="2">
+              <i nz-tooltip="Account Active" *ngIf="job.transactionalEmail.whatsAppDocument" green nz-icon nzType="check" class="mr-2"></i>
+              <i nz-tooltip="Account Inactive" *ngIf="!job.transactionalEmail.whatsAppDocument" red nz-icon nzType="close" class="mr-2"></i>
+            </nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Footer" [nzSpan]="2">{{job.transactionalEmail.whatsAppFooterContent}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Button" [nzSpan]="4">{{job.transactionalEmail.whatsAppButton}}</nz-descriptions-item>
+          </nz-descriptions>
+        </div>
+      </div>
+
+      <div *ngIf="job.domainType === 'WHATSAPP' && job.whatsApp">
+        <div class="pb-8">
+          <nz-descriptions nzTitle="Record Status" nzBordered [nzColumn]="{ xxl: 4, xl: 4, lg: 4, md: 4, sm: 4, xs: 2 }">
+            <nz-descriptions-item nzTitle="Total records" [nzSpan]="2">{{job.whatsApp.totalRecords | number: '1.0'}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Total sent" [nzSpan]="2">{{job.whatsApp.totalRecordsSent | number: '1.0'}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Total skipped" [nzSpan]="2">{{job.whatsApp.totalRecordsSkipped | number: '1.0'}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Total delivered" [nzSpan]="2">{{job.whatsApp.totalRecordsDelivered | number: '1.0'}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Total read" [nzSpan]="2">{{job.whatsApp.totalRecordsRead | number: '1.0'}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Total acknowledged" [nzSpan]="2">{{job.whatsApp.totalRecordsAcknowledged | number: '1.0'}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Total failed" [nzSpan]="2">{{job.whatsApp.totalRecordsFailed | number: '1.0'}}</nz-descriptions-item>
+          </nz-descriptions>
+        </div>
+
+        <div class="pb-8">
+          <h5 nz-typography>Settings</h5>
+          <nz-descriptions nzBordered [nzColumn]="{ xxl: 4, xl: 4, lg: 4, md: 4, sm: 4, xs: 2 }">
+            <nz-descriptions-item nzTitle="Template Name" [nzSpan]="2">{{job.whatsApp.whatsAppTemplateName}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Body" [nzSpan]="2">{{job.whatsApp.whatsAppBodyContent}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Document" [nzSpan]="2">
+              <i nz-tooltip="Account Active" *ngIf="job.whatsApp.whatsAppDocument" green nz-icon nzType="check" class="mr-2"></i>
+              <i nz-tooltip="Account Inactive" *ngIf="!job.whatsApp.whatsAppDocument" red nz-icon nzType="close" class="mr-2"></i>
+            </nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Footer" [nzSpan]="2">{{job.whatsApp.whatsAppFooterContent}}</nz-descriptions-item>
+            <nz-descriptions-item nzTitle="Button" [nzSpan]="4">{{job.whatsApp.whatsAppButton}}</nz-descriptions-item>
+          </nz-descriptions>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

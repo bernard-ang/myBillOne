@@ -1,0 +1,573 @@
+<div container class="mx-auto">
+  <ng-container *ngIf="digitalFilingActivityFiles$ | async as digitalFilingActivityFiles">
+    <div top>
+      <grabbill-client-breadcrumb
+        rootTitle="Digital Filing"
+        [rootLink]="['/', 'digital-filing', 'list']"
+        [hasCrumb2]="true"
+        [crumb2Object]="digitalFilingType$ | async"
+        [crumb2Link]="['/', 'digital-filing', 'detail', typeId]"
+        [crumb2QueryParam]="{ tab: 'activities' }"
+      ></grabbill-client-breadcrumb>
+
+      <div class="mb-8">
+        <grabbill-client-page-header title="Digital Filing Activity" [buttonTemplate]="buttonTemplate">
+          <ng-template #buttonTemplate>
+            <div class="flex items-center">
+              <a (click)="doSubmitForm(true, digitalFilingActivityFiles)" class="mr-4">Finish later</a>
+              <button (click)="doSubmitForm(false, digitalFilingActivityFiles)" nz-button nzType="primary">
+                Upload
+              </button>
+            </div>
+          </ng-template>
+        </grabbill-client-page-header>
+      </div>
+
+      <div class="pb-8">
+        <nz-steps [nzCurrent]="index" (nzIndexChange)="doStepChange($event)">
+          <nz-step nzTitle="Setup Template"></nz-step>
+          <nz-step [nzTitle]="getIndexDataStepTitle(isSftp)"></nz-step>
+          <nz-step nzTitle="Upload Files" *ngIf="!isSftp"></nz-step>
+        </nz-steps>
+      </div>
+    </div>
+
+    <ng-template #elseActivity>
+      <div nz-list nzBordered>
+        <div nz-list-item>
+          <nz-skeleton [nzAvatar]="true" [nzActive]="true" [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+        </div>
+      </div>
+    </ng-template>
+
+    <div top-span>
+      <ng-container *ngIf="digitalFilingActivity$ | async as digitalFilingActivity; else elseActivity">
+        <ng-container *ngIf="digitalFilingType$ | async as digitalFilingType">
+          <form nz-form [formGroup]="form" nzLayout="horizontal">
+            <ul class="bg-white" nz-list nzBordered nzSize="large">
+              <li nz-list-item list-item>
+                <div class="pr-4 pt-1">
+                  <i class="text-lg" nz-icon nzType="info-circle"></i>
+                </div>
+                <div #step1 class="flex-grow">
+                  <h5 nz-typography class="pb-4">Info</h5>
+                  <div>
+                    <nz-form-item>
+                      <nz-form-label [nzSpan]="5" nzRequired>Activity Name</nz-form-label>
+                      <nz-form-control
+                        [nzSpan]="18"
+                        nzHasFeedback
+                        [nzErrorTip]="getErrorMessage(form.controls['name'])"
+                      >
+                        <input nz-input formControlName="name" placeholder="name" />
+                      </nz-form-control>
+                    </nz-form-item>
+
+                    <nz-form-item>
+                      <nz-form-label [nzSpan]="5">Upload via SFTP</nz-form-label>
+                      <nz-form-control [nzSpan]="3">
+                        <nz-switch formControlName="sftp" (ngModelChange)="toggleSftp()"></nz-switch>
+                      </nz-form-control>
+                    </nz-form-item>
+
+                    <nz-form-item>
+                      <nz-form-label [nzSpan]="5" nzRequired>SFTP Folder</nz-form-label>
+                      <nz-form-control
+                        [nzSpan]="18"
+                        nzHasFeedback
+                        [nzErrorTip]="getErrorMessage(form.controls['sftpPath'])"
+                      >
+                        <nz-input-group [nzAddOnBefore]="sftpPrePath" nzAddOnAfter="/in">
+                          <input nz-input formControlName="sftpPath" placeholder="Job folder name" />
+                        </nz-input-group>
+                      </nz-form-control>
+                    </nz-form-item>
+                  </div>
+                </div>
+              </li>
+              <li nz-list-item list-item>
+                <div class="pr-4 pt-1">
+                  <i class="text-lg" nz-icon nzType="table"></i>
+                </div>
+                <div #step2 class="flex-grow">
+                  <h5 nz-typography class="pb-4" *ngIf="!isSftp">Upload Index Data</h5>
+                  <h5 nz-typography class="pb-4" *ngIf="isSftp">Index Data Settings</h5>
+                  <div>
+                    <nz-form-item>
+                      <div>
+                        <nz-collapse collapse-table>
+                          <nz-collapse-panel nzHeader="Index Fields Settings" nzActive="false">
+                            <nz-table
+                              nzBordered
+                              [nzShowPagination]="false"
+                              [nzData]="digitalFilingType.indexFields"
+                              nzSize="small"
+                              nzTableLayout="fixed"
+                            >
+                              <thead>
+                                <tr>
+                                  <th nzWidth="30%">Label</th>
+                                  <th nzWidth="30%">Excel Header</th>
+                                  <th nzWidth="18%">Mandatory</th>
+                                  <th nzWidth="16%">
+                                    Type
+                                    <i
+                                      nz-tooltip
+                                      nzTooltipTitle="Sample date format (DD/MM/YYYY)"
+                                      nz-icon
+                                      nzType="info-circle"
+                                      nzTheme="outline"
+                                    ></i>
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                              <tr>
+                                <td>Code</td>
+                                <td>code</td>
+                                <td><i nz-icon nzType="check"></i></td>
+                                <td>TEXT</td>
+                              </tr>
+                                <tr *ngFor="let data of digitalFilingType.indexFields; let i = index">
+                                  <td>{{ data.label }}</td>
+                                  <td>{{ data.header }}</td>
+                                  <td><i *ngIf="data.required" nz-icon nzType="check"></i></td>
+                                  <td>{{ data.dataType }}</td>
+                                </tr>
+                              </tbody>
+                            </nz-table>
+                          </nz-collapse-panel>
+                          <nz-collapse-panel nzHeader="Sample Excel" nzActive="false">
+                            <div class="text-right py-2 pr-2">
+                              <button
+                                (click)="doDownloadIndexRow(digitalFilingType)"
+                                type="button"
+                                nz-button
+                                nzType="default"
+                              >
+                                Download
+                              </button>
+                            </div>
+                            <nz-table
+                              nzBordered
+                              [nzShowPagination]="false"
+                              [nzData]="getIndexFields(digitalFilingType)"
+                              nzSize="small"
+                              nzTableLayout="fixed"
+                            >
+                              <thead>
+                                <tr>
+                                  <th class="excel-header-cell">
+                                    Code
+                                  </th>
+                                  <th class="excel-header-cell" *ngFor="let data of digitalFilingType.indexFields; let i = index">
+                                    {{ data.header }}
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <td>{{ digitalFilingType.code }}</td>
+                                  <td *ngFor="let data of digitalFilingType.indexFields; let i = index">
+                                    {{ getExcelSampleIndexData(data) }}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </nz-table>
+                          </nz-collapse-panel>
+                        </nz-collapse>
+                      </div>
+                    </nz-form-item>
+                    <nz-form-item *ngIf="!isSftp" formArrayName="indexRows">
+                      <div>
+                        <div class="pb-4">
+                          <nz-spin [nzSpinning]="!canUploadIndexRow">
+                            <nz-upload
+                              nzType="drag"
+                              [nzMultiple]="false"
+                              [nzBeforeUpload]="beforeUploadIndexRow(digitalFilingType)"
+                              nzAccept="text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                              nzFileType="text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                            >
+                              <p class="ant-upload-drag-icon">
+                                <i nz-icon nzType="file"></i>
+                              </p>
+                              <p class="ant-upload-text">Click or drag file (CSV / Excel) to this area to upload</p>
+                              <p class="ant-upload-hint">Excel header columns must match index field settings.</p>
+                            </nz-upload>
+                          </nz-spin>
+                        </div>
+
+                        <div
+                          missing-error
+                          class="pb-4"
+                          *ngIf="getMissingIndexRows(digitalFilingActivityFiles).length > 0"
+                        >
+                          <nz-collapse>
+                            <ng-template #missingIndexRowHeader>
+                              <span class="text-red-500"
+                                ><i nz-icon nzType="close-circle" nzTheme="fill"></i> Missing index rows:
+                                {{ getMissingIndexRows(digitalFilingActivityFiles).length }}</span
+                              >
+                            </ng-template>
+                            <nz-collapse-panel [nzHeader]="missingIndexRowHeader" [nzActive]="false">
+                              <p class="whitespace-pre-line m-0 text-red-500">
+                                {{ getMissingIndexRows(digitalFilingActivityFiles).join(", ") }}
+                              </p>
+                            </nz-collapse-panel>
+                          </nz-collapse>
+                        </div>
+
+                        <div class="flex items-center pb-4">
+                          <div class="flex-1">
+                            <nz-input-group [nzPrefix]="searchIcon">
+                              <input
+                                (input)="doSearchIndexRow($event)"
+                                type="text"
+                                nz-input
+                                placeholder="Find by attachment filename"
+                              />
+                            </nz-input-group>
+                            <ng-template #searchIcon>
+                              <i nz-icon nzType="search" class="mr-2"></i>
+                            </ng-template>
+                          </div>
+                          <div class="flex-1 text-right">
+                            <button (click)="openIndexRowForm()" type="button" nz-button nzType="default">
+                              Add row
+                            </button>
+                          </div>
+                        </div>
+                        <nz-table
+                          #indexRowTable
+                          nzBordered
+                          [nzShowPagination]="true"
+                          [nzPageSize]="5"
+                          [nzData]="getFilteredIndexRow()"
+                          nzSize="small"
+                          nzTableLayout="fixed"
+                        >
+                          <thead>
+                            <tr>
+                              <th nzWidth="44px">No</th>
+                              <th *ngFor="let fieldLabel of getIndexFields(digitalFilingType)">{{ fieldLabel }}</th>
+                              <th nzWidth="32px"></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let control of indexRowTable.data; let i = index" [formGroupName]="i">
+                              <td>{{ control.get("seqOrder")!.value }}</td>
+                              <td *ngFor="let value of getIndexRowValues(control, digitalFilingType)">{{ value }}</td>
+                              <td>
+                                <a
+                                  (click)="
+                                    doDeleteIndexRow(
+                                      control.get('text1')!.value,
+                                      formIndexRows,
+                                      control.get('seqOrder')!.value
+                                    )
+                                  "
+                                  ><i nz-icon nzType="delete"></i
+                                ></a>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </nz-table>
+                      </div>
+                    </nz-form-item>
+                  </div>
+                </div>
+              </li>
+              <li nz-list-item list-item *ngIf="!isSftp">
+                <div class="pr-4 pt-1">
+                  <i class="text-lg" nz-icon nzType="file"></i>
+                </div>
+                <div #step3 class="flex-grow">
+                  <h5 nz-typography class="pb-4">Upload Files</h5>
+                  <div>
+                    <nz-form-item>
+                      <div class="w-full">
+                        <div class="pb-4">
+                          <nz-spin [nzSpinning]="!canUploadAttachment">
+                            <nz-upload nzType="drag" [nzMultiple]="true" [nzBeforeUpload]="beforeUploadAttachment">
+                              <p class="ant-upload-drag-icon">
+                                <i nz-icon nzType="file"></i>
+                              </p>
+                              <p class="ant-upload-text">Click or drag file to this area to upload</p>
+                            </nz-upload>
+                          </nz-spin>
+                        </div>
+
+                        <div
+                          missing-error
+                          class="pb-4"
+                          *ngIf="getMissingAttachments(digitalFilingActivityFiles).length > 0"
+                        >
+                          <nz-collapse>
+                            <ng-template #missingAttachmentHeader>
+                              <span class="text-red-500"
+                                ><i nz-icon nzType="close-circle" nzTheme="fill"></i> Missing attachments:
+                                {{ getMissingAttachments(digitalFilingActivityFiles).length }} files</span
+                              >
+                            </ng-template>
+                            <nz-collapse-panel [nzHeader]="missingAttachmentHeader" [nzActive]="false">
+                              <p class="whitespace-pre-line m-0 text-red-500">
+                                {{ getMissingAttachments(digitalFilingActivityFiles).join(", ") }}
+                              </p>
+                            </nz-collapse-panel>
+                          </nz-collapse>
+                        </div>
+
+                        <div>
+                          <ul
+                            nz-list
+                            nzBordered
+                            nzSize="small"
+                            [nzDataSource]="getFilterAttachments(digitalFilingActivityFiles)"
+                            [nzPagination]="pagination"
+                          >
+                            <nz-list-header>
+                              <div class="flex items-center">
+                                <div class="flex-1">
+                                  <nz-input-group [nzPrefix]="searchIcon">
+                                    <input
+                                      type="text"
+                                      nz-input
+                                      (input)="doSearchAttachment($event)"
+                                      placeholder="Find by attachment filename"
+                                    />
+                                  </nz-input-group>
+                                  <ng-template #searchIcon>
+                                    <i nz-icon nzType="search" class="mr-2"></i>
+                                  </ng-template>
+                                </div>
+                                <div class="flex-1 text-right">
+                                  <button type="button" (click)="doDeleteAllAttachments()" nz-button nzType="default">
+                                    Delete All
+                                  </button>
+                                </div>
+                              </div>
+                            </nz-list-header>
+
+                            <li
+                              nz-list-item
+                              *ngFor="let item of doPageAttachments(digitalFilingActivityFiles)"
+                              nzNoFlex
+                            >
+                              <ul nz-list-item-actions>
+                                <nz-list-item-action>
+                                  <a (click)="doDeleteAttachment(item)">Delete</a>
+                                </nz-list-item-action>
+                              </ul>
+                              {{ item.name }}
+                            </li>
+                          </ul>
+                          <ng-template #pagination>
+                            <nz-pagination
+                              [nzPageIndex]="attachmentPageIndex"
+                              [nzPageSize]="attachmentPageSize"
+                              [nzTotal]="getFilterAttachments(digitalFilingActivityFiles).length"
+                              (nzPageIndexChange)="doAttachmentPageIndexChange($event)"
+                            ></nz-pagination>
+                          </ng-template>
+                        </div>
+                      </div>
+                    </nz-form-item>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </form>
+
+          <nz-modal
+            [nzVisible]="isRowFileModalVisible"
+            nzTitle="Invalid Upload"
+            nzWidth="80%"
+            (nzOnCancel)="doCloseRowFileModal()"
+          >
+            <div *nzModalContent>
+              <nz-table [nzData]="[{}]" [nzShowPagination]="false">
+                <thead>
+                  <tr>
+                    <th nzWidth="200px">Error</th>
+                    <th>Filenames</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngIf="getMissingIndexRows(digitalFilingActivityFiles).length > 0">
+                    <td>Missing index rows</td>
+                    <td>
+                      <div *ngFor="let attachment of getMissingIndexRows(digitalFilingActivityFiles)">
+                        {{ attachment }}
+                      </div>
+                    </td>
+                  </tr>
+                  <tr *ngIf="getMissingAttachments(digitalFilingActivityFiles).length > 0">
+                    <td>Missing attachments</td>
+                    <td>
+                      <div *ngFor="let attachment of getMissingAttachments(digitalFilingActivityFiles)">
+                        {{ attachment }}
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </nz-table>
+            </div>
+            <div *nzModalFooter>
+              <button type="button" nz-button nzType="primary" (click)="doCloseRowFileModal()">Close</button>
+            </div>
+          </nz-modal>
+        </ng-container>
+      </ng-container>
+    </div>
+  </ng-container>
+</div>
+
+<nz-drawer
+  [nzBodyStyle]="{ overflow: 'auto' }"
+  [nzWidth]="540"
+  [nzClosable]="false"
+  [nzVisible]="isIndexRowFormVisible"
+  nzTitle="Add New Row"
+  [nzFooter]="createFooterTemplate"
+  (nzOnClose)="closeIndexRowForm()"
+  *ngIf="addFormControls.length > 0"
+>
+  <form nz-form *nzDrawerContent [formGroup]="indexRowForm" nzLayout="vertical">
+    <div>
+      <div>
+        <ng-container *ngFor="let addFormControl of addFormControls" [ngSwitch]="addFormControl.type">
+          <nz-form-item *ngSwitchCase="'TEXT'">
+            <nz-form-label [nzRequired]="addFormControl.required">{{ addFormControl.label }}</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(indexRowForm.controls[addFormControl.name])">
+              <input nz-input [formControlName]="addFormControl.name" placeholder="" />
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item *ngSwitchCase="'NUMBER'">
+            <nz-form-label [nzRequired]="addFormControl.required">{{ addFormControl.label }}</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(indexRowForm.controls[addFormControl.name])">
+              <nz-input-number
+                [formControlName]="addFormControl.name"
+                [nzMin]="-9999999"
+                [nzMax]="9999999"
+                [nzStep]="1"
+              ></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item *ngSwitchCase="'DATE'">
+            <nz-form-label [nzRequired]="addFormControl.required">{{ addFormControl.label }}</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(indexRowForm.controls[addFormControl.name])">
+              <nz-date-picker [formControlName]="addFormControl.name"></nz-date-picker>
+            </nz-form-control>
+          </nz-form-item>
+        </ng-container>
+      </div>
+    </div>
+  </form>
+
+  <ng-template #createFooterTemplate>
+    <div class="text-right">
+      <button type="button" nz-button [nzLoading]="isIndexRowFormLoading" nzType="primary" (click)="doSubmitIndexRow()">
+        Add row
+      </button>
+    </div>
+  </ng-template>
+</nz-drawer>
+
+<nz-modal
+  [nzVisible]="isIndexRowErrorModalVisible"
+  nzTitle="Upload Errors"
+  [nzWidth]="'80%'"
+  (nzOnCancel)="doCloseIndexRowErrorModal()"
+>
+  <div *nzModalContent>
+    <div>
+      <div class="pb-2">Total Rows: {{ indexRows.length }}</div>
+      <div class="pb-2">Total Errors: {{ indexRowErrors.length }}</div>
+    </div>
+    <div error-table>
+      <nz-table [nzData]="indexRowErrors" [nzShowPagination]="false">
+        <thead>
+          <tr>
+            <th>Row</th>
+            <th>Errors</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of indexRowErrors">
+            <td>{{ data.row }}</td>
+            <td>
+              <div *ngFor="let message of data.messages">{{ message }}</div>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </div>
+  </div>
+  <div *nzModalFooter>
+    <button type="button" nz-button nzType="primary" (click)="doCloseIndexRowErrorModal()">Close</button>
+  </div>
+</nz-modal>
+
+<nz-modal
+  [nzVisible]="isSftpErrorModalVisible"
+  nzTitle="SFTP Upload Errors"
+  [nzWidth]="'80%'"
+  (nzOnCancel)="doCloseSftpErrorModal()"
+>
+  <div *nzModalContent>
+    <div>
+      <div *ngIf="summary && summary.genericErrors && summary.genericErrors.length > 0">
+        <nz-table [nzData]="summary.genericErrors" [nzShowPagination]="false">
+          <thead>
+          <tr>
+            <th>Errors</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let data of summary.genericErrors">
+            <td>{{ data }}</td>
+          </tr>
+          </tbody>
+        </nz-table>
+      </div>
+
+      <div *ngIf="summary && summary.fileErrors && Object.keys(summary.fileErrors).length > 0">
+        <nz-table [nzData]="Object.values(summary.fileErrors)" [nzShowPagination]="false">
+          <thead>
+          <tr>
+            <th>File Errors</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let data of Object.values(summary.fileErrors)">
+            <td>{{ data }}</td>
+          </tr>
+          </tbody>
+        </nz-table>
+      </div>
+
+      <div *ngIf="summary && summary.indexRowErrors && Object.keys(summary.indexRowErrors).length > 0">
+        <nz-table [nzData]="Object.entries(summary.indexRowErrors)" [nzShowPagination]="false">
+          <thead>
+          <tr>
+            <th [nzWidth]="'80px'">Row</th>
+            <th>Errors</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let data of Object.entries(summary.indexRowErrors)">
+            <td class="align-top">{{ data[0] }}</td>
+            <td>
+              <div *ngFor="let currentRowError of data[1]">{{ currentRowError.error }}</div>
+            </td>
+          </tr>
+          </tbody>
+        </nz-table>
+      </div>
+    </div>
+  </div>
+  <div *nzModalFooter>
+    <button nz-button nzType="primary" (click)="doCloseSftpErrorModal()">Close</button>
+  </div>
+</nz-modal>

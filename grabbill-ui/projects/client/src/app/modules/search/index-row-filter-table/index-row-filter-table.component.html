@@ -1,0 +1,117 @@
+<div *ngIf="indexRowSearchResult$ | async as searchResult">
+  <div toolbar class="flex items-center p-2">
+    <div class="flex-grow">
+      <nz-tag
+        *ngFor="let tag of getFilters(); let i = index"
+        nzMode="closeable"
+        (nzOnClose)="doRemoveFilter(tag[0])"
+      >
+        {{ getIndexFieldByFieldName(type, tag[0], type.indexFields).label }} = {{ getIndexFieldValue(tag[1]) }}
+      </nz-tag>
+    </div>
+    <div>
+      <button (click)="doOpenFilterModal(type)" nz-button nzType="link">
+        <i nz-icon nzType="filter"></i>Add Filter
+      </button>
+    </div>
+  </div>
+  <ng-container *ngIf="indexRowPageable$ | async as pageable">
+    <nz-table
+      nzBordered
+      [nzLoading]="loading"
+      [nzData]="searchResult.items"
+      [nzFrontPagination]="false"
+      [nzTotal]="searchResult.totalItems"
+      [nzPageSize]="pageable.size"
+      [nzPageIndex]="pageable.page"
+      (nzQueryParams)="doQueryIndexRow($event, pageable)"
+      nzSize="small"
+      nzTableLayout="fixed"
+    >
+      <thead>
+      <tr>
+        <th>Activity Name</th>
+        <th *ngFor="let fieldLabel of getIndexFieldLabels(type); let i = index">
+          <div class="flex items-center">
+            <div class="mr-2">{{ fieldLabel }}</div>
+            <div *ngIf="fieldLabel === 'Attachment Password'">
+              <i *ngIf="showPassword" (click)="togglePasswordVisible()" nz-icon nzType="eye"></i>
+              <i *ngIf="!showPassword" (click)="togglePasswordVisible()" nz-icon
+                 nzType="eye-invisible"></i>
+            </div>
+          </div>
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of searchResult.items; let i = index">
+        <td>{{ data.activityName }}</td>
+        <td *ngFor="let field of getIndexRowValues(data, type); let i = index">
+          <div *ngIf="i === attachmentFilenameFieldIndex && data.file && data.file.id">
+            <a (click)="doDownloadFile(data)">{{ field.value }}</a>
+          </div>
+          <div *ngIf="field.label === 'Attachment Password'">
+            <span *ngIf="showPassword">{{ field.value }}</span>
+            <span *ngIf="!showPassword">******</span>
+          </div>
+          <div *ngIf="!(i === attachmentFilenameFieldIndex && data.file && data.file.id) && field.label !== 'Attachment Password'">
+            {{ field.value }}
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </ng-container>
+</div>
+
+<nz-modal [nzVisible]="isFilterModalVisible" nzTitle="Add Filter" (nzOnCancel)="doCloseFilterModal()">
+  <div *nzModalContent>
+    <div>
+      <form nz-form [formGroup]="filterForm">
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Index Field</nz-form-label>
+          <nz-form-control [nzSm]="14" [nzXs]="24">
+            <nz-select
+              formControlName="field"
+              (ngModelChange)="doFilterIndexFieldChange(type, $event)"
+            >
+              <ng-container *ngFor="let field of getApplicableFields(type); let i = index">
+                <nz-option *ngIf="field.applicable" [nzValue]="'idxf' + (i + 1)" [nzLabel]="field.label"></nz-option>
+              </ng-container>
+            </nz-select>
+            <input type="hidden" formControlName="type" />
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item *ngIf="filterForm.get('type')!.value === 'TEXT' || filterForm.get('type')!.value === 'EMAIL'">
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Value</nz-form-label>
+          <nz-form-control [nzSm]="14" [nzXs]="24">
+            <input nz-input formControlName="textValue" />
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item *ngIf="filterForm.get('type')!.value === 'NUMBER'">
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Value</nz-form-label>
+          <nz-form-control [nzSm]="14" [nzXs]="24">
+            <nz-input-number
+              formControlName="numberValue"
+              [nzMin]="-9999999"
+              [nzMax]="9999999"
+              [nzStep]="1"
+            ></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item *ngIf="filterForm.get('type')!.value === 'DATE'">
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Value</nz-form-label>
+          <nz-form-control [nzSm]="14" [nzXs]="24">
+            <nz-date-picker formControlName="dateValue"></nz-date-picker>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </div>
+  </div>
+  <div *nzModalFooter>
+    <button nz-button nzType="primary" (click)="doAddFilter()">Add</button>
+  </div>
+</nz-modal>

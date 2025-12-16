@@ -1,0 +1,95 @@
+@import '../../../../styles/variables';
+
+[header] {
+  height: 66px;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 20;
+  background-color: white;
+  box-shadow: 0 5px 20px 0 rgb(0 0 0 / 10%);
+
+  @media @media-lg {
+    height: 90px;
+  }
+
+  [menu] {
+    @media @media-lg {
+      display: none;
+    }
+  }
+
+  [header-link] {
+    line-height: 38px;
+    color: rgba(0, 0, 0, 0.85);
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 2px;
+    font-size: 15.5px;
+  }
+
+  [header-link].selected {
+    text-decoration: underline;
+    text-decoration-color: @primary-color;
+    text-decoration-thickness: 0.125em;
+    text-underline-offset: 10px;
+  }
+
+  [login-button] {
+    font-size: 13px;
+    padding-left: 0;
+    padding-right: 0;
+    margin-right: 20px;
+    font-weight: 600;
+
+    @media @media-md {
+      font-size: 15.5px;
+    }
+  }
+
+  [sign-up-button] {
+    display: none;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 0 34px;
+
+    @media @media-lg {
+      display: inherit;
+      height: 50px;
+      line-height: 48px;
+    }
+  }
+}
+
+[header-padding] {
+  height: 66px;
+  width: 100%;
+  background-color:transparent;
+
+  @media @media-lg {
+    height: 90px;
+  }
+}
+
+[header-logo] {
+  width: auto;
+  height: 30px;
+
+  @media @media-lg {
+    width: 180px;
+    height: fit-content;
+  }
+}
+
+[drawer] {
+  padding: 0 24px;
+
+  [drawer-header] {
+    height: 66px;
+    width: 100%;
+    z-index: 20;
+  }
+}

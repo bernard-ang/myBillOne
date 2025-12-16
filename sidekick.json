@@ -1,0 +1,544 @@
+{
+  "environments": [
+    {
+      "name": "op-uat",
+      "infra": {
+        "name": "GrabBill On-Premise (OP), aka E-Statement (UAT)",
+        "tag": "e-stmt-uat",
+        "region": "sgp1",
+        "sshKeys": [
+          "b9:4d:27:28:9d:b7:59:0f:b2:09:7d:8e:1f:05:ce:56"
+        ],
+        "machines": [
+          {
+            "image": "docker-20-04",
+            "size": "s-2vcpu-4gb",
+            "canDelete": false,
+            "name": "e-stmt-uat-m-01"
+          }
+        ],
+        "volumes": [
+          {
+            "fsType": "ext4",
+            "sizeInGb": 10,
+            "canDelete": false,
+            "name": "e-stmt-uat-v-01",
+            "attachedTo": "e-stmt-uat-m-01"
+          },
+          {
+            "fsType": "ext4",
+            "sizeInGb": 10,
+            "canDelete": false,
+            "name": "e-stmt-uat-v-02",
+            "attachedTo": "e-stmt-uat-m-01"
+          },
+          {
+            "fsType": "ext4",
+            "sizeInGb": 10,
+            "canDelete": false,
+            "name": "e-stmt-uat-v-04",
+            "attachedTo": "e-stmt-uat-m-01"
+          }
+        ],
+        "teamName": "GrabBIll OnPrem"
+      },
+      "groups": [
+        {
+          "name": "core",
+          "services": [
+            {
+              "name": "traefik",
+              "machineName": "e-stmt-uat-m-01",
+              "volumeName": "e-stmt-uat-v-01"
+            },
+            {
+              "name": "mariadb",
+              "machineName": "e-stmt-uat-m-01",
+              "volumeName": "e-stmt-uat-v-02",
+              "disabled": false
+            },
+            {
+              "name": "rabbitmq",
+              "machineName": "e-stmt-uat-m-01",
+              "volumeName": "e-stmt-uat-v-04",
+              "disabled": false
+            },
+            {
+              "name": "portainer",
+              "machineName": "e-stmt-uat-m-01",
+              "volumeName": "e-stmt-uat-v-01",
+              "disabled": false
+            },
+            {
+              "name": "minio",
+              "machineName": "e-stmt-uat-m-01",
+              "volumeName": "e-stmt-uat-v-04",
+              "disabled": false
+            }
+          ]
+        },
+        {
+          "name": "backend",
+          "services": [
+            {
+              "name": "api",
+              "machineName": "e-stmt-uat-m-01",
+              "disabled": false
+            },
+            {
+              "name": "engine",
+              "machineName": "e-stmt-uat-m-01",
+              "disabled": false
+            }
+          ]
+        },
+        {
+          "name": "frontend",
+          "services": [
+            {
+              "name": "app",
+              "machineName": "e-stmt-uat-m-01",
+              "disabled": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "op-prod",
+      "infra": {
+        "name": "GrabBill On-Premise (OP), aka E-Statement (Production)",
+        "tag": "e-stmt-prod",
+        "region": "sgp1",
+        "sshKeys": [
+          "b9:4d:27:28:9d:b7:59:0f:b2:09:7d:8e:1f:05:ce:56"
+        ],
+        "machines": [
+          {
+            "image": "docker-20-04",
+            "size": "s-2vcpu-4gb",
+            "canDelete": false,
+            "name": "e-stmt-prod-m-01"
+          }
+        ],
+        "volumes": [
+          {
+            "fsType": "ext4",
+            "sizeInGb": 20,
+            "canDelete": false,
+            "name": "e-stmt-prod-v-01",
+            "attachedTo": "e-stmt-prod-m-01"
+          },
+          {
+            "fsType": "ext4",
+            "sizeInGb": 20,
+            "canDelete": false,
+            "name": "e-stmt-prod-v-02",
+            "attachedTo": "e-stmt-prod-m-01"
+          },
+          {
+            "fsType": "ext4",
+            "sizeInGb": 10,
+            "canDelete": false,
+            "name": "e-stmt-prod-v-04",
+            "attachedTo": "e-stmt-prod-m-01"
+          }
+        ],
+        "teamName": "GrabBIll OnPrem"
+      },
+      "groups": [
+        {
+          "name": "core",
+          "services": [
+            {
+              "name": "traefik",
+              "machineName": "e-stmt-prod-m-01",
+              "volumeName": "e-stmt-prod-v-01"
+            },
+            {
+              "name": "mariadb",
+              "machineName": "e-stmt-prod-m-01",
+              "volumeName": "e-stmt-prod-v-02",
+              "disabled": false
+            },
+            {
+              "name": "rabbitmq",
+              "machineName": "e-stmt-prod-m-01",
+              "volumeName": "e-stmt-prod-v-04",
+              "disabled": false
+            },
+            {
+              "name": "portainer",
+              "machineName": "e-stmt-prod-m-01",
+              "volumeName": "e-stmt-prod-v-01",
+              "disabled": false
+            }
+          ]
+        },
+        {
+          "name": "backend",
+          "services": [
+            {
+              "name": "api",
+              "machineName": "e-stmt-prod-m-01",
+              "disabled": false
+            },
+            {
+              "name": "engine",
+              "machineName": "e-stmt-prod-m-01",
+              "disabled": false
+            }
+          ]
+        },
+        {
+          "name": "frontend",
+          "services": [
+            {
+              "name": "app",
+              "machineName": "e-stmt-prod-m-01",
+              "disabled": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "op-generali",
+      "infra": {
+        "name": "GrabBill On-Premise (OP) for Generali",
+        "tag": "generali-e-stmt-prod",
+        "region": "sgp1",
+        "sshKeys": [
+          "b9:4d:27:28:9d:b7:59:0f:b2:09:7d:8e:1f:05:ce:56"
+        ],
+        "machines": [
+          {
+            "image": "docker-20-04",
+            "size": "s-2vcpu-4gb",
+            "canDelete": false,
+            "name": "generali-e-stmt-prod-m-01"
+          }
+        ],
+        "volumes": [
+          {
+            "fsType": "ext4",
+            "sizeInGb": 20,
+            "canDelete": false,
+            "name": "generali-e-stmt-prod-v-01",
+            "attachedTo": "generali-e-stmt-prod-m-01"
+          },
+          {
+            "fsType": "ext4",
+            "sizeInGb": 20,
+            "canDelete": false,
+            "name": "generali-e-stmt-prod-v-02",
+            "attachedTo": "generali-e-stmt-prod-m-01"
+          },
+          {
+            "fsType": "ext4",
+            "sizeInGb": 10,
+            "canDelete": false,
+            "name": "generali-e-stmt-prod-v-04",
+            "attachedTo": "generali-e-stmt-prod-m-01"
+          }
+        ],
+        "teamName": "GrabBIll OnPrem"
+      },
+      "groups": [
+        {
+          "name": "core",
+          "services": [
+            {
+              "name": "traefik",
+              "machineName": "generali-e-stmt-prod-m-01",
+              "volumeName": "generali-e-stmt-prod-v-01"
+            },
+            {
+              "name": "mariadb",
+              "machineName": "generali-e-stmt-prod-m-01",
+              "volumeName": "generali-e-stmt-prod-v-02",
+              "disabled": false
+            },
+            {
+              "name": "rabbitmq",
+              "machineName": "generali-e-stmt-prod-m-01",
+              "volumeName": "generali-e-stmt-prod-v-04",
+              "disabled": false
+            },
+            {
+              "name": "portainer",
+              "machineName": "generali-e-stmt-prod-m-01",
+              "volumeName": "generali-e-stmt-prod-v-01",
+              "disabled": false
+            }
+          ]
+        },
+        {
+          "name": "backend",
+          "services": [
+            {
+              "name": "api",
+              "machineName": "generali-e-stmt-prod-m-01",
+              "disabled": false
+            },
+            {
+              "name": "engine",
+              "machineName": "generali-e-stmt-prod-m-01",
+              "disabled": false
+            }
+          ]
+        },
+        {
+          "name": "frontend",
+          "services": [
+            {
+              "name": "app",
+              "machineName": "generali-e-stmt-prod-m-01",
+              "disabled": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "uat",
+      "infra": {
+        "name": "GrabBill (UAT)",
+        "tag": "grabbill-uat",
+        "region": "sgp1",
+        "sshKeys": [
+          "b9:4d:27:28:9d:b7:59:0f:b2:09:7d:8e:1f:05:ce:56"
+        ],
+        "machines": [
+          {
+            "image": "docker-20-04",
+            "size": "s-2vcpu-4gb",
+            "canDelete": false,
+            "name": "grabbill-uat-m-01"
+          }
+        ],
+        "volumes": [
+          {
+            "fsType": "ext4",
+            "sizeInGb": 10,
+            "canDelete": false,
+            "name": "grabbill-uat-v-01",
+            "attachedTo": "grabbill-uat-m-01"
+          },
+          {
+            "fsType": "ext4",
+            "sizeInGb": 10,
+            "canDelete": false,
+            "name": "grabbill-uat-v-02",
+            "attachedTo": "grabbill-uat-m-01"
+          },
+          {
+            "fsType": "ext4",
+            "sizeInGb": 10,
+            "canDelete": false,
+            "name": "grabbill-uat-v-04",
+            "attachedTo": "grabbill-uat-m-01"
+          }
+        ],
+        "teamName": "grabbill"
+      },
+      "groups": [
+        {
+          "name": "core",
+          "services": [
+            {
+              "name": "traefik",
+              "machineName": "grabbill-uat-m-01",
+              "volumeName": "grabbill-uat-v-01",
+              "disabled": false
+            },
+            {
+              "name": "portainer",
+              "machineName": "grabbill-uat-m-01",
+              "volumeName": "grabbill-uat-v-01",
+              "disabled": false
+            },
+            {
+              "name": "mariadb",
+              "machineName": "grabbill-uat-m-01",
+              "volumeName": "grabbill-uat-v-02",
+              "disabled": false
+            },
+            {
+              "name": "rabbitmq",
+              "machineName": "grabbill-uat-m-01",
+              "volumeName": "grabbill-uat-v-04",
+              "disabled": false
+            },
+            {
+              "name": "dozzle",
+              "machineName": "grabbill-uat-m-01",
+              "disabled": false
+            },
+            {
+              "name": "cloudbeaver",
+              "machineName": "grabbill-uat-m-01",
+              "volumeName": "grabbill-uat-v-01",
+              "disabled": false
+            }
+          ]
+        },
+        {
+          "name": "grabbill-backend",
+          "services": [
+            {
+              "name": "engine",
+              "machineName": "grabbill-uat-m-01",
+              "disabled": false
+            },
+            {
+              "name": "api",
+              "machineName": "grabbill-uat-m-01",
+              "disabled": false
+            }
+          ]
+        },
+        {
+          "name": "grabbill-frontend",
+          "services": [
+            {
+              "name": "app",
+              "machineName": "grabbill-uat-m-01",
+              "disabled": false
+            },
+            {
+              "name": "admin",
+              "machineName": "grabbill-uat-m-01",
+              "disabled": false
+            },
+            {
+              "name": "website",
+              "machineName": "grabbill-uat-m-01",
+              "disabled": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "prod",
+      "infra": {
+        "name": "GrabBill (Production)",
+        "tag": "grabbill-prod",
+        "region": "sgp1",
+        "sshKeys": [
+          "b9:4d:27:28:9d:b7:59:0f:b2:09:7d:8e:1f:05:ce:56"
+        ],
+        "machines": [
+          {
+            "image": "docker-20-04",
+            "size": "s-2vcpu-4gb",
+            "canDelete": false,
+            "name": "grabbill-prod-m-01"
+          }
+        ],
+        "volumes": [
+          {
+            "fsType": "ext4",
+            "sizeInGb": 10,
+            "canDelete": false,
+            "name": "grabbill-prod-v-01",
+            "attachedTo": "grabbill-prod-m-01"
+          },
+          {
+            "fsType": "ext4",
+            "sizeInGb": 10,
+            "canDelete": false,
+            "name": "grabbill-prod-v-02",
+            "attachedTo": "grabbill-prod-m-01"
+          },
+          {
+            "fsType": "ext4",
+            "sizeInGb": 10,
+            "canDelete": false,
+            "name": "grabbill-prod-v-03",
+            "attachedTo": "grabbill-prod-m-01"
+          }
+        ],
+        "teamName": "grabbill"
+      },
+      "groups": [
+        {
+          "name": "core",
+          "services": [
+            {
+              "name": "traefik",
+              "machineName": "grabbill-prod-m-01",
+              "volumeName": "grabbill-prod-v-01",
+              "disabled": false
+            },
+            {
+              "name": "portainer",
+              "machineName": "grabbill-prod-m-01",
+              "volumeName": "grabbill-prod-v-01",
+              "disabled": false
+            },
+            {
+              "name": "mariadb",
+              "machineName": "grabbill-prod-m-01",
+              "volumeName": "grabbill-prod-v-02",
+              "disabled": false
+            },
+            {
+              "name": "rabbitmq",
+              "machineName": "grabbill-prod-m-01",
+              "volumeName": "grabbill-prod-v-03",
+              "disabled": false
+            },
+            {
+              "name": "dozzle",
+              "machineName": "grabbill-prod-m-01",
+              "disabled": false
+            },
+            {
+              "name": "cloudbeaver",
+              "machineName": "grabbill-prod-m-01",
+              "volumeName": "grabbill-prod-v-01",
+              "disabled": false
+            }
+          ]
+        },
+        {
+          "name": "grabbill-backend",
+          "services": [
+            {
+              "name": "engine",
+              "machineName": "grabbill-prod-m-01",
+              "disabled": false
+            },
+            {
+              "name": "api",
+              "machineName": "grabbill-prod-m-01",
+              "disabled": false
+            }
+          ]
+        },
+        {
+          "name": "grabbill-frontend",
+          "services": [
+            {
+              "name": "app",
+              "machineName": "grabbill-prod-m-01",
+              "disabled": false
+            },
+            {
+              "name": "admin",
+              "machineName": "grabbill-prod-m-01",
+              "disabled": false
+            },
+            {
+              "name": "website",
+              "machineName": "grabbill-prod-m-01",
+              "disabled": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

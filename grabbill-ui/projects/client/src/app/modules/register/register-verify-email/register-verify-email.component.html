@@ -1,0 +1,29 @@
+<div box>
+  <div *ngIf="isVerifyingEmail">
+    <div box-title>Verifying your email</div>
+    <div class="pt-4 pb-8 text-left">Application is currently verify your email. Please wait a moment.</div>
+  </div>
+  <div *ngIf="!isVerifyingEmail">
+    <div title>Check your email</div>
+    <div class="pt-4 pb-8 text-left">We've send an email to you with a link to activate your account.</div>
+    <div subtitle>Didn't get an email</div>
+    <div class="text-justify pt-4">
+      <p>If you don't see an email from us within a few minutes, few things could have happened:</p>
+      <div class="pl-4">
+        <ul class="list-disc">
+          <li>The email is in your spam folder. (Sometimes things get lost in there.)</li>
+          <li>The email address you entered had a mistake or typo. (Happens to the best of us.)</li>
+          <li>
+            You accidentally gave us another email address. (Usually a work or personal one instead of the one you
+            meant.)
+          </li>
+          <li>We can’t deliver the email to this address. (Usually because of corporate firewalls or filtering.)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="text-left pt-4 flex flex-col md:flex-row">
+      <a class="mr-8" [routerLink]="['/', 'login']">Back to login page</a>
+      <a (click)="doResendVerifyEmail()">Resend verification email</a>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,156 @@
+<div container class="mx-auto">
+  <grabbill-client-breadcrumb rootTitle="SMS" [rootLink]="['/', 'sms', 'list']"></grabbill-client-breadcrumb>
+
+  <ng-template #elseType>
+    <nz-skeleton [nzActive]="true" [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+  </ng-template>
+
+  <ng-container *ngIf="smsType$ | async as smsType; else elseType">
+    <div class="mb-8">
+      <grabbill-client-page-header
+        [title]="smsType.name"
+        [subtitle]="getCode(smsType)"
+        [button]="{
+          label: 'Create SMS Activity',
+          privilege: privilege.TRX_EMAIL_ACTIVITY_EDIT
+        }"
+        description="You have {{ smsType.smsStatusSent | number: '1.0' }} SMS sent."
+        (buttonClick)="doCreateSms(smsType, smsType.name)"
+      >
+      </grabbill-client-page-header>
+    </div>
+
+    <grabbill-client-sms-stat
+      [totalSms]="smsType.totalSms"
+      [smsSent]="smsType.smsStatusSent"
+      [smsError]="smsType.smsStatusError"
+      [totalCreditUsed]="smsType.totalCreditUsed"
+    ></grabbill-client-sms-stat>
+
+    <nz-tabset nzSize="large" nzLinkRouter>
+      <nz-tab>
+        <a
+          *nzTabLink
+          nz-tab-link
+          [routerLink]="['.']"
+          [queryParams]="{ tab: 'activities' }"
+          queryParamsHandling="merge"
+        >
+          Activities
+        </a>
+
+        <grabbill-client-list
+          [store]="store"
+          [actions$]="actions$"
+          [pageable$]="smsActivityPageable$"
+          [result$]="smsActivitySearchResult$"
+          [isListLoading]="isListLoading"
+          [queryAction]="listQueryAction"
+          [queryActionParams]="[typeId]"
+          [loadMoreAction]="listLoadMoreAction"
+          [pageableState]="listState.smsActivityPageable"
+          [typeNameState]="listState.activityName"
+          [subtitleTemplate]="subtitleTemplate"
+          [contentTemplate]="contentTemplate"
+          [statusTemplate]="statusTemplate"
+          [actionsTemplate]="actionsTemplate"
+          [hasSort]="false"
+          (selectItem)="doViewActivity($event)"
+          icon="file-pdf"
+          searchText="Find by activity name"
+          noRecordText="No activities found."
+        >
+          <ng-template #subtitleTemplate let-item>
+            <div list-description>{{ getActivityStatusText(item) }}</div>
+            <div list-description *ngIf="item.purgedTimestamp">
+              Purged at {{ item.purgedTimestamp | date: dateFormat }}
+            </div>
+          </ng-template>
+          <ng-template #contentTemplate let-item>
+            <div class="flex-grow"></div>
+          </ng-template>
+          <ng-template #statusTemplate let-item>
+            <div class="w-1/5">
+              <nz-tag [nzColor]="getStatusTag(item)">{{ item.status }}</nz-tag>
+            </div>
+          </ng-template>
+          <ng-template #actionsTemplate let-item>
+            <ul nz-list-item-actions actions-width>
+              <nz-list-item-action *ngIf="item.status === 'DRAFT' && hasPrivilege(privilege.TRX_EMAIL_ACTIVITY_EDIT)">
+                <a list-title (click)="doEditActivity(smsType.id, item.id)">
+                  <i nz-tooltip="Edit" nz-icon nzType="edit"></i>
+                </a>
+              </nz-list-item-action>
+              <nz-list-item-action *ngIf="item.status === 'DRAFT' && hasPrivilege(privilege.TRX_EMAIL_ACTIVITY_EDIT)">
+                <a list-title (click)="doDeleteActivity(smsType.id, item)"
+                ><i nz-tooltip="Delete" nz-icon nzType="delete"></i
+                ></a>
+              </nz-list-item-action>
+            </ul>
+          </ng-template>
+        </grabbill-client-list>
+      </nz-tab>
+
+      <nz-tab>
+        <a *nzTabLink nz-tab-link [routerLink]="['.']" [queryParams]="{ tab: 'settings' }" queryParamsHandling="merge">
+          Template Settings
+        </a>
+
+        <div class="text-right mb-4" *ngIf="hasPrivilege(privilege.TRX_EMAIL_ACTIVITY_EDIT)">
+          <button nz-button (click)="doEdit(smsType.id)">Edit</button>
+        </div>
+
+        <nz-card>
+          <div>
+            <grabbill-client-descriptions
+              title="Index Settings"
+              containerClass="pb-4"
+              [items]="[{ span: 2, title: 'SMS Field Type', value: smsType.smsFieldType, type: 'string' }]"
+            >
+            </grabbill-client-descriptions>
+
+            <div class="pb-4" *ngIf="smsType.smsFieldType === smsFieldType.INDEX_FIELD">
+              <nz-table
+                nzBordered
+                [nzShowPagination]="false"
+                [nzData]="getApplicableFields(smsType)"
+                nzSize="small"
+                nzTableLayout="fixed"
+              >
+                <thead>
+                <tr>
+                  <th>Label</th>
+                  <th>Excel Header</th>
+                  <th nzWidth="15%">Mandatory</th>
+                  <th nzWidth="14%">Type</th>
+                </tr>
+                </thead>
+                <tbody>
+                <ng-container *ngFor="let data of getApplicableFields(smsType); let i = index">
+                  <tr *ngIf="data.applicable">
+                    <td>{{ data.label }}</td>
+                    <td>{{ data.header }}</td>
+                    <td><i *ngIf="data.required" nz-icon nzType="check"></i></td>
+                    <td>{{ data.dataType }}</td>
+                  </tr>
+                </ng-container>
+                </tbody>
+              </nz-table>
+            </div>
+
+            <grabbill-client-descriptions
+              title="SMS Settings"
+              [items]="smsType.smsFieldType === smsFieldType.INDEX_FIELD ? [
+                { span: 4, title: 'SMS Content', value: smsType.smsContent, type: 'string' }
+              ]: [
+                { span: 4, title: 'Contact Group', value: smsType.contactGroupName ?? 'All contacts', type: 'string' },
+                { span: 4, title: 'SMS Content', value: smsType.smsContent, type: 'string' }
+              ]"
+            >
+            </grabbill-client-descriptions>
+          </div>
+        </nz-card>
+      </nz-tab>
+    </nz-tabset>
+  </ng-container>
+</div>

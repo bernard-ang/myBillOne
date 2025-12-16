@@ -1,0 +1,6487 @@
+{
+	"info": {
+		"_postman_id": "25108fea-aa7d-48d6-91dc-6c9583c73d82",
+		"name": "grabbill",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "auth",
+			"item": [
+				{
+					"name": "login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var act = pm.cookies.get('act')",
+									"var rft = pm.cookies.get('rft')",
+									"pm.globals.set(\"act\", act)",
+									"pm.globals.set(\"rft\", rft)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"owner@demo.com\",\n    \"password\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/auth/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "authorize",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"authProvider\": \"google\",\n    \"token\": \"eyJhbGciOiJSUzI1NiIsImtpZCI6IjA2M2E3Y2E0M2MzYzc2MDM2NzRlZGE0YmU5NzcyNWI3M2QwZGMwMWYiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vZ3JhYmJpbGwtZGV2IiwiYXVkIjoiZ3JhYmJpbGwtZGV2IiwiYXV0aF90aW1lIjoxNjU5OTc0MzgwLCJ1c2VyX2lkIjoiZ0NtVUNta3piNmhIVk1Kbk5tM2VCNEJnQ0YzMiIsInN1YiI6ImdDbVVDbWt6YjZoSFZNSm5ObTNlQjRCZ0NGMzIiLCJpYXQiOjE2NTk5NzQzODAsImV4cCI6MTY1OTk3Nzk4MCwiZW1haWwiOiJ0ZXN0QHRlc3QuY29tIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7ImVtYWlsIjpbInRlc3RAdGVzdC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.gtRiMxtOKN3IUWhw4wMwDeAwUyV8sVhfQ-HYZzXc5ng19khgP22mdfqCMTCd3IRTPWNHlu9rJ9mFmiPyiVFaS3_Qm0KqwyEEZh6MZq6r408x6XxBOxHlFwCDDKEj_bPLREd1VJnotcSILg_GLvAZu-iyKVQJwSu5JUxw2hKBTEyTuc0wMq0CcWam_TYHvN8Mqbq1tS6wRclLAb0zM2DI8qDslGVXNZQKvToBg0kb2uh2fih7mlKRunqTgn_jrFLQfiHkahTXJGWWfoDFSNfZyxZqQ7zJH0tPw_Vx0DjHQFGTy98fh0cU7UdXmo0ByMyQpUQ0JWlKKrch-yEssjAYBw\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/auth/authorize",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"auth",
+								"authorize"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "refresh-token",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var act = pm.cookies.get('act')",
+									"var rft = pm.cookies.get('rft')",
+									"pm.globals.set(\"act\", act)",
+									"pm.globals.set(\"rft\", rft)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{act}}",
+								"type": "text"
+							},
+							{
+								"key": "Cookie",
+								"value": "{{rft}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/auth/refresh",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"auth",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "auth-authority",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "aact={{aact}}",
+								"type": "text"
+							},
+							{
+								"key": "Cookie",
+								"value": "arft={{arft}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/auth/authority",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"auth",
+								"authority"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "logout",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/auth/logout",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "registration",
+			"item": [
+				{
+					"name": "new-account-registration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Vitaman\",\n    \"email\": \"michael_lkf_82@yahoo.com\",\n    \"password\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/account/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"account",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "subscribe-plan",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"planId\": 3,\n    \"storageSize\": 800000000000,\n    \"transactionalEmailSize\": 4000,\n    \"emailCampaignSize\": 250000,\n    \"subscriptionMode\": \"ANNUALLY\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/account/plan",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"account",
+								"plan"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "switch-plan",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"planId\": 2,\n    \"storageSize\": 40000000000,\n    \"transactionalEmailSize\": 3000,\n    \"emailCampaignSize\": 10000,\n    \"subscriptionMode\": \"MONTHLY\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/account/plan",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"account",
+								"plan"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "pre-plan-switch",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"planId\": 2,\n    \"storageSize\": 500000000,\n    \"transactionalEmailSize\": 50,\n    \"emailCampaignSize\": 50,\n    \"subscriptionMode\": \"MONTHLY\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/account/plan/pre-switch",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"account",
+								"plan",
+								"pre-switch"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "verify-new-account",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"michael_lkf_82@yahoo.com\",\n    \"verificationCode\": \"AgvlGRJ5NsYwTYl\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/account/verify-email",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"account",
+								"verify-email"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "digital-filing-type",
+			"item": [
+				{
+					"name": "search-digital-filing-types",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/df-types?name=lazada",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "lazada"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "search-digital-filing-type-files",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/df-types/3006/files?idxf1=file2.pdf",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"3006",
+								"files"
+							],
+							"query": [
+								{
+									"key": "idxf1",
+									"value": "file2.pdf"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-digital-filing-type",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/df-types/2002",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"2002"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create-new-digital-filing-type",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Malaysia GG Statement\",\n    \"code\": \"SMS\",\n    \"autoPurge\": false,\n    \"autoPurgeDays\": 5,\n    \"csvSeparator\": \"|\",\n    \"digitalFilingIndexFields\": [\n        {\n            \"seqOrder\": 1,\n            \"label\": \"field 1\",\n            \"header\": \"header 1\",\n            \"required\": true,\n            \"dataType\": \"TEXT\"\n        },\n        {\n            \"seqOrder\": 2,\n            \"label\": \"field 2\",\n            \"header\": \"header 2\",\n            \"required\": true,\n            \"dataType\": \"NUMBER\"\n        },\n        {\n            \"seqOrder\": 3,\n            \"label\": \"field 3\",\n            \"header\": \"header 3\",\n            \"required\": true,\n            \"dataType\": \"DATE\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/df-types",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-new-digital-filing-type",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Malaysia GG Statement\",\n    \"code\": \"EMAIL\",\n    \"autoPurge\": true,\n    \"autoPurgeDays\": 1,\n    \"csvSeparator\": \"|\",\n    \"digitalFilingIndexFields\": [\n        {\n            \"seqOrder\": 1,\n            \"label\": \"field 1\",\n            \"header\": \"header 1\",\n            \"required\": true,\n            \"dataType\": \"TEXT\"\n        },\n        {\n            \"seqOrder\": 2,\n            \"label\": \"field 2\",\n            \"header\": \"header 2\",\n            \"required\": true,\n            \"dataType\": \"NUMBER\"\n        },\n        {\n            \"seqOrder\": 3,\n            \"label\": \"field 3\",\n            \"header\": \"header 3\",\n            \"required\": true,\n            \"dataType\": \"DATE\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/df-types/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-new-digital-filing-type",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/df-types/3001",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"3001"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "digital-filing-activity",
+			"item": [
+				{
+					"name": "search-digital-filing-activities",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/df-types/2/activities",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"2",
+								"activities"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-digital-filing-activities",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/df-types/2002/activities/2004",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"2002",
+								"activities",
+								"2004"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create-new-digital-filing-activity",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Malaysia Weekly - June 2022\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/df-types/1/activities",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"1",
+								"activities"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-digital-filing-activity",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Malaysia - June 2022\",\n    \"status\": \"SUBMITTED\",\n    \"emailFromName\": \"mikelo\",\n    \"emailFrom\": \"dev@grabbill.com\",\n    \"emailSubject\": \"hola...\",\n    \"emailContent\": \"<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'></head><body><div style='margin-top: 10px'>Hello</div><div>To unsubscribe, please click link: {{ unsubscribe_link }}</div><br/><div><span><a href='{{ unsubscribe_link }}'>click here to unsubscribe</a></span></div><img id='image1' src='{{ email_opened_link }}'/></body></html>\",\n    \"indexRows\": [\n        {\n            \"seqOrder\": 1,\n            \"text1\": \"file1.pdf\",\n            \"text2\": \"file1.pdf\",\n            \"text3\": \"123456\"\n        },\n        {\n            \"seqOrder\": 2,\n            \"text1\": \"file2.pdf\",\n            \"text2\": \"file2.pdf\",\n            \"text3\": \"123456\"\n        },\n        {\n            \"seqOrder\": 3,\n            \"text1\": \"file3.pdf\",\n            \"text2\": \"file3.pdf\",\n            \"text3\": \"123456\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/df-types/1/activities/3005",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"1",
+								"activities",
+								"3005"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "upload-digital-filing-activity-file",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/home/michael/Downloads/files.zip"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/df-types/1/activities/1/files",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"1",
+								"activities",
+								"1",
+								"files"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "download-digital-filing-activity-file",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/df-types/2002/activities/2002/files/2001/download",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"2002",
+								"activities",
+								"2002",
+								"files",
+								"2001",
+								"download"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-digital-filing-activity-file",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/df-types/2002/activities/2002/files/2001",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"2002",
+								"activities",
+								"2002",
+								"files",
+								"2001"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-all-digital-filing-activity-files",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/df-types/3008/activities/2013/files",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"3008",
+								"activities",
+								"2013",
+								"files"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "purge-digital-filing-activity-files",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/df-types/2002/activities/2002/purge/files",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"2002",
+								"activities",
+								"2002",
+								"purge",
+								"files"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "export-digital-filing-activity",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/df-types/2002/activities/2002/export",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"2002",
+								"activities",
+								"2002",
+								"export"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-digital-filing-activity",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/df-types/2002/activities/2002",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"2002",
+								"activities",
+								"2002"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-digital-filing-activity-files",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/df-types/2002/activities/2002/files",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"2002",
+								"activities",
+								"2002",
+								"files"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-digital-filing-activity-records",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/df-types/3006/activities/2012/records?idxf1=file2.pdf",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"3006",
+								"activities",
+								"2012",
+								"records"
+							],
+							"query": [
+								{
+									"key": "idxf1",
+									"value": "file2.pdf"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "audit",
+			"item": [
+				{
+					"name": "search-audit-logs",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/audit-logs?domainType=DIGITAL_FILING&query=weekly&startDate=2022-05-27T16:00:00Z&endDate=2022-05-28T16:00:00Z",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"audit-logs"
+							],
+							"query": [
+								{
+									"key": "domainType",
+									"value": "DIGITAL_FILING"
+								},
+								{
+									"key": "query",
+									"value": "weekly"
+								},
+								{
+									"key": "startDate",
+									"value": "2022-05-27T16:00:00Z"
+								},
+								{
+									"key": "endDate",
+									"value": "2022-05-28T16:00:00Z"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "email-management",
+			"item": [
+				{
+					"name": "get-mail-server-configurations",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/mail-server/123",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"mail-server",
+								"123"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-mail-server-configurations",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"smtpHost\": \"smtp.gmail.com\",\n    \"smtpPort\": 587,\n    \"smtpEncryption\": \"SSL\",\n    \"smtpUsername\": \"smtpusername\",\n    \"smtpPassword\": \"smtppassword\",\n    \"smtpFrom\": \"sender@demo.com\",\n    \"imapHost\": \"imap.gmail.com\",\n    \"imapPort\": 993,\n    \"imapEncryption\": \"TLS\",\n    \"imapUsername\": \"imapusername\",\n    \"imapPassword\": \"imappassword\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/mail-server",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"mail-server"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "transactional-email-type",
+			"item": [
+				{
+					"name": "search-transactional-email-types",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/txe-types?name=GG",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"txe-types"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "GG"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-transactional-email-type",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/txe-types/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"txe-types",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create-new-transactional-email-type",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Malaysia GG Statement\",\n    \"code\": \"SMS\",\n    \"autoPurge\": false,\n    \"autoPurgeDays\": 5,\n    \"csvSeparator\": \"|\",\n    \"emailFrom\": \"from@demo.com\",\n    \"emailTo\": \"to@demo.com\",\n    \"emailSubject\": \"email subject\",\n    \"emailContent\": \"email content blah blah blah\",\n    \"emailAttachmentFileName\": \"attachment.zip\",\n    \"sendSms\": true,\n    \"smsContent\": \"sms content blah blah blah\",\n    \"passwordProtected\": false,\n    \"hasAttachment\": true,\n    \"archive\": false,\n    \"transactionalEmailIndexFields\": [\n        {\n            \"seqOrder\": 1,\n            \"label\": \"field 1\",\n            \"header\": \"header 1\",\n            \"required\": true,\n            \"dataType\": \"TEXT\"\n        },\n        {\n            \"seqOrder\": 2,\n            \"label\": \"field 2\",\n            \"header\": \"header 2\",\n            \"required\": true,\n            \"dataType\": \"NUMBER\"\n        },\n        {\n            \"seqOrder\": 3,\n            \"label\": \"field 3\",\n            \"header\": \"header 3\",\n            \"required\": true,\n            \"dataType\": \"DATE\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/txe-types",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"txe-types"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-new-transactional-email-type",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Singapore GG Statement\",\n    \"code\": \"SMS\",\n    \"autoPurge\": true,\n    \"autoPurgeByDays\": 5,\n    \"csvSeparator\": \"|\",\n    \"emailFrom\": \"from@demo.com\",\n    \"emailTo\": \"to@demo.com\",\n    \"emailSubject\": \"email subject\",\n    \"emailContent\": \"email content blah blah blah\",\n    \"emailAttachmentFileName\": \"attachment.zip\",\n    \"sendSms\": true,\n    \"smsContent\": \"sms content blah blah blah\",\n    \"passwordProtected\": false,\n    \"hasAttachment\": true,\n    \"archive\": false,\n    \"transactionalEmailIndexFields\": [\n        {\n            \"seqOrder\": 1,\n            \"label\": \"field 1\",\n            \"header\": \"header 1\",\n            \"required\": true,\n            \"dataType\": \"TEXT\"\n        },\n        {\n            \"seqOrder\": 2,\n            \"label\": \"field 2\",\n            \"header\": \"header 2\",\n            \"required\": true,\n            \"dataType\": \"NUMBER\"\n        },\n        {\n            \"seqOrder\": 3,\n            \"label\": \"field 3\",\n            \"header\": \"header 3\",\n            \"required\": true,\n            \"dataType\": \"DATE\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/txe-types/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"txe-types",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-new-transactional-email-type",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/txe-types/3001",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"txe-types",
+								"3001"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "transactional-email-activity",
+			"item": [
+				{
+					"name": "search-transactional-email-activities",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/txe-types/1/activities",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"txe-types",
+								"1",
+								"activities"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-transactional-email-activities",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/txe-types/2002/activities/2004",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"txe-types",
+								"2002",
+								"activities",
+								"2004"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create-new-transactional-email-activity",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Malaysia Weekly - June 2022\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/txe-types/1/activities",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"txe-types",
+								"1",
+								"activities"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-transactional-email-activity",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Malaysia - June 2022\",\n    \"status\": \"SUBMITTED\",\n    \"emailFromName\": \"mikelo\",\n    \"emailFrom\": \"dev@grabbill.com\",\n    \"emailSubject\": \"hola...\",\n    \"autoPurge\": true,\n    \"autoPurgeByDays\": 30,\n    \"emailContent\": \"<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'></head><body><div style='margin-top: 10px'>Hello</div><div>To unsubscribe, please click link: {{ unsubscribe_link }}</div><br/><div><span><a href='{{ unsubscribe_link }}'>click here to unsubscribe</a></span></div><img id='image1' src='{{ email_opened_link }}'/></body></html>\",\n    \"indexRows\": [\n        {\n            \"seqOrder\": 1,\n            \"text1\": \"michael@evos.tech\",\n            \"text2\": \"file1.pdf\",\n            \"text3\": \"123456\"\n        },\n        {\n            \"seqOrder\": 2,\n            \"text1\": \"michael.low.82@gmail.com\",\n            \"text2\": \"file2.pdf\",\n            \"text3\": \"123456\"\n        },\n        {\n            \"seqOrder\": 3,\n            \"text1\": \"muthu1@etrosksua.tech\",\n            \"text2\": \"file3.pdf\",\n            \"text3\": \"123456\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/txe-types/1/activities/2004",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"txe-types",
+								"1",
+								"activities",
+								"2004"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "upload-transactional-email-activity-file",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/home/michael/Downloads/files.zip"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/txe-types/1/activities/2004/files",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"txe-types",
+								"1",
+								"activities",
+								"2004",
+								"files"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "download-digital-filing-activity-file",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/df-types/2002/activities/2002/files/2001/download",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"2002",
+								"activities",
+								"2002",
+								"files",
+								"2001",
+								"download"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-digital-filing-activity-file",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/df-types/2002/activities/2002/files/2001",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"2002",
+								"activities",
+								"2002",
+								"files",
+								"2001"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-all-digital-filing-activity-files",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/df-types/3008/activities/2013/files",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"3008",
+								"activities",
+								"2013",
+								"files"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "purge-digital-filing-activity-files",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/df-types/2002/activities/2002/purge/files",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"2002",
+								"activities",
+								"2002",
+								"purge",
+								"files"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "export-digital-filing-activity",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/df-types/2002/activities/2002/export",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"2002",
+								"activities",
+								"2002",
+								"export"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-digital-filing-activity",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/df-types/2002/activities/2002",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"2002",
+								"activities",
+								"2002"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-digital-filing-activity-files",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/df-types/2002/activities/2002/files",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"2002",
+								"activities",
+								"2002",
+								"files"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-digital-filing-activity-records",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/df-types/3006/activities/2012/records?idxf1=file2.pdf",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"df-types",
+								"3006",
+								"activities",
+								"2012",
+								"records"
+							],
+							"query": [
+								{
+									"key": "idxf1",
+									"value": "file2.pdf"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "email-campaign-type",
+			"item": [
+				{
+					"name": "search-email-campaign-types",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/ec-types?name=GG",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"ec-types"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "GG"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-email-campaign-type",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/ec-types/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"ec-types",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create-new-email-campaign-type",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Malaysia GG Statement\",\n    \"code\": \"SMS\",\n    \"autoPurge\": false,\n    \"autoPurgeDays\": 5,\n    \"csvSeparator\": \"|\",\n    \"emailFrom\": \"from@demo.com\",\n    \"emailTo\": \"to@demo.com\",\n    \"emailSubject\": \"email subject\",\n    \"emailContent\": \"email content blah blah blah\",\n    \"hasAttachment\": true,\n    \"archive\": false,\n    \"contactGroupId\": 5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/ec-types",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"ec-types"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-new-email-campaign-type",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Malaysia GG Statement\",\n    \"code\": \"SMS\",\n    \"autoPurge\": false,\n    \"autoPurgeDays\": 5,\n    \"csvSeparator\": \"|\",\n    \"emailFrom\": \"from@demo.com\",\n    \"emailTo\": \"to@demo.com\",\n    \"emailSubject\": \"email subject\",\n    \"emailContent\": \"email content blah blah blah\",\n    \"hasAttachment\": true,\n    \"archive\": false,\n    \"contactGroupId\": 4\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/ec-types/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"ec-types",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-new-email-campaign-type",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/ec-types/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"ec-types",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "email-campaign-activity",
+			"item": [
+				{
+					"name": "search-email-campaign-activities",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/ec-types/3/activities",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"ec-types",
+								"3",
+								"activities"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-email-campaign-activities",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/ec-types/3/activities/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"ec-types",
+								"3",
+								"activities",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create-new-email-campaign-activity",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Malaysia Weekly - June 2022\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/ec-types/3/activities",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"ec-types",
+								"3",
+								"activities"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-email-campaign-activity",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Malaysia - June 2022\",\n    \"status\": \"DRAFT\",\n    \"emailFromName\": \"mikelo\",\n    \"emailFrom\": \"dev@grabbill.com\",\n    \"emailSubject\": \"hola...\",\n    \"autoPurge\": true,\n    \"autoPurgeByDays\": 30,\n    \"emailContent\": \"<!DOCTYPE html><html lang='en'><head><meta charset='UTF-8'></head><body><div style='margin-top: 10px'>Hello</div><div>To unsubscribe, please click link: {{ unsubscribe_link }}</div><br/><div><span><a href='{{ unsubscribe_link }}'>click here to unsubscribe</a></span></div><img id='image1' src='{{ email_opened_link }}'/></body></html>\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/ec-types/3/activities/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"ec-types",
+								"3",
+								"activities",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-email-campaign-activity",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/ec-types/3/activities/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"ec-types",
+								"3",
+								"activities",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-email-campaign-activity-records",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/ec-types/3/activities/1/records",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"ec-types",
+								"3",
+								"activities",
+								"1",
+								"records"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "upload-email-campaign-activity-file",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/home/michael/Downloads/file2.pdf"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/ec-types/3/activities/1/files",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"ec-types",
+								"3",
+								"activities",
+								"1",
+								"files"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "download-email-campaign-activity-file",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/ec-types/3/activities/1/files/1/download",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"ec-types",
+								"3",
+								"activities",
+								"1",
+								"files",
+								"1",
+								"download"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-email-campaign-activity-file",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/ec-types/3/activities/1/files/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"ec-types",
+								"3",
+								"activities",
+								"1",
+								"files",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "image",
+			"item": [
+				{
+					"name": "upload-image",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/home/michael/Downloads/grabbill-conf.png"
+								},
+								{
+									"key": "folder",
+									"value": "folder1",
+									"type": "text"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/int/images",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"int",
+								"images"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "download-image",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/int/images/6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"int",
+								"images",
+								"6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list-all",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/int/images",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"int",
+								"images"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-image",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/int/images/5",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"int",
+								"images",
+								"5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create-folder",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\" : \"folder3\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/int/images/create-folder",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"int",
+								"images",
+								"create-folder"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-folder",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\" : \"folder1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/int/images/delete-folder",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"int",
+								"images",
+								"delete-folder"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-image",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/home/michael/Downloads/grabbill-conf.png"
+								},
+								{
+									"key": "folder",
+									"value": "folder1",
+									"type": "text",
+									"disabled": true
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/int/images/4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"int",
+								"images",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-by-external-link",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/ext/images/PVvpKwWVEmF6tROfTtUC2xdjWCzspNh3K9St6soXEz7AEHRn1EG34LN6cSoFUyU5ktZlepB8KrbXzUHa/tx-activity.png",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"ext",
+								"images",
+								"PVvpKwWVEmF6tROfTtUC2xdjWCzspNh3K9St6soXEz7AEHRn1EG34LN6cSoFUyU5ktZlepB8KrbXzUHa",
+								"tx-activity.png"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "dashboard",
+			"item": [
+				{
+					"name": "load-statistics",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/dashboard/current-statistics",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"dashboard",
+								"current-statistics"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "load-plans",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/plans",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"plans"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "load-recent-activities",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/dashboard/recent-activities?page=13",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"dashboard",
+								"recent-activities"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "13"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "admin-dashboard",
+			"item": [
+				{
+					"name": "load-statistics",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{aact}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{arft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/mgmt/dashboard/current-statistics",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"mgmt",
+								"dashboard",
+								"current-statistics"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "account-management",
+			"item": [
+				{
+					"name": "list-accounts",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/mgmt/accounts?size=2&name=mulia",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"mgmt",
+								"accounts"
+							],
+							"query": [
+								{
+									"key": "size",
+									"value": "2"
+								},
+								{
+									"key": "name",
+									"value": "mulia"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-account-details",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/mgmt/accounts/1/billing-histories",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"mgmt",
+								"accounts",
+								"1",
+								"billing-histories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-account-users",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/mgmt/accounts/1/users?size=2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"mgmt",
+								"accounts",
+								"1",
+								"users"
+							],
+							"query": [
+								{
+									"key": "size",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "job-management",
+			"item": [
+				{
+					"name": "list-jobs",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/mgmt/jobs?accountName=bc&endDate=2022-07-22T16:00:00Z&status=FAILED",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"mgmt",
+								"jobs"
+							],
+							"query": [
+								{
+									"key": "accountName",
+									"value": "bc"
+								},
+								{
+									"key": "endDate",
+									"value": "2022-07-22T16:00:00Z"
+								},
+								{
+									"key": "status",
+									"value": "FAILED"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "retry-job",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/mgmt/jobs/2001/retry",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"mgmt",
+								"jobs",
+								"2001",
+								"retry"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-job-details",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/mgmt/jobs/13022",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"mgmt",
+								"jobs",
+								"13022"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "admin-user-management",
+			"item": [
+				{
+					"name": "list-admin-users",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/mgmt/admin-users?name=mikel",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"mgmt",
+								"admin-users"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "mikel"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create-new-admin-user",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"mikelo\",\n    \"email\": \"abu@abu.com\",\n    \"password\": \"123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/mgmt/admin-users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"mgmt",
+								"admin-users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-admin-user",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"active\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/mgmt/admin-users/1003",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"mgmt",
+								"admin-users",
+								"1003"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "forgot-password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var act = pm.cookies.get('act')",
+									"var rft = pm.cookies.get('rft')",
+									"pm.globals.set(\"act\", act)",
+									"pm.globals.set(\"rft\", rft)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"michael@evos.tech\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/mgmt/account/forget-password",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"mgmt",
+								"account",
+								"forget-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "reset-password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var act = pm.cookies.get('act')",
+									"var rft = pm.cookies.get('rft')",
+									"pm.globals.set(\"act\", act)",
+									"pm.globals.set(\"rft\", rft)"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"michael@evos.tech\",\n    \"password\": \"888888\",\n    \"code\": \"BHpWlLrZFspRGoQ\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/mgmt/account/reset-password",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"mgmt",
+								"account",
+								"reset-password"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "admin-audit-log-management",
+			"item": [
+				{
+					"name": "list-admin-audit-logs",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/mgmt/admin-audit-logs?query=update&startDate=2022-07-22T16:00:00Z",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"mgmt",
+								"admin-audit-logs"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "update"
+								},
+								{
+									"key": "startDate",
+									"value": "2022-07-22T16:00:00Z"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "contact-field",
+			"item": [
+				{
+					"name": "get-contact-fields",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/contact-fields",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"contact-fields"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-contact-fields",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"contactFieldRequests\" : [\n        {\n            \"id\": 9,\n            \"name\": \"name1\",\n            \"label\": \"label1\",\n            \"required\": true,\n            \"dataType\": \"TEXT\"\n        },\n        {\n            \"id\": 12,\n            \"name\": \"name2\",\n            \"label\": \"label2\",\n            \"required\": false,\n            \"dataType\": \"NUMBER\"\n        },\n        {\n            \"id\": 11,\n            \"name\": \"name3\",\n            \"label\": \"label3\",\n            \"required\": false,\n            \"dataType\": \"DATE\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/contact-fields",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"contact-fields"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "contact-group",
+			"item": [
+				{
+					"name": "get-contact-groups",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/contact-groups",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"contact-groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "new-contact-groups",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"group1\",\n    \"description\": \"group1 description\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/contact-groups",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"contact-groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-contact-groups",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"group1-1\",\n    \"description\": \"group1-1 description\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/contact-groups/4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"contact-groups",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-contact-groups",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/contact-groups/4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"contact-groups",
+								"4"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "contact",
+			"item": [
+				{
+					"name": "get-contacts",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/contacts?group=group1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"contacts"
+							],
+							"query": [
+								{
+									"key": "group",
+									"value": "group1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-contact-details",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/contacts/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"contacts",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "new-contact",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"nama2@email.com\",\n    \"mobileNo\": \"0000000002\",\n    \"text1\": \"group1\",\n    \"number2\": 1,\n    \"date3\": \"2022-09-27\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/contacts",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"contacts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "bulk-new-contacts",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"contacts\": [\n        {\n            \"email\": \"epal@email.com\",\n            \"mobileNo\": \"0000000002\",\n            \"text1\": \"group1\",\n            \"number2\": 1,\n            \"date3\": \"2022-09-27\"\n        },\n                {\n            \"email\": \"oren@email.com\",\n            \"mobileNo\": \"0000000002\",\n            \"text1\": \"group1\",\n            \"number2\": 1,\n            \"date3\": \"2022-09-27\"\n        },\n                {\n            \"email\": \"durian@email.com\",\n            \"mobileNo\": \"0000000002\",\n            \"text1\": \"group1\",\n            \"number2\": 1,\n            \"date3\": \"2022-09-27\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/contacts/bulk-upload",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"contacts",
+								"bulk-upload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-contact-details",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"nama2@email.com\",\n    \"mobileNo\": \"0000000002\",\n    \"text1\": \"group2\",\n    \"number2\": 1,\n    \"date3\": \"2022-09-27\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/contacts/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"contacts",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-contact-groups",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"groups\": [\n        {\n            \"id\": 1\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/contacts/1/groups",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"contacts",
+								"1",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-contact",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{act}}"
+							},
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "{{rft}}"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/contacts/4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"contacts",
+								"4"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ipay88",
+			"item": [
+				{
+					"name": "bind-card-charge",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var template = pm.response.text();",
+									"pm.visualizer.set(template);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/payment-methods/bcc",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"payment-methods",
+								"bcc"
+							],
+							"query": [
+								{
+									"key": "responseUrl",
+									"value": "http%3A%2F%2Flocalhost%3A4801%2Fhahaha",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "manage-card",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var template = pm.response.text();",
+									"pm.visualizer.set(template);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/payment-methods/manage-card",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"payment-methods",
+								"manage-card"
+							],
+							"query": [
+								{
+									"key": "responseUrl",
+									"value": "http%3A%2F%2Flocalhost%3A4801%2Fhahaha",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-payment-transaction-status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var template = pm.response.text();",
+									"pm.visualizer.set(template);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/payment-transactions/GBILL-000000000002002",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"payment-transactions",
+								"GBILL-000000000002002"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "callback-payment-response",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var template = pm.response.text();",
+									"pm.visualizer.set(template);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "MerchantCode",
+									"value": "merchantCode123",
+									"type": "text"
+								},
+								{
+									"key": "PaymentId",
+									"value": "payment ID 123",
+									"type": "text"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/callback/payment-response",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"callback",
+								"payment-response"
+							],
+							"query": [
+								{
+									"key": "Lang",
+									"value": "UTF-8",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "callback-payment-response Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var template = pm.response.text();",
+									"pm.visualizer.set(template);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "MerchantCode",
+									"value": "M00284",
+									"type": "text"
+								},
+								{
+									"key": "PaymentId",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "RefNo",
+									"value": "RefNo",
+									"type": "text"
+								},
+								{
+									"key": "Amount",
+									"value": "1.00",
+									"type": "text"
+								},
+								{
+									"key": "Currency",
+									"value": "MYR",
+									"type": "text"
+								},
+								{
+									"key": "ProdDesc",
+									"value": "ProdDesc",
+									"type": "text"
+								},
+								{
+									"key": "UserName",
+									"value": "UserName",
+									"type": "text"
+								},
+								{
+									"key": "UserEmail",
+									"value": "UserEmail",
+									"type": "text"
+								},
+								{
+									"key": "UserContact",
+									"value": "UserContact",
+									"type": "text"
+								},
+								{
+									"key": "Remark",
+									"value": "Remark",
+									"type": "text"
+								},
+								{
+									"key": "Lang",
+									"value": "UTF-8",
+									"type": "text"
+								},
+								{
+									"key": "SignatureType",
+									"value": "SHA256",
+									"type": "text"
+								},
+								{
+									"key": "Signature",
+									"value": "Signature",
+									"type": "text"
+								},
+								{
+									"key": "ResponseURL",
+									"value": "ResponseURL",
+									"type": "text"
+								},
+								{
+									"key": "BackendURL",
+									"value": "BackendURL",
+									"type": "text"
+								},
+								{
+									"key": "ActionType",
+									"value": "SC",
+									"type": "text"
+								},
+								{
+									"key": "TokenId",
+									"value": "TokenId",
+									"type": "text"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://payment.ipay88.com.my/ePayment/entry.asp",
+							"protocol": "https",
+							"host": [
+								"payment",
+								"ipay88",
+								"com",
+								"my"
+							],
+							"path": [
+								"ePayment",
+								"entry.asp"
+							],
+							"query": [
+								{
+									"key": "Lang",
+									"value": "UTF-8",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "backend-subsequent-charge",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var template = pm.response.text();",
+									"pm.visualizer.set(template);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"content-type": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "text/xml;charset=utf-8",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "<ActionType>SC</ActionType>\n<Amount>1.00</Amount>\n<Currency>MYR</Currency>\n<MerchantCode>M00284</MerchantCode>\n<PaymentId>2</PaymentId>\n<ProdDesc></ProdDesc>\n<RefNo>hariraya</RefNo>\n<Remark>remark</Remark>\n<Signature>7a770c90aa4f8df1027005ca5b606f15a21056af1d6f25faa22bd65c89eae517</Signature>\n<SignatureType>SHA256</SignatureType>\n<TokenId>jf8CKqDXNiKO3102</TokenId>\n<UserContact>0172009643</UserContact>\n<UserName>abu</UserName>\n<lang>UTF-8</lang>\n<xfield1></xfield1>",
+							"options": {
+								"raw": {
+									"language": "xml"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://payment.ipay88.com.my/epayment/webservice/MHGatewayService/GatewayService.svc",
+							"protocol": "https",
+							"host": [
+								"payment",
+								"ipay88",
+								"com",
+								"my"
+							],
+							"path": [
+								"epayment",
+								"webservice",
+								"MHGatewayService",
+								"GatewayService.svc"
+							],
+							"query": [
+								{
+									"key": "Lang",
+									"value": "UTF-8",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "billing-information",
+			"item": [
+				{
+					"name": "get-billing-infos",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var template = pm.response.text();",
+									"pm.visualizer.set(template);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/billing-infos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"billing-infos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "new-billing-info",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var template = pm.response.text();",
+									"pm.visualizer.set(template);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Layla Ryan\",\n    \"contactNo\": \"+60172009666\",\n    \"email\": \"michael@evos.tech\",\n    \"addrLine1\": \"No. 5, Jalan 2/4\",\n    \"addrLine2\": \"Taman Bukit Amanah\",\n    \"city\": \"Sri Petaling\",\n    \"state\": \"Selangor\",\n    \"postcode\": \"45678\",\n    \"country\": \"Malaysia\",\n    \"countryIsoCode\": \"MY\",\n    \"defaultBillInfo\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/billing-infos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"billing-infos"
+							],
+							"query": [
+								{
+									"key": "Lang",
+									"value": "UTF-8",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update-billing-info",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var template = pm.response.text();",
+									"pm.visualizer.set(template);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Layla BABA\",\n    \"contactNo\": \"+999999999\",\n    \"email\": \"michael@evos.tech\",\n    \"addrLine1\": \"No. 5, Jalan 2/4\",\n    \"addrLine2\": \"Taman Bukit Amanah\",\n    \"city\": \"Sri Petaling\",\n    \"state\": \"Selangor\",\n    \"postcode\": \"45678\",\n    \"country\": \"Malaysia\",\n    \"countryIsoCode\": \"MY\",\n    \"defaultBillInfo\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/billing-infos/6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"billing-infos",
+								"6"
+							],
+							"query": [
+								{
+									"key": "Lang",
+									"value": "UTF-8",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete-billing-nfo",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var template = pm.response.text();",
+									"pm.visualizer.set(template);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/billing-infos/6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"billing-infos",
+								"6"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "invoices",
+			"item": [
+				{
+					"name": "get-invoices",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var template = pm.response.text();",
+									"pm.visualizer.set(template);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/invoices",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"invoices"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get-invoice-by-id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var template = pm.response.text();",
+									"pm.visualizer.set(template);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/invoices/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"invoices",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "retry-invoice-payment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var template = pm.response.text();",
+									"pm.visualizer.set(template);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/invoices/2/pay",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"invoices",
+								"2",
+								"pay"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "act",
+			"value": ""
+		},
+		{
+			"key": "rft",
+			"value": ""
+		}
+	]
+}

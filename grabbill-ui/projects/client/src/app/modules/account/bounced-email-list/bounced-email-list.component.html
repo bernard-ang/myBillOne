@@ -1,0 +1,67 @@
+<div container class="mx-auto" *ngIf="bouncedEmailSearchResult$ | async as bouncedEmailSearchResult">
+  <div class="pb-8">
+    <grabbill-client-page-header
+      title="Bounced Emails"
+      description="You have {{ bouncedEmailSearchResult.totalItems | number }} bounced emails."
+    ></grabbill-client-page-header>
+  </div>
+
+  <div *ngIf="bouncedEmailPageable$ | async as bouncedEmailPageable">
+    <div class="flex pb-8">
+      <div class="flex-grow">
+        <nz-input-group search-group [nzPrefix]="searchIcon">
+          <input type="text" (input)="doSearch($event)" nz-input placeholder="Find by email" />
+        </nz-input-group>
+        <ng-template #searchIcon>
+          <i nz-icon nzType="search" class="mr-2"></i>
+        </ng-template>
+      </div>
+      <div [formGroup]="form">
+        <nz-range-picker formControlName="range" (ngModelChange)="doDateRange($event)">
+        </nz-range-picker>
+      </div>
+    </div>
+    <nz-table
+      nzBordered
+      [nzLoading]="isTableLoading"
+      [nzData]="bouncedEmailSearchResult.items"
+      [nzFrontPagination]="false"
+      [nzTotal]="bouncedEmailSearchResult.totalItems"
+      [nzPageSize]="bouncedEmailPageable.size"
+      [nzPageIndex]="bouncedEmailPageable.page"
+      (nzQueryParams)="doQuery($event)"
+      nzSize="small"
+      nzTableLayout="fixed"
+    >
+      <thead>
+        <tr>
+          <th nzWidth="40px"></th>
+          <th>Date</th>
+          <th>Email</th>
+          <th>Type</th>
+          <th>Activity</th>
+          <th nzWidth="80px">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let data of bouncedEmailSearchResult.items; let i = index">
+          <tr class="align-top">
+            <td [nzExpand]="expandSet.has(data.id)" (nzExpandChange)="onExpandChange(data.id, $event)"></td>
+            <td>{{ data.createdDate | date: "medium" }}</td>
+            <td>{{ data.email }}</td>
+            <td>{{ data.typeName }}</td>
+            <td>
+              <a (click)="doNavigate(data)">{{ data.activityName }}</a>
+            </td>
+            <td>
+              <a (click)="doDelete(data)" nz-tooltip="Delete"><i nz-icon nzType="delete" class="mr-2"></i></a>
+            </td>
+          </tr>
+          <tr [nzExpand]="expandSet.has(data.id)">
+            <pre>Bounced reason:<br /><br />{{ data.reason }}</pre>
+          </tr>
+        </ng-container>
+      </tbody>
+    </nz-table>
+  </div>
+</div>

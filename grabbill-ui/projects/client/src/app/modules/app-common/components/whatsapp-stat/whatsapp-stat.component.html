@@ -1,0 +1,23 @@
+<div class="flex text-center mb-8 bg-white">
+  <div class="stat-block flex-1">
+    <nz-statistic [nzValue]="(total | number)!" nzTitle="Total"></nz-statistic>
+  </div>
+  <div class="stat-block flex-1">
+    <nz-statistic [nzValue]="(totalSent | number)!" nzTitle="Sent"></nz-statistic>
+  </div>
+  <div class="stat-block flex-1">
+    <nz-statistic [nzValue]="(totalDelivered | number)!" nzTitle="Delivered"></nz-statistic>
+  </div>
+  <div class="stat-block flex-1">
+    <nz-statistic [nzValue]="(totalRead | number)!" nzTitle="Read"></nz-statistic>
+  </div>
+  <div class="stat-block flex-1">
+    <nz-statistic [nzValue]="(totalAcknowledge | number)!" nzTitle="Acknowledged"></nz-statistic>
+  </div>
+  <div class="stat-block flex-1">
+    <nz-statistic [nzValue]="(totalSkip | number)!" nzTitle="Skip"></nz-statistic>
+  </div>
+  <div class="stat-block flex-1">
+    <nz-statistic [nzValue]="(totalFailed | number)!" nzTitle="Failed"></nz-statistic>
+  </div>
+</div>

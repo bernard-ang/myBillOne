@@ -1,0 +1,56 @@
+<div container class="mx-auto" *ngIf="eventSearchResult$ | async as eventSearchResult">
+  <div class="pb-8">
+    <grabbill-client-page-header
+      title="WhatsApp Received Message"
+      description="You have {{ eventSearchResult.totalItems | number }} received messages."
+    ></grabbill-client-page-header>
+  </div>
+
+  <div *ngIf="eventPageable$ | async as pageable">
+    <div class="flex pb-8">
+      <div class="flex-grow">
+        <nz-input-group search-group [nzPrefix]="searchIcon">
+          <input type="text" (input)="doSearch($event)" nz-input placeholder="Find by mobile no" />
+        </nz-input-group>
+        <ng-template #searchIcon>
+          <i nz-icon nzType="search" class="mr-2"></i>
+        </ng-template>
+      </div>
+      <div [formGroup]="form">
+        <nz-range-picker formControlName="range" (ngModelChange)="doDateRange($event)">
+        </nz-range-picker>
+      </div>
+    </div>
+    <nz-table
+      nzBordered
+      [nzLoading]="isTableLoading"
+      [nzData]="eventSearchResult.items"
+      [nzFrontPagination]="false"
+      [nzTotal]="eventSearchResult.totalItems"
+      [nzPageSize]="pageable.size"
+      [nzPageIndex]="pageable.page"
+      (nzQueryParams)="doQuery($event)"
+      nzSize="small"
+      nzTableLayout="fixed"
+    >
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Mobile No</th>
+          <th>Type</th>
+          <th>Content</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let data of eventSearchResult.items; let i = index">
+          <tr class="align-top">
+            <td>{{ data.eventTimestamp | date: "medium" }}</td>
+            <td>{{ data.mobileNo }}</td>
+            <td>{{ data.messageType }}</td>
+            <td>{{ data.content }}</td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </nz-table>
+  </div>
+</div>

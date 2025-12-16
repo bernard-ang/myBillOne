@@ -1,0 +1,80 @@
+<div container class="mx-auto">
+  <grabbill-client-breadcrumb
+    rootTitle="Contacts"
+    [rootLink]="['/', 'contact', 'list']"
+    [rootQueryParam]="{ tab: 'contacts' }"
+  ></grabbill-client-breadcrumb>
+
+  <ng-template #elseContact>
+    <nz-skeleton [nzActive]="true" [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+  </ng-template>
+  <ng-container *ngIf="contact$ | async as contact; else elseContact">
+    <div class="flex">
+      <div class="flex-grow mb-8">
+        <div class="flex">
+          <div class="pr-4">
+            <nz-avatar avatar [nzText]="contact.email.charAt(0)" nzShape="square" [nzSize]="64"></nz-avatar>
+          </div>
+          <div>
+            <h2 *ngIf="hasPrivilege(privilege.CONTACT_EDIT)" nz-typography title>
+              {{ contact.email }} <i (click)="doOpenContactForm()" nz-icon nzType="edit"></i>
+            </h2>
+            <div>{{ getStatusText(contact) }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="flex" *ngIf="contactFields$ | async as contactFields">
+      <div>
+        <div class="mb-4">
+          <nz-card>
+            <div class="flex">
+              <h5 nz-typography class="flex-grow">Information</h5>
+              <button *ngIf="hasPrivilege(privilege.CONTACT_EDIT)" (click)="doOpenContactForm()" nz-button><i nz-icon nzType="edit"></i></button>
+            </div>
+            <nz-descriptions nzSize="small" [nzColumn]="{ xxl: 1, xl: 1, lg: 1, md: 1, sm: 1, xs: 1 }">
+              <nz-descriptions-item nzTitle="Mobile No">{{ contact.mobileNo }}</nz-descriptions-item>
+              <nz-descriptions-item
+                *ngFor="let field of getContactFields(contact, contactFields)"
+                [nzTitle]="field.label"
+              >
+                {{ field.value }}</nz-descriptions-item
+              >
+            </nz-descriptions>
+          </nz-card>
+        </div>
+
+        <nz-card>
+          <div class="flex pb-2">
+            <h5 nz-typography class="flex-grow">Groups</h5>
+            <button *ngIf="hasPrivilege(privilege.CONTACT_EDIT)" nz-button (click)="doOpenUpdateGroupForm()"><i nz-icon nzType="edit"></i></button>
+          </div>
+          <div *ngIf="contact.groups.length > 0; else noGroup">
+            <nz-tag *ngFor="let group of contact.groups" group-tag nzColor="blue">{{ group.name }}</nz-tag>
+          </div>
+          <ng-template #noGroup>
+            <div>No group found</div>
+          </ng-template>
+        </nz-card>
+      </div>
+
+      <grabbill-client-drawer-form
+        title="Update Contact"
+        buttonLabel="Update"
+        [isVisible]="isUpdateContactFormVisible"
+        [fields]="contactDrawerFields"
+        [reset]="false"
+        (close)="closeContactForm()"
+        (submit)="doUpdateContact($event)"
+      >
+      </grabbill-client-drawer-form>
+    </div>
+
+    <grabbill-client-modal-contact-group
+      [isVisible]="isGroupModalVisible"
+      [groups]="contact.groups"
+      (close)="doCloseForm()"
+      (updateGroup)="doUpdateGroup($event)"
+    ></grabbill-client-modal-contact-group>
+  </ng-container>
+</div>

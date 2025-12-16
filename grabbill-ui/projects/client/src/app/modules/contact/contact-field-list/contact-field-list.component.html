@@ -1,0 +1,101 @@
+<div container class="mx-auto">
+  <div class="mb-8">
+    <grabbill-client-page-header
+      description="To manage contact additional fields. Default fields are email and contact no."
+      [buttonTemplate]="buttonTemplate"
+    >
+      <ng-template #buttonTemplate>
+        <button
+          *ngIf="hasPrivilege(privilege.CONTACT_FIELD_EDIT)"
+          nz-button
+          nzType="default"
+          class="mr-4"
+          [disabled]="contactFields.controls.length > 7"
+          (click)="addField()"
+        >
+          Add Field
+        </button>
+        <button
+          *ngIf="hasPrivilege(privilege.CONTACT_FIELD_EDIT)"
+          nz-button nzType="primary" (click)="doUpdateFields()">Save</button>
+      </ng-template>
+    </grabbill-client-page-header>
+  </div>
+  <div>
+    <form nz-form [formGroup]="form">
+      <ng-container formArrayName="contactFields">
+        <nz-table
+          [nzLoading]="isLoading"
+          nzBordered
+          [nzShowPagination]="false"
+          [nzData]="contactFields.getRawValue()"
+          nzSize="middle"
+          nzTableLayout="fixed"
+        >
+          <thead>
+            <tr>
+              <th nzWidth="32%">Label</th>
+              <th nzWidth="32%">Excel Header</th>
+              <th nzWidth="12%">Mandatory</th>
+              <th nzWidth="12%">
+                Type
+                <i
+                  nz-tooltip
+                  nzTooltipTitle="Sample date format (DD/MM/YYYY)"
+                  nz-icon
+                  nzType="info-circle"
+                  nzTheme="outline"
+                ></i>
+              </th>
+              <th *ngIf="hasPrivilege(privilege.CONTACT_FIELD_EDIT)" nzWidth="32px">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Email</td>
+              <td>email</td>
+              <td><label nz-checkbox [formControl]="emailControl" nzDisabled="true"></label></td>
+              <td>EMAIL</td>
+              <td *ngIf="hasPrivilege(privilege.CONTACT_FIELD_EDIT)"></td>
+            </tr>
+            <tr>
+              <td>Mobile No</td>
+              <td>mobileNo</td>
+              <td><label nz-checkbox nzDisabled="true"></label></td>
+              <td>TEXT</td>
+              <td *ngIf="hasPrivilege(privilege.CONTACT_FIELD_EDIT)"></td>
+            </tr>
+            <tr *ngFor="let control of contactFields.controls; let i = index" [formGroupName]="i">
+              <td>
+                <input nz-input formControlName="label" placeholder="Label" (blur)="doLabelChange(control)" />
+                <div error-text>{{ getErrorMessage(control.get("label")!) }}</div>
+              </td>
+              <td>
+                <input nz-input formControlName="name" placeholder="Header" />
+                <div error-text>{{ getErrorMessage(control.get("name")!) }}</div>
+              </td>
+              <td>
+                <label nz-checkbox formControlName="required"></label>
+              </td>
+              <td>
+                <nz-select formControlName="dataType" class="w-full">
+                  <nz-option
+                    *ngFor="let option of getDataTypeOptions()"
+                    [nzLabel]="option"
+                    [nzValue]="option"
+                  ></nz-option>
+                </nz-select>
+                <div error-text>{{ getErrorMessage(control.get("dataType")!) }}</div>
+              </td>
+              <td *ngIf="hasPrivilege(privilege.CONTACT_FIELD_EDIT)">
+                <a (click)="doDeleteIndex(control, contactFields, i)">
+                  <i nz-icon nzType="delete"></i>
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </nz-table>
+      </ng-container>
+    </form>
+  </div>
+</div>

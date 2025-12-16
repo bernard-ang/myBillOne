@@ -1,0 +1,246 @@
+@import '../../../../styles/variables';
+
+[logo] {
+  background-image: url(/assets/logo_big.png);
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 60px;
+  background-position: center;
+  background-size: contain;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+[pricing-wrapper] {
+  position: relative;
+
+  [pricing-container] {
+    padding-top: 100px;
+    padding-bottom: 100px;
+    background: linear-gradient(90deg, @accent-color 50%, @accent-color 50%) no-repeat;
+    background-size: auto 500px;
+
+    @media @media-xl {
+      background-size: auto 540px;
+    }
+  }
+
+  [pricing-title] {
+    color: white;
+    padding-bottom: 20px;
+  }
+
+  [pricing-description] {
+    color: white;
+    padding-bottom: 44px;
+
+    @media @media-lg {
+      padding-bottom: 44px;
+    }
+  }
+
+  [pricing-switch-container] {
+    padding-bottom: 30px;
+
+    @media @media-lg {
+      padding-bottom: 30px;
+    }
+
+    [pricing-switch] {
+      background-color: white;
+      display: inline-block;
+      padding: 4px;
+      border-radius: 30px;
+    }
+  }
+
+  [pricing-cards-container] {
+    row-gap: 60px;
+    padding-left: 20px;
+    padding-right: 20px;
+
+    @media @media-md {
+      align-items: center;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    @media @media-lg {
+      align-items: inherit;
+      row-gap: 0;
+    }
+
+    [pricing-card] {
+      background-color: white;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+
+      @media @media-md {
+        width: 460px;
+      }
+
+      @media @media-lg {
+        width: 210px;
+      }
+
+      @media @media-xl {
+        width: auto;
+      }
+
+      [sign-up-button] {
+        margin-top: 34px;
+      }
+
+      [plan-name] {
+        padding-top: 14px;
+        padding-bottom: 28px;
+        font-size: 34px;
+        line-height: 40px;
+        font-weight: 600;
+
+        @media @media-lg {
+          font-size: 28px;
+          padding-bottom: 28px;
+        }
+
+        @media @media-xl {
+          font-size: 34px;
+        }
+      }
+
+      [plan-name].plan0 {
+        color: @tagline-description-color;
+      }
+
+      [plan-name].plan1 {
+        color: @digital-filing-font-color;
+      }
+
+      [plan-name].plan2 {
+        color: @transactional-email-color;
+      }
+
+      [plan-name].plan3 {
+        color: @email-marketing-font-color;
+      }
+
+      [enterprise-plan-description] {
+        font-size: 19px;
+        line-height: 26px;
+        padding-bottom: 40px;
+      }
+
+      [plan-price] {
+        padding-bottom: 28px;
+        font-size: 36px;
+        line-height: 50px;
+        font-weight: 600;
+        color: @primary-color
+      }
+
+      [plan-mode] {
+        padding-bottom: 60px;
+        font-size: 19px;
+        line-height: 23px;
+      }
+
+      [option] {
+        text-align: left;
+        margin-bottom: 34px;
+
+        [option-label] {
+          font-size: 19px;
+          line-height: 23px;
+          padding-bottom: 15px;
+        }
+
+        [option-select] {
+          width: 100%;
+        }
+      }
+
+      [card-feature-items] {
+        text-align: left;
+        font-size: 18px;
+        line-height: 23px;
+
+        div {
+          margin-bottom: 8px;
+        }
+      }
+    }
+
+    [enterprise-text] {
+      flex-grow: 1;
+    }
+  }
+
+  [divider] {
+    display: none;
+    margin-top: 100px;
+    margin-bottom: 100px;
+
+    @media @media-lg {
+      display: flex;
+    }
+  }
+
+  [feature-title] {
+    font-size: 58px;
+    line-height: 64px;
+    font-weight: 600;
+    padding-bottom: 46px;
+    color: @accent-color;
+  }
+
+  [feature-table] {
+    [feature-header] {
+      font-weight: 500;
+    }
+
+    tr:nth-child(even) {background: #fafafa}
+
+
+    [feature-header]:nth-child(3) {
+      color: @digital-filing-font-color;
+    }
+
+    [feature-header]:nth-child(4) {
+      color: @accent-color;
+    }
+
+    [feature-header]:nth-child(5) {
+      color: @email-marketing-font-color;
+    }
+
+    [feature-item] {
+      text-align: center;
+    }
+
+    [feature-value] {
+      border-left: 1px solid @grey-color-2;
+    }
+  }
+}
+
+[main-title] {
+  font-weight: 600;
+  font-size: 38px;
+  line-height: 42px;
+
+  @media @media-lg {
+    font-size: 47px;
+    line-height: 53px;
+  }
+
+  @media @media-xl {
+    font-size: 50px;
+    line-height: 56px;
+  }
+}
+
+[option] {
+  height: 80px;
+}

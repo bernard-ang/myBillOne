@@ -1,0 +1,56 @@
+<nz-card
+  [nzTitle]="
+    'Current Cycle Usage ' +
+    '(' +
+    (currentStatistics.startDateTime | date: shortDateFormat) +
+    ' - ' +
+    (currentStatistics.endDateTime | date: shortDateFormat) +
+    ')'
+  "
+>
+  <div *ngIf="currentStatistics" progress-chart class="flex justify-around mx-auto">
+    <div class="text-center">
+      <h6 nz-typography>Total storage used<br /><br /></h6>
+      <nz-progress [nzPercent]="storagePercentage" nzType="circle"></nz-progress>
+      <h6 class="pt-4" nz-typography *ngIf="isSaasMode">
+        ({{ formatBytes(currentStatistics.storageUsed) }} / {{ formatBytes(currentStatistics.storageLimit) }})
+      </h6>
+      <h6 class="pt-4" nz-typography *ngIf="isOnPremiseMode">
+        {{ formatBytes(currentStatistics.storageUsed) }} Used
+      </h6>
+    </div>
+    <div class="text-center">
+      <h6 nz-typography>Total transactional email<br />sent per cycle</h6>
+      <nz-progress [nzPercent]="transactionalEmailPercentage" nzType="circle"></nz-progress>
+      <h6 class="pt-4" nz-typography *ngIf="isSaasMode">
+        ({{ currentStatistics.transactionalEmailSent | number: "1.0" }} /
+        {{ currentStatistics.transactionalEmailLimit | number: "1.0" }})
+      </h6>
+      <h6 class="pt-4" nz-typography *ngIf="isOnPremiseMode">
+        {{ currentStatistics.transactionalEmailSent | number: "1.0" }} Sent
+      </h6>
+    </div>
+    <div class="text-center">
+      <h6 nz-typography>Total marketing email<br />sent per cycle</h6>
+      <nz-progress [nzPercent]="marketingEmailPercentage" nzType="circle"></nz-progress>
+      <h6 class="pt-4" nz-typography *ngIf="isSaasMode">
+        ({{ currentStatistics.emailCampaignSent | number: "1.0" }} /
+        {{ currentStatistics.emailCampaignLimit | number: "1.0" }})
+      </h6>
+      <h6 class="pt-4" nz-typography *ngIf="isOnPremiseMode">
+        {{ currentStatistics.emailCampaignSent | number: "1.0" }} Sent
+      </h6>
+    </div>
+    <div class="text-center" *ngIf="isExperimentalFeature()">
+      <h6 nz-typography>Total SMS credit used<br /><br /></h6>
+      <nz-progress [nzPercent]="smsCreditPercentage" nzType="circle"></nz-progress>
+      <h6 class="pt-4" nz-typography *ngIf="isSaasMode">
+        ({{ currentStatistics.smsTotalCreditsUsed }} /
+        {{ currentStatistics.smsRemainingCredits + currentStatistics.smsTotalCreditsUsed }})
+      </h6>
+      <h6 class="pt-4" nz-typography *ngIf="isOnPremiseMode">
+        {{ currentStatistics.smsTotalCreditsUsed | number: "1.0" }} Used
+      </h6>
+    </div>
+  </div>
+</nz-card>

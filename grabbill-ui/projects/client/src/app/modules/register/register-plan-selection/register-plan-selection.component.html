@@ -1,0 +1,223 @@
+<div>
+  <div logo></div>
+  <div pricing-wrapper>
+    <div pricing-container [formGroup]="form">
+      <form *ngIf="plans$ | async as plans" nz-form [formGroup]="form" nzLayout="vertical">
+        <div class="container mx-auto z-5 text-center">
+          <div pricing-title main-title>Plan Selection</div>
+          <div pricing-description main-description>
+            Select your plan here. We've got deals of every kind for every scale of business
+          </div>
+
+          <div pricing-switch-container>
+            <div pricing-switch>
+              <button
+                nzSize="large"
+                nz-button
+                [nzShape]="form.get('mode')!.value === subscriptionMode.MONTHLY ? 'round' : null"
+                [nzType]="form.get('mode')!.value === subscriptionMode.MONTHLY ? 'primary' : 'text'"
+                (click)="updatePlansPrice(subscriptionMode.MONTHLY)"
+              >
+                Monthly
+              </button>
+              <button
+                nzSize="large"
+                nz-button
+                [nzShape]="form.get('mode')!.value === subscriptionMode.ANNUALLY ? 'round' : null"
+                [nzType]="form.get('mode')!.value === subscriptionMode.ANNUALLY ? 'primary' : 'text'"
+                nzType="text"
+                (click)="updatePlansPrice(subscriptionMode.ANNUALLY)"
+              >
+                Annually
+              </button>
+            </div>
+          </div>
+
+          <ng-template #no><i nz-icon nzType="close"></i></ng-template>
+
+          <div pricing-cards-container formArrayName="plans" class="flex flex-col lg:flex-row gap-x-4">
+            <div *ngFor="let plan of plans; let i = index" pricing-card class="flex-1 border" [formGroupName]="i">
+              <div plan-name class="plan{{ i }}">{{ plan.name }}</div>
+
+              <div *ngIf="i < 4">
+                <div plan-price class="flex items-end justify-center pb-2">
+                  <span>RM {{ formPlans.at(i).get("totalPrice")!.value | number: "1.2" }}</span>
+                </div>
+
+                <div option>
+                  <div *ngIf="plan.storageOptions.length > 0">
+                    <div option-label>Storage Size</div>
+                    <nz-select
+                      option-select
+                      nzSize="large"
+                      formControlName="storageOption"
+                      (ngModelChange)="updatePlanPrice(formPlans.at(i))"
+                    >
+                      <nz-option
+                        *ngFor="let option of plan.storageOptions"
+                        [nzValue]="option"
+                        [nzLabel]="formatBytes(option.size)"
+                      ></nz-option>
+                    </nz-select>
+                  </div>
+                </div>
+
+                <div option>
+                  <div *ngIf="plan.transactionalEmailOptions.length > 0">
+                    <div option-label>Transaction Email</div>
+                    <nz-select
+                      option-select
+                      nzSize="large"
+                      formControlName="transactionalEmailOption"
+                      (ngModelChange)="updatePlanPrice(formPlans.at(i))"
+                    >
+                      <nz-option
+                        *ngFor="let option of plan.transactionalEmailOptions"
+                        [nzValue]="option"
+                        nzLabel="{{ option.size | number }} emails / month"
+                      ></nz-option>
+                    </nz-select>
+                  </div>
+                </div>
+
+                <div option>
+                  <div *ngIf="plan.emailCampaignOptions.length > 0">
+                    <div option-label>Marketing Email</div>
+                    <nz-select
+                      option-select
+                      nzSize="large"
+                      formControlName="emailCampaignOption"
+                      (ngModelChange)="updatePlanPrice(formPlans.at(i))"
+                    >
+                      <nz-option
+                        *ngFor="let option of plan.emailCampaignOptions"
+                        [nzValue]="option"
+                        nzLabel="{{ option.size | number }} emails / month"
+                      ></nz-option>
+                    </nz-select>
+                  </div>
+                </div>
+
+                <div card-feature-items>
+                  <div class="flex items-start"><i nz-icon nzType="check"></i> <span class="pl-2">Archiving</span></div>
+                  <div class="flex items-start">
+                    <i nz-icon nzType="check"></i> <span class="pl-2">Password Protect PDF</span>
+                  </div>
+                  <div class="flex items-start">
+                    <i nz-icon nzType="check"></i>
+                    <span class="pl-2">Max {{ formatBytes(plan.maxAttachmentSize) }} Email Attachment</span>
+                  </div>
+                  <div class="flex items-start">
+                    <i *ngIf="plan.grabbillLogo; else no" nz-icon nzType="check"></i>
+                    <span class="pl-2">myBillOne Branding</span>
+                  </div>
+                  <div class="flex items-start">
+                    <i *ngIf="plan.customSmtp; else no" nz-icon nzType="check"></i>
+                    <span class="pl-2">Custom Mail Server</span>
+                  </div>
+                  <div class="flex items-start">
+                    <i nz-icon nzType="check"></i> <span class="pl-2">{{ plan.maxUser }} Users</span>
+                  </div>
+                  <div class="flex items-start">
+                    <i nz-icon nzType="check"></i> <span class="pl-2">First {{ plan.supportDays }} days support</span>
+                  </div>
+                  <div class="flex items-start">
+                    <i *ngIf="plan.reporting; else no" nz-icon nzType="check"></i> <span class="pl-2">Reporting</span>
+                  </div>
+                  <div class="flex items-start">
+                    <i *ngIf="plan.scheduleEmail; else no" nz-icon nzType="check"></i>
+                    <span class="pl-2">Schedule Email</span>
+                  </div>
+                  <div class="flex items-start">
+                    <i *ngIf="plan.exportFile; else no" nz-icon nzType="check"></i>
+                    <span class="pl-2">Export Files</span>
+                  </div>
+                </div>
+
+                <div sign-up-button *ngIf="i < (isPaidPlanEnabled() ? 4 : 1)">
+                  <button
+                    nz-button
+                    nzSize="large"
+                    nzShape="round"
+                    (click)="doSelectPlan(plan, i)"
+                    type="button"
+                    nzBlock="true"
+                    nzType="primary"
+                  >
+                    Select
+                  </button>
+                </div>
+                <div sign-up-button *ngIf="i >= (isPaidPlanEnabled() ? 4 : 1)">
+                  <ng-container *ngTemplateOutlet="contactUsButton"></ng-container>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div pricing-cards-container class="mt-8">
+            <div pricing-card>
+              <div plan-name>Enterprise</div>
+              <div enterprise-plan-description enterprise-text>
+                Free, basic, standard, professional package does not suit your need?
+              </div>
+              <div class="text-center">
+                <div class="w-40 m-auto">
+                  <ng-container *ngTemplateOutlet="contactUsButton"></ng-container>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<nz-modal nzTitle="Switch Plan" [nzVisible]="switchPlanModalVisible" (nzOnCancel)="doCloseSwitchPlanModal()">
+  <div *nzModalContent>
+    <div class="whitespace-pre-line mb-4">{{ switchPlanText }}</div>
+    <form nz-form [formGroup]="promoCodeForm" nzLayout="vertical" *ngIf="isUpgradePlan">
+      <nz-form-item>
+        <nz-form-label>Promo Code (Optional):</nz-form-label>
+        <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(promoCodeForm.controls['code'])">
+          <input nz-input formControlName="code" />
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </div>
+  <div *nzModalFooter>
+    <button nz-button nzType="primary" type="button" (click)="doSwitchPlan()">Yes</button>
+    <button nz-button nzType="default" type="button" (click)="doCloseSwitchPlanModal()">No</button>
+  </div>
+</nz-modal>
+
+<nz-modal nzTitle="Promo Code" [nzVisible]="newPlanModalVisible" (nzOnCancel)="doCloseNewPlanModal()">
+  <div *nzModalContent>
+    <div class="whitespace-pre-line mb-4">Enter your promo code to redeem (optional):</div>
+    <form nz-form [formGroup]="promoCodeForm" nzLayout="vertical">
+      <nz-form-item>
+        <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(promoCodeForm.controls['code'])">
+          <input nz-input formControlName="code" />
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </div>
+  <div *nzModalFooter>
+    <button nz-button nzType="primary" type="button" (click)="doNewPlan()">Yes</button>
+    <button nz-button nzType="default" type="button" (click)="doCloseNewPlanModal()">No</button>
+  </div>
+</nz-modal>
+
+<ng-template #contactUsButton>
+  <button
+    nz-button
+    nzSize="large"
+    nzShape="round"
+    type="button"
+    nzBlock="true"
+    nzType="primary"
+    (click)="doEmailSupport()"
+  >
+    Contact Us
+  </button>
+</ng-template>

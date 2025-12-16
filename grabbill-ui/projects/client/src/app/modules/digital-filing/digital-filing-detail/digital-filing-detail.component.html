@@ -1,0 +1,325 @@
+<div container class="mx-auto">
+  <grabbill-client-breadcrumb
+    rootTitle="Digital Filing"
+    [rootLink]="['/', 'digital-filing', 'list']"
+  ></grabbill-client-breadcrumb>
+
+  <ng-template #elseType>
+    <nz-skeleton [nzActive]="true" [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+  </ng-template>
+
+  <ng-container *ngIf="digitalFilingType$ | async as digitalFilingType; else elseType">
+    <grabbill-client-page-header
+      [title]="digitalFilingType.name"
+      [subtitle]="getCode(digitalFilingType)"
+      [buttonTemplate]="buttonTemplate"
+      description="You have {{ digitalFilingType.noOfFiles | number: '1.0' }} files."
+    >
+      <ng-template #buttonTemplate>
+        <div *ngIf="hasPrivilege(privilege.DGTL_FILING_ACTIVITY_EDIT)">
+          <button nz-button nzType="primary" (click)="doCreateDigitalFilingTemplate(digitalFilingType.id, digitalFilingType.name)">
+            Create Digital Filing Activity
+          </button>
+        </div>
+      </ng-template>
+    </grabbill-client-page-header>
+
+    <nz-divider></nz-divider>
+
+    <nz-tabset nzSize="large" nzLinkRouter>
+      <nz-tab>
+        <a *nzTabLink nz-tab-link [routerLink]="['.']" [queryParams]="{ tab: 'files' }" queryParamsHandling="merge">
+          Files
+        </a>
+
+        <div>
+          <div class="flex">
+            <div class="flex-1">
+              <nz-input-group search-group [nzPrefix]="searchIcon">
+                <input type="text" (input)="doSearchFilename($event)" nz-input placeholder="Find by filename" />
+              </nz-input-group>
+              <ng-template #searchIcon>
+                <i nz-icon nzType="search" class="mr-2"></i>
+              </ng-template>
+            </div>
+          </div>
+          <div toolbar class="flex items-center p-2">
+            <div class="flex-grow">
+              <nz-tag
+                *ngFor="let tag of getFilters(); let i = index"
+                nzMode="closeable"
+                (nzOnClose)="doRemoveFilter(tag[0])"
+              >
+                {{ getIndexFieldByFieldName(tag[0], digitalFilingType).label }} = {{ getIndexFieldValue(tag[1]) }}
+              </nz-tag>
+            </div>
+            <div>
+              <button (click)="doOpenFilterModal(digitalFilingType)" nz-button nzType="link">
+                <i nz-icon nzType="filter"></i>Add Filter
+              </button>
+
+              <button (click)="doDownloadFiles(digitalFilingType)" nz-button nzType="link">
+                <i nz-icon nzType="download"></i>Download Files
+              </button>
+            </div>
+          </div>
+          <ng-container *ngIf="digitalFilingFileSearchResult$ | async as digitalFilingFileSearchResult">
+            <ng-container *ngIf="digitalFilingFilePageable$ | async as digitalFilingFilePageable">
+              <nz-table
+                nzBordered
+                [nzLoading]="isFileTableLoading"
+                [nzData]="digitalFilingFileSearchResult.items"
+                [nzFrontPagination]="false"
+                [nzTotal]="digitalFilingFileSearchResult.totalItems"
+                [nzPageSize]="digitalFilingFilePageable.size"
+                [nzPageIndex]="digitalFilingFilePageable.page"
+                (nzQueryParams)="doQueryFile($event)"
+                nzSize="small"
+                nzTableLayout="fixed"
+              >
+                <thead>
+                  <tr>
+                    <th>Activity Name</th>
+                    <th *ngFor="let fieldLabel of getIndexFieldLabels(digitalFilingType)">{{ fieldLabel }}</th>
+                    <th nzRight nzWidth="80px">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let data of digitalFilingFileSearchResult.items; let i = index">
+                    <td>{{ data.activityName }}</td>
+                    <td *ngFor="let value of getIndexRowValues(data, digitalFilingType); let i = index">
+                      <div *ngIf="i === 0 && data.file!.id; else elseBlock">
+                        <a (click)="doDownloadFile(data)">{{ value }}</a>
+                      </div>
+                      <ng-template #elseBlock>{{ value }}</ng-template>
+                    </td>
+                    <td nzRight *ngIf="hasPrivilege(privilege.DGTL_FILING_ACTIVITY_EDIT)">
+                      <a nz-tooltip="Delete" (click)="doDeleteFile(data, digitalFilingType)">
+                        <i nz-icon nzType="delete" class="mr-2"></i>
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </nz-table>
+            </ng-container>
+          </ng-container>
+        </div>
+      </nz-tab>
+
+      <nz-tab>
+        <a
+          *nzTabLink
+          nz-tab-link
+          [routerLink]="['.']"
+          [queryParams]="{ tab: 'activities' }"
+          queryParamsHandling="merge"
+        >
+          Activities
+        </a>
+
+        <grabbill-client-list
+          [store]="store"
+          [actions$]="actions$"
+          [pageable$]="digitalFilingActivityPageable$"
+          [result$]="digitalFilingActivitySearchResult$"
+          [isListLoading]="isActivityListLoading"
+          [queryAction]="queryAction"
+          [queryActionParams]="[typeId]"
+          [loadMoreAction]="loadMoreAction"
+          [pageableState]="state.digitalFilingActivityPageable"
+          [typeNameState]="state.activityName"
+          [subtitleTemplate]="subtitleTemplate"
+          [contentTemplate]="contentTemplate"
+          [statusTemplate]="statusTemplate"
+          [actionsTemplate]="actionsTemplate"
+          [hasSort]="false"
+          (selectItem)="doSelect($event)"
+          icon="file-pdf"
+          searchText="Find by activity name"
+          noRecordText="No activities found"
+        >
+          <ng-template #subtitleTemplate let-item>
+            <div list-description>{{ getActivityStatusText(item) }}</div>
+            <div list-description *ngIf="item.purgedTimestamp">
+              Purged at {{ item.purgedTimestamp | date: dateFormat }}
+            </div>
+          </ng-template>
+          <ng-template #contentTemplate let-item>
+            <div class="flex-grow">
+              <h4 total nz-typography>{{ item.noOfFiles | number: "1.0" }}</h4>
+              <div>Files</div>
+            </div>
+          </ng-template>
+          <ng-template #statusTemplate let-item>
+            <div class="w-1/5">
+              <nz-tag [nzColor]="getStatusTag(item)">{{ item.status }}</nz-tag>
+            </div>
+          </ng-template>
+          <ng-template #actionsTemplate let-item>
+            <ul nz-list-item-actions actions-width>
+              <nz-list-item-action *ngIf="item.status === 'DRAFT' && hasPrivilege(privilege.DGTL_FILING_ACTIVITY_EDIT)">
+                <a list-title nz-tooltip="Edit" (click)="doEditActivity(digitalFilingType.id, item.id)">
+                  <i nz-icon nzType="edit"></i>
+                </a>
+              </nz-list-item-action>
+              <nz-list-item-action *ngIf="item.status === 'DRAFT' && hasPrivilege(privilege.DGTL_FILING_ACTIVITY_EDIT)">
+                <a list-title nz-tooltip="Delete" (click)="doDeleteActivity(digitalFilingType.id, item)"
+                  ><i nz-icon nzType="delete"></i
+                ></a>
+              </nz-list-item-action>
+              <ng-container *ngIf="user$ | async as user">
+                <nz-list-item-action
+                  *ngIf="
+                    item.status === 'COMPLETED' &&
+                    item.noOfFiles > 0 &&
+                    !item.purgedTimestamp &&
+                    digitalFilingFilePageable$ &&
+                    hasPrivilege(privilege.DGTL_FILING_ACTIVITY_VIEW) &&
+                    user.subscription!.exportFile
+                  "
+                >
+                  <a list-title nz-tooltip="Export" (click)="doExportActivity(digitalFilingType.id, item)"
+                    ><i nz-icon nzType="download"></i
+                  ></a>
+                </nz-list-item-action>
+              </ng-container>
+
+              <nz-list-item-action
+                *ngIf="
+                  item.status === 'COMPLETED' &&
+                  item.noOfFiles > 0 &&
+                  !item.purgedTimestamp &&
+                  hasPrivilege(privilege.DGTL_FILING_ACTIVITY_EDIT)
+                "
+              >
+                <a list-title nz-tooltip="Purge Files" (click)="doPurgeActivity(digitalFilingType.id, item)"
+                  ><i nz-icon nzType="file-exclamation"></i
+                ></a>
+              </nz-list-item-action>
+            </ul>
+          </ng-template>
+        </grabbill-client-list>
+      </nz-tab>
+
+      <nz-tab>
+        <a *nzTabLink nz-tab-link [routerLink]="['.']" [queryParams]="{ tab: 'settings' }" queryParamsHandling="merge">
+          Template Settings
+        </a>
+
+        <div class="text-right mb-4" *ngIf="hasPrivilege(privilege.DGTL_FILING_EDIT)">
+          <button nz-button (click)="doEdit(digitalFilingType.id)">Edit</button>
+        </div>
+
+        <nz-card>
+          <grabbill-client-descriptions
+            title="Auto Purge Settings"
+            [items]="[
+              {
+                title: 'Auto Purge By Days',
+                span: 1,
+                type: digitalFilingType.autoPurge ? 'number' : 'string',
+                value: digitalFilingType.autoPurge ? digitalFilingType.autoPurgeByDays : '-'
+              }
+            ]"
+          ></grabbill-client-descriptions>
+
+          <grabbill-client-descriptions
+            title="Index Settings"
+            containerClass="pb-4"
+            [items]="[
+              {
+                title: 'Supported index file types',
+                span: 1,
+                type: 'string',
+                value: getSeparatorLabel(digitalFilingType.csvSeparator)
+              }
+            ]"
+          ></grabbill-client-descriptions>
+
+          <div class="pb-8">
+            <div>
+              <nz-table
+                nzBordered
+                [nzShowPagination]="false"
+                [nzData]="digitalFilingType.indexFields"
+                nzSize="small"
+                nzTableLayout="fixed"
+              >
+                <thead>
+                  <tr>
+                    <th>Label</th>
+                    <th>Excel Header</th>
+                    <th nzWidth="16%">Mandatory</th>
+                    <th nzWidth="13%">Type</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let data of digitalFilingType.indexFields; let i = index">
+                    <td>{{ data.label }}</td>
+                    <td>{{ data.header }}</td>
+                    <td><i *ngIf="data.required" nz-icon nzType="check"></i></td>
+                    <td>{{ data.dataType }}</td>
+                  </tr>
+                </tbody>
+              </nz-table>
+            </div>
+          </div>
+        </nz-card>
+      </nz-tab>
+    </nz-tabset>
+
+    <nz-modal [nzVisible]="isFilterModalVisible" nzTitle="Add Filter" (nzOnCancel)="doCloseFilterModal()">
+      <div *nzModalContent>
+        <div>
+          <form nz-form [formGroup]="filterForm">
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Index Field</nz-form-label>
+              <nz-form-control [nzSm]="14" [nzXs]="24">
+                <nz-select
+                  formControlName="field"
+                  (ngModelChange)="doFilterIndexFieldChange(digitalFilingType, $event)"
+                >
+                  <ng-container *ngFor="let field of digitalFilingType.indexFields; let i = index">
+                    <nz-option *ngIf="i !== 0" [nzValue]="'idxf' + (i + 1)" [nzLabel]="field.label"></nz-option>
+                  </ng-container>
+                </nz-select>
+                <input type="hidden" formControlName="type" />
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item *ngIf="filterForm.get('type')!.value === 'TEXT'">
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Value</nz-form-label>
+              <nz-form-control [nzSm]="14" [nzXs]="24">
+                <input nz-input formControlName="textValue" />
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item *ngIf="filterForm.get('type')!.value === 'NUMBER'">
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Value</nz-form-label>
+              <nz-form-control [nzSm]="14" [nzXs]="24">
+                <nz-input-number
+                  formControlName="numberValue"
+                  [nzMin]="-9999999"
+                  [nzMax]="9999999"
+                  [nzStep]="1"
+                ></nz-input-number>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item *ngIf="filterForm.get('type')!.value === 'DATE'">
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Value</nz-form-label>
+              <nz-form-control [nzSm]="14" [nzXs]="24">
+                <nz-date-picker formControlName="dateValue" nzPlaceHolder="Start"></nz-date-picker>
+                &nbsp;
+                <nz-date-picker formControlName="endDateValue" nzPlaceHolder="End"></nz-date-picker>
+              </nz-form-control>
+            </nz-form-item>
+          </form>
+        </div>
+      </div>
+      <div *nzModalFooter>
+        <button nz-button nzType="primary" (click)="doAddFilter()">Add</button>
+      </div>
+    </nz-modal>
+  </ng-container>
+</div>

@@ -1,0 +1,134 @@
+<div container class="mx-auto" *ngIf="roles$ | async as roles">
+  <ng-container *ngIf="privileges$ | async as privileges">
+    <grabbill-client-page-header
+      title="Roles"
+      description="You have {{ roles.length | number }} roles."
+      [buttonTemplate]="buttonTemplate"
+    >
+      <ng-template #buttonTemplate let-user>
+        <button nz-button nzType="primary" (click)="doOpenCreateModal(privileges)">
+          Add Role
+        </button>
+      </ng-template>
+    </grabbill-client-page-header>
+
+    <div class="pt-8">
+      <nz-table
+        #rolesTable
+        nzBordered
+        [nzData]="roles"
+        nzSize="small"
+        nzTableLayout="fixed"
+      >
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of rolesTable.data; let i = index">
+          <td>{{ data.name }}</td>
+          <td>
+            <i nz-tooltip="Edit" (click)="doOpenEditModal(privileges, data)" nz-icon nzType="edit" class="mr-3"></i>
+            <i nz-tooltip="Delete" (click)="doDeleteRole(data)" nz-icon nzType="delete" class="mr-3"></i>
+          </td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </div>
+
+    <div>
+      <nz-drawer
+        [nzBodyStyle]="{ overflow: 'auto' }"
+        [nzWidth]="540"
+        [nzClosable]="false"
+        [nzVisible]="isCreateFormVisible"
+        nzTitle="Add New Role"
+        [nzFooter]="createFooterTemplate"
+        (nzOnClose)="closeCreateForm()"
+      >
+        <form nz-form *nzDrawerContent [formGroup]="createForm" nzLayout="vertical">
+          <div>
+            <div>
+              <nz-form-item>
+                <nz-form-label nzRequired>Name</nz-form-label>
+                <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['name'])">
+                  <input nz-input formControlName="name" placeholder="Please enter name" />
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div>
+              <nz-form-item>
+                <nz-form-label nzRequired>Privileges</nz-form-label>
+                <nz-form-control [nzErrorTip]="getErrorMessage(createForm.controls['privileges'])">
+                  <nz-checkbox-group formControlName="privileges" class="flex flex-col"></nz-checkbox-group>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </div>
+        </form>
+
+        <ng-template #createFooterTemplate>
+          <div class="text-right">
+            <button
+              nz-button
+              [nzLoading]="isCreateFormLoading"
+              nzType="primary"
+              [disabled]="!createForm.valid"
+              (click)="doCreateRole()"
+            >
+              Create New Role
+            </button>
+          </div>
+        </ng-template>
+      </nz-drawer>
+
+      <nz-drawer
+        [nzBodyStyle]="{ overflow: 'auto' }"
+        [nzWidth]="540"
+        [nzClosable]="false"
+        [nzVisible]="isEditFormVisible"
+        nzTitle="Edit Role"
+        [nzFooter]="editFooterTemplate"
+        (nzOnClose)="closeEditForm()"
+      >
+        <form nz-form *nzDrawerContent [formGroup]="editForm" nzLayout="vertical">
+          <div>
+            <div>
+              <nz-form-item>
+                <nz-form-label nzRequired>Name</nz-form-label>
+                <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['name'])">
+                  <input nz-input formControlName="name" placeholder="Please enter name" />
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div>
+              <nz-form-item>
+                <nz-form-label nzRequired>Privileges</nz-form-label>
+                <nz-form-control [nzErrorTip]="getErrorMessage(createForm.controls['privileges'])">
+                  <nz-checkbox-group formControlName="privileges" class="flex flex-col"></nz-checkbox-group>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </div>
+        </form>
+
+        <ng-template #editFooterTemplate>
+          <div class="text-right">
+            <button
+              nz-button
+              [nzLoading]="isEditFormLoading"
+              nzType="primary"
+              [disabled]="!editForm.valid"
+              (click)="doUpdateRole()"
+            >
+              Update Role
+            </button>
+          </div>
+        </ng-template>
+      </nz-drawer>
+    </div>
+  </ng-container>
+</div>
+

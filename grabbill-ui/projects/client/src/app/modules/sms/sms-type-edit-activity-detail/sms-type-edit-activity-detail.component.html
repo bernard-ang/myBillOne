@@ -1,0 +1,471 @@
+<div container class="mx-auto">
+  <ng-container>
+    <div top>
+      <grabbill-client-breadcrumb
+        rootTitle="SMS"
+        [rootLink]="['/', 'sms', 'list']"
+        [hasCrumb2]="true"
+        [crumb2Object]="smsType$ | async"
+        [crumb2Link]="['/', 'sms', 'detail', typeId]"
+        [crumb2QueryParam]="{ tab: 'activities' }"
+      >
+      </grabbill-client-breadcrumb>
+
+      <div class="mb-8">
+        <grabbill-client-page-header title="SMS Activity" [buttonTemplate]="buttonTemplate">
+          <ng-template #buttonTemplate>
+            <ng-container *ngIf="smsType$ | async as smsType">
+              <div class="flex items-center">
+                <a (click)="doSubmitForm(true, smsType)" class="mr-4">Finish later</a>
+                <ng-container *ngIf="user">
+                  <button
+                    [disabled]="!user.subscription!.scheduleEmail"
+                    type="button"
+                    (click)="doOpenScheduleModal()"
+                    nz-button
+                    nzType="default"
+                    class="mr-4"
+                  >
+                    Schedule
+                  </button>
+                </ng-container>
+                <button type="button" (click)="doSubmitForm(false, smsType)" nz-button nzType="primary">Send</button>
+              </div>
+            </ng-container>
+          </ng-template>
+        </grabbill-client-page-header>
+      </div>
+
+      <div class="pb-8">
+        <nz-steps [nzCurrent]="index" (nzIndexChange)="doStepChange($event)">
+          <nz-step nzTitle="Setup Template"></nz-step>
+          <nz-step nzTitle="Setup Data"></nz-step>
+          <nz-step nzTitle="Preview SMS"></nz-step>
+        </nz-steps>
+      </div>
+    </div>
+
+    <ng-template #elseActivity>
+      <div nz-list nzBordered>
+        <div nz-list-item>
+          <nz-skeleton [nzAvatar]="true" [nzActive]="true" [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+        </div>
+      </div>
+    </ng-template>
+
+    <div top-span>
+      <ng-container *ngIf="smsActivity$ | async as smsActivity; else elseActivity">
+        <ng-container *ngIf="smsType$ | async as smsType">
+          <ng-container>
+            <form nz-form [formGroup]="form" nzLayout="horizontal">
+              <ul nz-list class="bg-white" nzBordered nzSize="large">
+                <li nz-list-item list-item>
+                  <div class="pr-4 pt-1">
+                    <i class="text-lg" nz-icon nzType="info-circle"></i>
+                  </div>
+                  <div class="flex-grow">
+                    <h5 nz-typography class="pb-4">Info</h5>
+                    <div>
+                      <nz-form-item>
+                        <nz-form-label [nzSpan]="5" nzRequired>Activity Name</nz-form-label>
+                        <nz-form-control
+                          [nzSpan]="18"
+                          nzHasFeedback
+                          [nzErrorTip]="getErrorMessage(form.controls['name'])"
+                        >
+                          <input nz-input formControlName="name" placeholder="name" />
+                        </nz-form-control>
+                      </nz-form-item>
+                    </div>
+                  </div>
+                </li>
+
+                <li nz-list-item list-item>
+                  <div class="pr-4 pt-1">
+                    <i class="text-lg" nz-icon nzType="table"></i>
+                  </div>
+
+                  <div #step2 class="flex-grow">
+                    <ng-container *ngIf="smsType.smsFieldType === smsFieldType.CONTACT_FIELD">
+                      <h5 nz-typography class="pb-4">Setup Data</h5>
+                      <div>
+                        <nz-form-item>
+                          <nz-form-label [nzSpan]="5" nzRequired>Contact Group</nz-form-label>
+                          <nz-form-control
+                            [nzSpan]="18"
+                            nzHasFeedback
+                            [nzErrorTip]="getErrorMessage(form.controls['contactGroup'])"
+                          >
+                            <nz-select
+                              nzShowSearch
+                              nzServerSearch
+                              nzPlaceHolder="input search text"
+                              formControlName="contactGroup"
+                              [nzShowArrow]="false"
+                              [nzFilterOption]="nzFilterOption"
+                              (ngModelChange)="handleDataChange()"
+                              (nzOnSearch)="search($event)"
+                            >
+                              <ng-container *ngFor="let option of listOfOption">
+                                <nz-option
+                                  *ngIf="!isContactGroupLoading"
+                                  [nzValue]="option.value"
+                                  [nzLabel]="option.text"
+                                ></nz-option>
+                              </ng-container>
+                              <nz-option *ngIf="isContactGroupLoading" nzDisabled nzCustomContent>
+                                <i nz-icon nzType="loading" class="loading-icon"></i>
+                                Loading Data...
+                              </nz-option>
+                            </nz-select>
+                          </nz-form-control>
+                        </nz-form-item>
+                      </div>
+                    </ng-container>
+
+                    <ng-container *ngIf="smsType.smsFieldType === smsFieldType.INDEX_FIELD">
+                      <h5 nz-typography class="pb-4">Setup Data</h5>
+                      <div>
+                        <nz-form-item>
+                          <div>
+                            <nz-collapse collapse-table>
+                              <nz-collapse-panel nzHeader="Index Fields Settings" nzActive="false">
+                                <nz-table
+                                  nzBordered
+                                  [nzShowPagination]="false"
+                                  [nzData]="getIndexFields(smsType)"
+                                  nzSize="small"
+                                  nzTableLayout="fixed"
+                                >
+                                  <thead>
+                                    <tr>
+                                      <th nzWidth="30%">Label</th>
+                                      <th nzWidth="30%">Excel Header</th>
+                                      <th nzWidth="18%">Mandatory</th>
+                                      <th nzWidth="16%">
+                                        Type
+                                        <i
+                                          nz-tooltip
+                                          nzTooltipTitle="Sample date format (DD/MM/YYYY)"
+                                          nz-icon
+                                          nzType="info-circle"
+                                          nzTheme="outline"
+                                        ></i>
+                                      </th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr *ngFor="let data of getIndexFields(smsType); let i = index">
+                                      <td>{{ data.label }}</td>
+                                      <td>{{ data.header }}</td>
+                                      <td><i *ngIf="data.required" nz-icon nzType="check"></i></td>
+                                      <td>{{ data.dataType }}</td>
+                                    </tr>
+                                  </tbody>
+                                </nz-table>
+                              </nz-collapse-panel>
+                            </nz-collapse>
+                          </div>
+                        </nz-form-item>
+                        <nz-form-item formArrayName="indexRows">
+                          <div>
+                            <div class="pb-4">
+                              <nz-spin [nzSpinning]="!canUploadIndexRow">
+                                <nz-upload
+                                  nzType="drag"
+                                  [nzMultiple]="false"
+                                  [nzBeforeUpload]="beforeUploadIndexRow(smsType)"
+                                  nzAccept="text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                  nzFileType="text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                >
+                                  <p class="ant-upload-drag-icon">
+                                    <i nz-icon nzType="file"></i>
+                                  </p>
+                                  <p class="ant-upload-text">Click or drag file (CSV / Excel) to this area to upload</p>
+                                  <p class="ant-upload-hint">Excel header columns must match index field settings.</p>
+                                </nz-upload>
+                              </nz-spin>
+                            </div>
+
+                            <div class="flex items-center pb-4">
+                              <div class="flex-1">
+                                <nz-input-group [nzPrefix]="searchIcon">
+                                  <input
+                                    (input)="doSearchIndexRow($event)"
+                                    type="text"
+                                    nz-input
+                                    placeholder="Find by attachment filename"
+                                  />
+                                </nz-input-group>
+                                <ng-template #searchIcon>
+                                  <i nz-icon nzType="search" class="mr-2"></i>
+                                </ng-template>
+                              </div>
+                              <div class="flex-1 text-right">
+                                <button (click)="openIndexRowForm()" type="button" nz-button nzType="default">
+                                  Add row
+                                </button>
+                              </div>
+                            </div>
+                            <nz-table
+                              #indexRowTable
+                              nzBordered
+                              [nzShowPagination]="true"
+                              [nzPageSize]="5"
+                              [nzData]="getFilteredIndexRow()"
+                              nzSize="small"
+                              nzTableLayout="fixed"
+                            >
+                              <thead>
+                                <tr>
+                                  <th nzWidth="44px">No</th>
+                                  <th *ngFor="let fieldLabel of getIndexFieldLabels(smsType)">
+                                    <div>{{ fieldLabel }}</div>
+                                  </th>
+                                  <th nzWidth="32px"></th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr *ngFor="let control of indexRowTable.data; let i = index" [formGroupName]="i">
+                                  <td>{{ control.get("seqOrder")!.value }}</td>
+                                  <ng-container
+                                    *ngFor="let result of getIndexRowValues(control, smsType, i); trackBy: trackByFn"
+                                  >
+                                    <td>
+                                      <div>{{ result.value }}</div>
+                                    </td>
+                                  </ng-container>
+                                  <td>
+                                    <a
+                                      (click)="
+                                        doDeleteIndexRow(
+                                          control.get('text1')!.value,
+                                          formIndexRows,
+                                          control.get('seqOrder')!.value
+                                        )
+                                      "
+                                      ><i nz-icon nzType="delete"></i
+                                    ></a>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </nz-table>
+                          </div>
+                        </nz-form-item>
+                      </div>
+                    </ng-container>
+                  </div>
+                </li>
+
+                <li nz-list-item list-item>
+                  <div class="pr-4 pt-1">
+                    <i class="text-lg" nz-icon nzType="message"></i>
+                  </div>
+                  <div class="flex-grow" #step3>
+                    <h5 nz-typography class="pb-4">Preview SMS</h5>
+                    <div>
+                      <nz-form-item>
+                        <nz-form-label [nzSpan]="5" nzRequired>
+                          SMS Content&nbsp;
+                          <span
+                            nz-icon
+                            nzType="question-circle"
+                            nzTheme="outline"
+                            nz-tooltip
+                            [nzTooltipTitle]="smsContentHelp"
+                          ></span>
+                        </nz-form-label>
+                        <nz-form-control
+                          [nzSpan]="18"
+                          [nzErrorTip]="getErrorMessage(form.controls['smsContent'])"
+                        >
+                          <nz-input-group nzAddOnBefore="RM0">
+                            <nz-textarea-count [nzComputeCharacterCount]="byteCount">
+                              <textarea
+                                nz-input
+                                nzAutosize
+                                formControlName="smsContent"
+                                (blur)="handleDataChange()"
+                                placeholder="SMS Content"
+                              ></textarea>
+                            </nz-textarea-count>
+                          </nz-input-group>
+                          <div sms-content-help>
+                            Include RM0 Brand/Company Name: in front of your SMS Message. If not, Telco will reject
+                            your SMS. Eg. If your message is Hello, and if your brand / company name is TEST you must
+                            send as RM0 TEST:Hello<br />
+                            1 SMS credit for 140 bytes.
+                          </div>
+                        </nz-form-control>
+                      </nz-form-item>
+                    </div>
+
+                    <div *ngIf="smsActivityCreditUsage$ | async as smsActivityCreditUsage">
+                      <div class="flex pb-2">
+                        <h6 class="flex-grow"></h6>
+                        <div class="text-right">
+                          <span>Total Estimated Credits</span>: {{ smsActivityCreditUsage.estimatedCreditUsage }}
+                        </div>
+                      </div>
+
+                      <nz-table
+                        #smsDataTable
+                        [nzShowPagination]="true"
+                        [nzPageSize]="5"
+                        [nzData]="smsActivityCreditUsage.indexRowUsages"
+                        nzSize="small"
+                        nzTableLayout="fixed"
+                      >
+                        <thead>
+                          <tr>
+                            <th *ngIf="smsType.smsFieldType === smsFieldType.CONTACT_FIELD">Email</th>
+                            <th nzWidth="120px">Mobile No</th>
+                            <th nzWidth="100px" class="text-center">Valid No</th>
+                            <th>SMS Content</th>
+                            <th nzWidth="100px" class="text-right">Total Bytes</th>
+                            <th nzWidth="150px" class="text-right">Estimated Credits</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let smsData of smsDataTable.data; let i = index">
+                            <td *ngIf="smsType.smsFieldType === smsFieldType.CONTACT_FIELD">{{ smsData.email }}</td>
+                            <td>{{ smsData.mobileNo }}</td>
+                            <td class="text-center">
+                              <i *ngIf="smsData.validMobileNo; else invalid" nz-icon nzType="check"></i>
+                              <ng-template #invalid><i nz-icon nzType="close"></i></ng-template>
+                            </td>
+                            <td>{{ smsData.smsContent }}</td>
+                            <td class="text-right">{{ smsData.totalBytes }}</td>
+                            <td class="text-right">{{ smsData.totalCredits }}</td>
+                          </tr>
+                        </tbody>
+                      </nz-table>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </form>
+
+            <nz-modal [nzVisible]="isScheduleModalVisible" nzTitle="Schedule" (nzOnCancel)="doCloseScheduleModal()">
+              <div *nzModalContent>
+                <div>
+                  <form nz-form [formGroup]="scheduleForm">
+                    <nz-form-item>
+                      <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>Schedule Time</nz-form-label>
+                      <nz-form-control [nzSm]="12" [nzXs]="24">
+                        <nz-date-picker
+                          [nzDisabledDate]="disabledDate"
+                          nzShowTime
+                          nzFormat="yyyy-MM-dd HH:mm:ss"
+                          formControlName="scheduledTimestamp"
+                        ></nz-date-picker>
+                      </nz-form-control>
+                    </nz-form-item>
+                  </form>
+                </div>
+              </div>
+              <div *nzModalFooter>
+                <button nz-button nzType="primary" (click)="doSchedule(smsType)">Schedule</button>
+              </div>
+            </nz-modal>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+    </div>
+  </ng-container>
+</div>
+
+<nz-drawer
+  [nzBodyStyle]="{ overflow: 'auto' }"
+  [nzWidth]="540"
+  [nzClosable]="false"
+  [nzVisible]="isIndexRowFormVisible"
+  nzTitle="Add New Row"
+  [nzFooter]="createFooterTemplate"
+  (nzOnClose)="closeIndexRowForm()"
+  *ngIf="addFormControls.length > 0"
+>
+  <form nz-form *nzDrawerContent [formGroup]="indexRowForm" nzLayout="vertical">
+    <div>
+      <div>
+        <ng-container *ngFor="let addFormControl of addFormControls" [ngSwitch]="addFormControl.type">
+          <nz-form-item *ngSwitchCase="'TEXT'">
+            <nz-form-label [nzRequired]="addFormControl.required">{{ addFormControl.label }}</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(indexRowForm.controls[addFormControl.name])">
+              <input nz-input type="text" [formControlName]="addFormControl.name" placeholder="" />
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item *ngSwitchCase="'EMAIL'">
+            <nz-form-label [nzRequired]="addFormControl.required">{{ addFormControl.label }}</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(indexRowForm.controls[addFormControl.name])">
+              <input nz-input [formControlName]="addFormControl.name" placeholder="" />
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item *ngSwitchCase="'NUMBER'">
+            <nz-form-label [nzRequired]="addFormControl.required">{{ addFormControl.label }}</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(indexRowForm.controls[addFormControl.name])">
+              <nz-input-number
+                [formControlName]="addFormControl.name"
+                [nzMin]="-9999999"
+                [nzMax]="9999999"
+                [nzStep]="1"
+              ></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item *ngSwitchCase="'DATE'">
+            <nz-form-label [nzRequired]="addFormControl.required">{{ addFormControl.label }}</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(indexRowForm.controls[addFormControl.name])">
+              <nz-date-picker [formControlName]="addFormControl.name"></nz-date-picker>
+            </nz-form-control>
+          </nz-form-item>
+        </ng-container>
+      </div>
+    </div>
+  </form>
+
+  <ng-template #createFooterTemplate>
+    <div class="text-right">
+      <button nz-button [nzLoading]="isIndexRowFormLoading" nzType="primary" (click)="doSubmitIndexRow()">
+        Add row
+      </button>
+    </div>
+  </ng-template>
+</nz-drawer>
+
+<nz-modal
+  [nzVisible]="isIndexRowErrorModalVisible"
+  nzTitle="Upload Errors"
+  [nzWidth]="'80%'"
+  (nzOnCancel)="doCloseIndexRowErrorModal()"
+>
+  <div *nzModalContent>
+    <div>
+      <div class="pb-2">Total Rows: {{ indexRows.length }}</div>
+      <div class="pb-2">Total Errors: {{ indexRowErrors.length }}</div>
+    </div>
+    <div error-table>
+      <nz-table [nzData]="indexRowErrors" [nzShowPagination]="false">
+        <thead>
+          <tr>
+            <th>Row</th>
+            <th>Errors</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of indexRowErrors">
+            <td>{{ data.row }}</td>
+            <td>
+              <div *ngFor="let message of data.messages">{{ message }}</div>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </div>
+  </div>
+  <div *nzModalFooter>
+    <button *ngIf="smsType$ | async as type" nz-button (click)="doSkipInvalidMobileNo(type)">
+      Skip Invalid Emails
+    </button>
+    <button nz-button nzType="primary" (click)="doCloseIndexRowErrorModal()">Close</button>
+  </div>
+</nz-modal>

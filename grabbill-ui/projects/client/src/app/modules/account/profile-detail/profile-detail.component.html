@@ -1,0 +1,169 @@
+<div container class="mx-auto">
+  <grabbill-client-page-header title="Profile" [margin]="true"></grabbill-client-page-header>
+
+  <div>
+    <div class="mb-8">
+      <nz-card nzTitle="Basic Information">
+        <form nz-form [formGroup]="profileForm" nzLayout="vertical" (ngSubmit)="submitProfile()">
+          <nz-form-item>
+            <nz-form-label nzRequired>Name</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(profileForm.controls['name'])">
+              <input nz-input formControlName="name" />
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label nzRequired>Email</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(profileForm.controls['email'])">
+              <input nz-input formControlName="email" />
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label nzRequired>Role</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(profileForm.controls['role'])">
+              <input nz-input formControlName="role" />
+            </nz-form-control>
+          </nz-form-item>
+
+          <div class="text-right pb-4 mt-4">
+            <button nz-button nzType="primary" [nzLoading]="isProfileFormLoading">Update</button>
+          </div>
+        </form>
+      </nz-card>
+    </div>
+
+    <div class="mb-8">
+      <nz-card nzTitle="Change Password">
+        <form nz-form [formGroup]="changePasswordForm" nzLayout="vertical" (ngSubmit)="changePassword()">
+          <nz-form-item>
+            <nz-form-label nzRequired>Current password</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(changePasswordForm.controls['password'])">
+              <input nz-input formControlName="password" type="password" />
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label nzRequired>New password</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(changePasswordForm.controls['newPassword'])">
+              <input nz-input formControlName="newPassword" type="password" />
+            </nz-form-control>
+          </nz-form-item>
+          <div>
+            <ul password-requirement>
+              <li>One lowercase character</li>
+              <li>One uppercase character</li>
+              <li>One number</li>
+              <li>One special character</li>
+              <li>8 characters minimum</li>
+            </ul>
+          </div>
+
+          <div class="text-right pb-4 mt-4">
+            <button nz-button nzType="primary" [nzLoading]="isChangePasswordFormLoading">Change Password</button>
+          </div>
+        </form>
+      </nz-card>
+    </div>
+
+    <nz-card nzTitle="Multi-Factor Authentication (MFA)" *ngIf="user$ | async as user">
+      <ul nz-list nzSize="small">
+        <li nz-list-item nzNoFlex>
+          <nz-list-item-meta>
+            <nz-list-item-meta-title>Google Authenticator</nz-list-item-meta-title>
+          </nz-list-item-meta>
+          <div class="flex">
+            <div class="ant-list-item-meta-description flex-grow">
+              Google Authenticator is
+              {{ user.google2FAEnabled ? "enabled" : "not enabled" }}.
+            </div>
+            <div>
+              <button
+                nz-button
+                nzType="primary"
+                (click)="doEnableGoogleAuth(user.email2FAEnabled)"
+                *ngIf="!user.google2FAEnabled"
+              >
+                Enable
+              </button>
+              <button
+                nz-button
+                nzType="default"
+                (click)="doDisableGoogleAuth(user.email2FAEnabled)"
+                *ngIf="user.google2FAEnabled"
+              >
+                Disable
+              </button>
+            </div>
+          </div>
+        </li>
+        <li nz-list-item nzNoFlex>
+          <nz-list-item-meta>
+            <nz-list-item-meta-title>Email MFA</nz-list-item-meta-title>
+          </nz-list-item-meta>
+          <div class="flex">
+            <div class="ant-list-item-meta-description flex-grow">
+              Email MFA is
+              {{ user.email2FAEnabled ? "enabled." : "not enabled." }}
+            </div>
+            <div>
+              <button
+                nz-button
+                nzType="primary"
+                (click)="doEnableEmailAuth(user.google2FAEnabled)"
+                *ngIf="!user.email2FAEnabled"
+              >
+                Enable
+              </button>
+              <button
+                nz-button
+                nzType="default"
+                (click)="doDisableEmailAuth(user.google2FAEnabled)"
+                *ngIf="user.email2FAEnabled"
+              >
+                Disable
+              </button>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </nz-card>
+  </div>
+</div>
+
+<nz-modal nzTitle="Setting up Google Authenticator" [nzVisible]="isSetupGoogleAuthModalVisible" (nzOnCancel)="doCloseGoogleAuthModal()">
+  <div *nzModalContent>
+    <div class="p-4">
+      <ol class="list-decimal">
+        <li class="mb-4">Download and install the Google Authenticator app on your phone or tablet.</li>
+        <li class="mb-4"><div>Open the app and scan the QR code below:</div>
+          <div>
+            <img [src]="qrcodeImage" alt="QR code for setting up Google Authenticator">
+          </div>
+        </li>
+        <li><div>Click Next to enter code to activate MFA</div></li>
+      </ol>
+    </div>
+  </div>
+  <div *nzModalFooter>
+    <button nz-button nzType="primary" type="button" (click)="doGoogleAuthMfaNext()">Next</button>
+    <button nz-button nzType="default" type="button" (click)="doCloseGoogleAuthModal()">Close</button>
+  </div>
+</nz-modal>
+
+<nz-modal nzTitle="Activate MFA" [nzVisible]="isActivateMfaModalVisible" (nzOnCancel)="doCloseActivateMfaModal()">
+  <div *nzModalContent>
+    <div>Please enter code from your MFA to activate:</div>
+    <form nz-form [formGroup]="otpForm" nzLayout="vertical">
+      <nz-form-item>
+        <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(otpForm.controls['code'])">
+          <input nz-input formControlName="code" />
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </div>
+  <div *nzModalFooter>
+    <button nz-button nzType="primary" type="button" (click)="doActivateMfa()">Activate</button>
+    <button nz-button nzType="default" type="button" (click)="doCloseActivateMfaModal()">Close</button>
+  </div>
+</nz-modal>

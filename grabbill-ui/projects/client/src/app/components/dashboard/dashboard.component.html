@@ -1,0 +1,74 @@
+<div container class="mx-auto">
+  <grabbill-client-page-header title="Dashboard"></grabbill-client-page-header>
+
+  <div class="mb-8" *ngIf="currentStatistics$ | async as currentStatistics">
+    <div class="flex space-x-4">
+      <grabbill-client-usage-stat class="flex-grow" [currentStatistics]="currentStatistics"></grabbill-client-usage-stat>
+
+      <nz-card nzTitle="Notifications" class="w-1/3" *ngIf="user && !(user.email2FAEnabled || user.google2FAEnabled)">
+        <div container class="mx-auto mb-8">
+          <nz-alert
+            nzType="warning"
+            nzDescription="Enable Multi-Factor Authentication (MFA) to add extra security to your account."
+            [nzAction]="actionTemplate"
+          ></nz-alert>
+          <ng-template #actionTemplate>
+            <button
+              nz-button
+              nzSize="small"
+              nzType="default"
+              [routerLink]="['/', 'account', 'profile']"
+            >
+              Enable
+            </button>
+          </ng-template>
+        </div>
+      </nz-card>
+    </div>
+  </div>
+
+  <div class="mb-8">
+    <nz-card nzTitle="Most recent activities">
+      <div *ngIf="recentActivitiesSearchResult$ | async as result; else elseRecentActivities">
+        <nz-list>
+          <nz-card *ngIf="result.totalItems === 0"
+            ><nz-empty nzNotFoundContent="No recent activity found"></nz-empty
+          ></nz-card>
+          <ng-container *ngIf="result.totalItems > 0">
+            <nz-list-item list-item *ngFor="let item of result.items">
+              <ng-container>
+                <div class="pr-4">
+                  <nz-avatar [nzSize]="28" [nzIcon]="getIcon(item.domainType)" icon-background></nz-avatar>
+                </div>
+                <div>
+                  <div list-title>
+                    {{ getTypeLabel(item.domainType, item.actionType) }}
+                    <ng-template #descriptionElse>{{ item.description }}</ng-template>
+                    <span *ngIf="getRouteInformation(item).path.length > 0; else descriptionElse"
+                      ><a (click)="doNavigate(item)">{{ item.description }}</a></span
+                    >
+                  </div>
+                  <div list-description>{{ item.createdDate | date: getDateFormat() }}</div>
+                </div>
+              </ng-container>
+            </nz-list-item>
+          </ng-container>
+          <div class="text-center m-4" *ngIf="recentActivitiesPageable$ | async as pageable">
+            <button
+              *ngIf="pageable.page < result.totalPages"
+              (click)="doLoadMore()"
+              type="button"
+              nz-button
+              nzType="default"
+            >
+              Load more
+            </button>
+          </div>
+        </nz-list>
+      </div>
+      <ng-template #elseRecentActivities>
+        <nz-skeleton [nzActive]="true"></nz-skeleton>
+      </ng-template>
+    </nz-card>
+  </div>
+</div>

@@ -1,0 +1,55 @@
+<div container class="mx-auto" *ngIf="auditResult$ | async as auditResult">
+  <div class="pb-8">
+    <grabbill-client-page-header
+      title="Audits"
+      description="You have {{ auditResult.totalItems | number }} audits."
+    ></grabbill-client-page-header>
+  </div>
+
+  <div *ngIf="auditPageable$ | async as auditPageable">
+    <div class="flex pb-8">
+      <div class="flex-grow">
+        <nz-input-group search-group [nzPrefix]="searchIcon">
+          <input type="text" (input)="doSearch($event)" nz-input placeholder="Find by audit action or description" />
+        </nz-input-group>
+        <ng-template #searchIcon>
+          <i nz-icon nzType="search" class="mr-2"></i>
+        </ng-template>
+      </div>
+      <div [formGroup]="form">
+        <nz-range-picker (ngModelChange)="doDateRange($event)" formControlName="range"></nz-range-picker>
+      </div>
+    </div>
+    <nz-table
+      nzBordered
+      [nzLoading]="isTableLoading"
+      [nzData]="auditResult.items"
+      [nzFrontPagination]="false"
+      [nzTotal]="auditResult.totalItems"
+      [nzPageSize]="auditPageable.size"
+      [nzPageIndex]="auditPageable.page"
+      (nzQueryParams)="doQuery($event)"
+      nzSize="small"
+      nzTableLayout="fixed"
+    >
+      <thead>
+        <tr>
+          <th nzLeft>Date</th>
+          <th nzLeft>Created by</th>
+          <th nzLeft>Type</th>
+          <th nzLeft>Action</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of auditResult.items; let i = index">
+          <td nzLeft>{{ data.createdDate | date: "medium" }}</td>
+          <td nzLeft>{{ data.createdBy }}</td>
+          <td nzLeft>{{ data.domainType }}</td>
+          <td nzLeft>{{ data.actionType }}</td>
+          <td>{{ data.description }}</td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </div>
+</div>

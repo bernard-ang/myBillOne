@@ -1,0 +1,289 @@
+<div container class="mx-auto" *ngIf="contactSearchResult$ | async as contactSearchResult">
+  <ng-container *ngIf="contactFields$ | async as contactFields">
+    <ng-container *ngIf="contactGroupSearchResult$ | async as contactGroupSearchResult">
+      <div class="pb-8">
+        <grabbill-client-page-header
+          description="You have {{ contactSearchResult.totalItems | number }} contacts."
+          [buttonTemplate]="buttonTemplate"
+        >
+          <ng-template #buttonTemplate>
+            <div>
+              <button
+                *ngIf="hasPrivilege(privilege.CONTACT_EDIT)"
+                class="mr-4"
+                nz-button
+                nzType="default"
+                (click)="openContactForm()"
+              >
+                Add Contact
+              </button>
+              <button
+                *ngIf="hasPrivilege(privilege.CONTACT_EDIT)"
+                class="mr-4"
+                nz-button
+                nzType="default"
+                (click)="doOpenBulkDeleteContactModal()"
+              >
+                Bulk Delete Contacts
+              </button>
+              <nz-upload
+                *ngIf="hasPrivilege(privilege.CONTACT_EDIT)"
+                [nzBeforeUpload]="beforeUploadContacts(contactFields)"
+                nzAccept="text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                nzFileType="text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              >
+                <button nz-button nzType="primary">
+                  <i nz-icon nzType="upload"></i>
+                  Upload Contact
+                </button>
+              </nz-upload>
+            </div>
+          </ng-template>
+        </grabbill-client-page-header>
+      </div>
+
+      <div>
+        <div class="flex">
+          <div class="flex-1">
+            <nz-input-group search-group [nzPrefix]="searchIcon" nzSize="large">
+              <input type="text" (input)="doSearchEmail($event)" nz-input placeholder="Find by email" />
+            </nz-input-group>
+            <ng-template #searchIcon>
+              <i nz-icon nzType="search" class="mr-2"></i>
+            </ng-template>
+          </div>
+        </div>
+        <div toolbar class="flex items-center p-2">
+          <div class="flex-grow">
+            <nz-tag
+              *ngFor="let tag of getFilters(); let i = index"
+              nzMode="closeable"
+              (nzOnClose)="doRemoveFilter(tag[0])"
+            >
+              {{ getFilterLabel(getContactFilterFields(contactFields, contactGroupSearchResult.items), tag[0]) }} =
+              {{ getContactFieldValue(tag[1]) }}
+            </nz-tag>
+          </div>
+          <div>
+            <button (click)="doOpenFilterModal()" nz-button nzType="link">
+              <i nz-icon nzType="filter"></i>Add Filter
+            </button>
+          </div>
+        </div>
+        <ng-container *ngIf="contactPageable$ | async as contactPageable">
+          <nz-table
+            nzBordered
+            [nzLoading]="isLoading"
+            [nzData]="contactSearchResult.items"
+            [nzFrontPagination]="false"
+            [nzTotal]="contactSearchResult.totalItems"
+            [nzPageSize]="contactPageable.size"
+            [nzPageIndex]="contactPageable.page"
+            (nzQueryParams)="doQueryContact($event)"
+            nzSize="small"
+            nzTableLayout="fixed"
+          >
+            <thead>
+              <tr>
+                <th *ngFor="let field of getContactFields(contactFields)">{{ field.label }}</th>
+                <th>Groups</th>
+                <th *ngIf="hasPrivilege(privilege.CONTACT_EDIT)" nzWidth="80px" nzRight>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let data of contactSearchResult.items; let i = index">
+                <td *ngFor="let value of getDataValues(contactFields, data); let j = index">
+                  <ng-container *ngIf="j === 0"
+                    ><a [routerLink]="['/', 'contact', 'detail', data.id]">{{ value }}</a></ng-container
+                  >
+                  <ng-container *ngIf="j !== 0">{{ value }}</ng-container>
+                </td>
+                <td>
+                  <nz-tag wrap-tag nzColor="blue" *ngFor="let group of data.groups">{{ group }}</nz-tag>
+                </td>
+                <td nzRight *ngIf="hasPrivilege(privilege.CONTACT_EDIT)">
+                  <a nz-tooltip="Delete" (click)="doDeleteContact(data)">
+                    <i nz-icon nzType="delete" class="mr-2"></i>
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </nz-table>
+        </ng-container>
+      </div>
+
+      <grabbill-client-modal-filter-form
+        *ngIf="isGroupInitialize && isFieldInitialize"
+        [fields]="getContactFilterFields(contactFields, contactGroupSearchResult.items)"
+        [filters]="filters"
+        [isVisible]="isFilterModalVisible"
+        (filterEvent)="doFilter($event)"
+        (close)="closeFilterForm()"
+      >
+      </grabbill-client-modal-filter-form>
+
+      <grabbill-client-modal-filter-form
+        *ngIf="isGroupInitialize && isFieldInitialize"
+        [fields]="getContactFilterFields(contactFields, contactGroupSearchResult.items)"
+        [filters]="deleteFilters"
+        [isVisible]="isDeleteFilterModalVisible"
+        (filterEvent)="doDeleteFilter($event)"
+        (close)="closeDeleteFilterForm()"
+      >
+      </grabbill-client-modal-filter-form>
+
+      <nz-drawer
+        [nzBodyStyle]="{ overflow: 'auto' }"
+        [nzWidth]="540"
+        [nzClosable]="false"
+        [nzVisible]="isBulkDeleteModalVisible"
+        nzTitle="Bulk Delete Contacts"
+        [nzFooter]="createFooterTemplate"
+        (nzOnClose)="doCloseBulkDeleteModal()"
+      >
+        <form nz-form *nzDrawerContent [formGroup]="bulkDeleteForm" nzLayout="vertical">
+          <div>
+            <div>
+              <nz-form-item>
+                <div class="w-full"><nz-form-label nzRequired> Contacts </nz-form-label></div>
+                <div search-toolbar class="flex items-center p-2 w-full">
+                  <div class="flex-grow">
+                    <nz-tag
+                      *ngFor="let tag of getDeleteFilters(); let i = index"
+                      nzMode="closeable"
+                      (nzOnClose)="doRemoveDeleteFilter(tag[0])"
+                    >
+                      {{
+                        getFilterLabel(getContactFilterFields(contactFields, contactGroupSearchResult.items), tag[0])
+                      }}
+                      =
+                      {{ getContactFieldValue(tag[1]) }}
+                    </nz-tag>
+                  </div>
+                  <div>
+                    <button nzSize="small" (click)="doOpenDeleteFilterModal()" nz-button nzType="link">
+                      <i nz-icon nzType="filter"></i>Add Filter
+                    </button>
+                  </div>
+                </div>
+                <nz-form-control [nzErrorTip]="getErrorMessage(bulkDeleteForm.controls['contacts'])">
+                  <nz-select
+                    nzPlaceHolder="Search Contact"
+                    nzShowSearch
+                    nzServerSearch
+                    formControlName="contact"
+                    (nzOnSearch)="doSearchContact($event)"
+                    (ngModelChange)="doContactChange($event)"
+                  >
+                    <nz-option nzValue="add-all" nzLabel="Add All"></nz-option>
+                    <ng-container *ngFor="let option of contactOptions">
+                      <nz-option *ngIf="!isContactLoading" [nzValue]="option" [nzLabel]="option.email"></nz-option>
+                    </ng-container>
+                    <nz-option *ngIf="isContactLoading" nzDisabled nzCustomContent>
+                      <i nz-icon nzType="loading" class="loading-icon"></i>
+                      Loading Data...
+                    </nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+
+            <h6 nz-typography class="flex">
+              <div class="flex-grow">Total {{ bulkDeleteContacts?.value.length }} contacts selected</div>
+              <div>
+                <button nzSize="small" (click)="doRemoveAllDeleteContact()" nz-button nzType="link">
+                  <i nz-icon nzType="delete"></i>Remove All
+                </button>
+              </div>
+            </h6>
+
+            <div class="pb-2">
+              <nz-input-group>
+                <input (input)="doFilterContact($event)" type="text" nz-input placeholder="Search selected contacts" />
+              </nz-input-group>
+            </div>
+
+            <nz-list nzBordered nzSize="small" *ngIf="bulkDeleteContacts?.value.length > 0">
+              <nz-list-item *ngFor="let item of getFilteredContactList()"
+                >{{ item.email }}
+                <ul nz-list-item-actions>
+                  <nz-list-item-action>
+                    <a (click)="doDeleteBulkDeleteContact(item.email)"><i nz-icon nzType="delete"></i></a>
+                  </nz-list-item-action>
+                </ul>
+              </nz-list-item>
+            </nz-list>
+          </div>
+        </form>
+
+        <ng-template #createFooterTemplate>
+          <div class="text-right">
+            <button
+              nz-button
+              [nzLoading]="isBulkDeleteModalLoading"
+              nzType="primary"
+              [disabled]="!bulkDeleteForm.valid"
+              (click)="doBulkDeleteContacts()"
+            >
+              Bulk Delete Contact
+            </button>
+          </div>
+        </ng-template>
+      </nz-drawer>
+
+      <grabbill-client-drawer-form
+        *ngIf="isGroupInitialize && isFieldInitialize"
+        title="Add Contact"
+        buttonLabel="Add"
+        [isVisible]="isAddContactFormVisible"
+        [fields]="getContactFormFields(contactFields, contactGroupSearchResult.items)"
+        (close)="closeContactForm()"
+        (submit)="doAddContact($event)"
+      >
+      </grabbill-client-drawer-form>
+    </ng-container>
+  </ng-container>
+</div>
+
+<nz-modal
+  [nzVisible]="isContactRowErrorModalVisible"
+  nzTitle="Upload Errors"
+  [nzWidth]="'80%'"
+  (nzOnCancel)="doCloseContactRowErrorModal()"
+>
+  <div *nzModalContent>
+    <div>
+      <div class="pb-2">Total Rows: {{ contacts.length }}</div>
+      <div class="pb-2">Total Errors: {{ contactRowErrors.length }}</div>
+    </div>
+    <div error-table>
+      <nz-table [nzData]="contactRowErrors" [nzShowPagination]="false">
+        <thead>
+          <tr>
+            <th>Row</th>
+            <th>Errors</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of contactRowErrors">
+            <td>{{ data.row }}</td>
+            <td>
+              <div *ngFor="let message of data.messages">{{ message }}</div>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </div>
+  </div>
+  <div *nzModalFooter>
+    <button type="button" nz-button nzType="primary" (click)="doCloseContactRowErrorModal()">Close</button>
+  </div>
+</nz-modal>
+
+<nz-modal nzTitle="Duplicate Contacts" [nzVisible]="isDuplicateContactModalVisible" (nzOnCancel)="doCloseDuplicateContactModal()"
+          nzContent="Please choose to overwrite or skip duplicate contacts">
+  <div *nzModalFooter>
+    <button nz-button nzType="default" nzDanger nz-tooltip="Maintain old contacts." type="button" (click)="doSkipDuplicateContact()">Skip</button>
+    <button nz-button nzType="primary" type="button" nz-tooltip="Remove old contacts with new data." (click)="doUpdateDuplicateContact()">Overwrite</button>
+  </div>
+</nz-modal>

@@ -1,0 +1,702 @@
+<div container class="mx-auto">
+  <ng-container>
+    <div top>
+      <grabbill-client-breadcrumb
+        rootTitle="Transactional Email"
+        [rootLink]="['/', 'transactional-email', 'list']"
+        [hasCrumb2]="true"
+        [crumb2Object]="transactionalEmailType$ | async"
+        [crumb2Link]="['/', 'transactional-email', 'detail', typeId]"
+        [crumb2QueryParam]="{ tab: 'activities' }"
+      >
+      </grabbill-client-breadcrumb>
+
+      <div class="mb-8">
+        <grabbill-client-page-header title="Transactional Email Activity" [buttonTemplate]="buttonTemplate">
+          <ng-template #buttonTemplate>
+            <ng-container *ngIf="transactionalEmailType$ | async as transactionalEmailType">
+              <div
+                class="flex items-center"
+                *ngIf="transactionalEmailActivityFiles$ | async as transactionalEmailActivityFiles"
+              >
+                <a (click)="doSubmitForm(true, transactionalEmailType, transactionalEmailActivityFiles)" class="mr-4"
+                >Finish later</a
+                >
+                <ng-container *ngIf="user">
+                  <button
+                    [disabled]="!user.subscription!.scheduleEmail"
+                    type="button"
+                    (click)="doOpenScheduleModal()"
+                    nz-button
+                    nzType="default"
+                    class="mr-4"
+                  >
+                    Schedule
+                  </button>
+                </ng-container>
+                <button
+                  type="button"
+                  (click)="doSubmitForm(false, transactionalEmailType, transactionalEmailActivityFiles)"
+                  nz-button
+                  nzType="primary"
+                >
+                  Send
+                </button>
+              </div>
+            </ng-container>
+          </ng-template>
+        </grabbill-client-page-header>
+      </div>
+
+      <div class="pb-8">
+        <nz-steps [nzCurrent]="index" (nzIndexChange)="doStepChange($event)">
+          <nz-step nzTitle="Setup Template"></nz-step>
+          <nz-step nzTitle="Upload Index Data"></nz-step>
+          <nz-step nzTitle="Upload Attachments"></nz-step>
+          <nz-step nzTitle="Preview Email"></nz-step>
+        </nz-steps>
+      </div>
+    </div>
+
+    <ng-template #elseActivity>
+      <div nz-list nzBordered>
+        <div nz-list-item>
+          <nz-skeleton [nzAvatar]="true" [nzActive]="true" [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+        </div>
+      </div>
+    </ng-template>
+
+    <div top-span>
+      <ng-container *ngIf="transactionalEmailActivity$ | async as transactionalEmailActivity; else elseActivity">
+        <ng-container *ngIf="transactionalEmailType$ | async as transactionalEmailType">
+          <ng-container *ngIf="transactionalEmailActivityFiles$ | async as transactionalEmailActivityFiles">
+            <form nz-form [formGroup]="form" nzLayout="horizontal">
+              <ul nz-list class="bg-white" nzBordered nzSize="large">
+                <li nz-list-item list-item>
+                  <div class="pr-4 pt-1">
+                    <i class="text-lg" nz-icon nzType="info-circle"></i>
+                  </div>
+                  <div class="flex-grow">
+                    <h5 nz-typography class="pb-4">Info</h5>
+                    <div>
+                      <nz-form-item>
+                        <nz-form-label [nzSpan]="5" nzRequired>Activity Name</nz-form-label>
+                        <nz-form-control
+                          [nzSpan]="18"
+                          nzHasFeedback
+                          [nzErrorTip]="getErrorMessage(form.controls['name'])"
+                        >
+                          <input nz-input formControlName="name" placeholder="name" />
+                        </nz-form-control>
+                      </nz-form-item>
+                    </div>
+                  </div>
+                </li>
+                <li nz-list-item list-item>
+                  <div class="pr-4 pt-1">
+                    <i class="text-lg" nz-icon nzType="table"></i>
+                  </div>
+                  <div #step2 class="flex-grow">
+                    <h5 nz-typography class="pb-4">Upload Index Data</h5>
+                    <div>
+                      <nz-form-item>
+                        <div>
+                          <nz-collapse collapse-table>
+                            <nz-collapse-panel nzHeader="Index Fields Settings" nzActive="false">
+                              <nz-table
+                                nzBordered
+                                [nzShowPagination]="false"
+                                [nzData]="getIndexFields(transactionalEmailType)"
+                                nzSize="small"
+                                nzTableLayout="fixed"
+                              >
+                                <thead>
+                                  <tr>
+                                    <th nzWidth="30%">Label</th>
+                                    <th nzWidth="30%">Excel Header</th>
+                                    <th nzWidth="18%">Mandatory</th>
+                                    <th nzWidth="16%">
+                                      Type
+                                      <i
+                                        nz-tooltip
+                                        nzTooltipTitle="Sample date format (DD/MM/YYYY)"
+                                        nz-icon
+                                        nzType="info-circle"
+                                        nzTheme="outline"
+                                      ></i>
+                                    </th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr *ngFor="let data of getIndexFields(transactionalEmailType); let i = index">
+                                    <td>{{ data.label }}</td>
+                                    <td>{{ data.header }}</td>
+                                    <td><i *ngIf="data.required" nz-icon nzType="check"></i></td>
+                                    <td>{{ data.dataType }}</td>
+                                  </tr>
+                                </tbody>
+                              </nz-table>
+                            </nz-collapse-panel>
+                            <nz-collapse-panel nzHeader="Sample Excel" nzActive="false">
+                              <div class="text-right py-2 pr-2">
+                                <button (click)="doDownloadIndexRow(transactionalEmailType)" type="button" nz-button nzType="default">Download
+                                </button>
+                              </div>
+                              <nz-table
+                                nzBordered
+                                [nzShowPagination]="false"
+                                [nzData]="getIndexFields(transactionalEmailType)"
+                                nzSize="small"
+                                nzTableLayout="fixed"
+                              >
+                                <thead>
+                                <tr>
+                                  <th class="excel-header-cell" *ngFor="let data of getIndexFields(transactionalEmailType); let i = index">{{ data.header }}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                  <td *ngFor="let data of getIndexFields(transactionalEmailType); let i = index">{{getExcelSampleIndexData(data)}}</td>
+                                </tr>
+                                </tbody>
+                              </nz-table>
+                            </nz-collapse-panel>
+                          </nz-collapse>
+                        </div>
+                      </nz-form-item>
+                      <nz-form-item formArrayName="indexRows">
+                        <div>
+                          <div class="pb-4">
+                            <nz-spin [nzSpinning]="!canUploadIndexRow">
+                              <nz-upload
+                                nzType="drag"
+                                [nzMultiple]="false"
+                                [nzBeforeUpload]="beforeUploadIndexRow(transactionalEmailType)"
+                                nzAccept="text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                nzFileType="text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                              >
+                                <p class="ant-upload-drag-icon">
+                                  <i nz-icon nzType="file"></i>
+                                </p>
+                                <p class="ant-upload-text">Click or drag file (CSV / Excel) to this area to upload</p>
+                                <p class="ant-upload-hint">Excel header columns must match index field settings.</p>
+                              </nz-upload>
+                            </nz-spin>
+                          </div>
+
+                          <div
+                            missing-error
+                            class="pb-4"
+                            *ngIf="getMissingIndexRows(transactionalEmailActivityFiles).length > 0"
+                          >
+                            <nz-collapse>
+                              <ng-template #missingIndexRowHeader>
+                                <span class="text-red-500"
+                                  ><i nz-icon nzType="close-circle" nzTheme="fill"></i> Missing index rows:
+                                  {{ getMissingIndexRows(transactionalEmailActivityFiles).length }}</span
+                                >
+                              </ng-template>
+                              <nz-collapse-panel [nzHeader]="missingIndexRowHeader" [nzActive]="false">
+                                <p class="whitespace-pre-line m-0 text-red-500">
+                                  {{ getMissingIndexRows(transactionalEmailActivityFiles).join(", ") }}
+                                </p>
+                              </nz-collapse-panel>
+                            </nz-collapse>
+                          </div>
+
+                          <div class="flex items-center pb-4">
+                            <div class="flex-1">
+                              <nz-input-group [nzPrefix]="searchIcon">
+                                <input
+                                  (input)="doSearchIndexRow($event)"
+                                  type="text"
+                                  nz-input
+                                  placeholder="Find by attachment filename"
+                                />
+                              </nz-input-group>
+                              <ng-template #searchIcon>
+                                <i nz-icon nzType="search" class="mr-2"></i>
+                              </ng-template>
+                            </div>
+                            <div class="flex-1 text-right">
+                              <button (click)="openIndexRowForm()" type="button" nz-button nzType="default">
+                                Add row
+                              </button>
+                            </div>
+                          </div>
+                          <nz-table
+                            #indexRowTable
+                            nzBordered
+                            [nzShowPagination]="true"
+                            [nzPageSize]="5"
+                            [nzData]="getFilteredIndexRow()"
+                            nzSize="small"
+                            nzTableLayout="fixed"
+                          >
+                            <thead>
+                              <tr>
+                                <th nzWidth="44px">No</th>
+                                <th *ngFor="let fieldLabel of getIndexFieldLabels(transactionalEmailType)">
+                                  <div class="flex items-center" *ngIf="fieldLabel === 'Attachment Password'">
+                                    <div class="mr-2">{{ fieldLabel }}</div>
+                                    <div>
+                                      <i
+                                        *ngIf="showPassword"
+                                        (click)="togglePasswordVisible()"
+                                        nz-icon
+                                        nzType="eye"
+                                      ></i>
+                                      <i
+                                        *ngIf="!showPassword"
+                                        (click)="togglePasswordVisible()"
+                                        nz-icon
+                                        nzType="eye-invisible"
+                                      ></i>
+                                    </div>
+                                  </div>
+                                  <div *ngIf="fieldLabel !== 'Attachment Password'">{{ fieldLabel }}</div>
+                                </th>
+                                <th nzWidth="32px"></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let control of indexRowTable.data; let i = index" [formGroupName]="i">
+                                <td>{{ control.get("seqOrder")!.value }}</td>
+                                <ng-container
+                                  *ngFor="
+                                    let result of getIndexRowValues(control, transactionalEmailType, i);
+                                    trackBy: trackByFn
+                                  "
+                                >
+                                  <td>
+                                    <div *ngIf="result.hiddenValue">
+                                      <span *ngIf="showPassword">{{ result.hiddenValue }}</span>
+                                      <span *ngIf="!showPassword">{{ result.value }}</span>
+                                    </div>
+                                    <div *ngIf="!result.hiddenValue">{{ result.value }}</div>
+                                  </td>
+                                </ng-container>
+                                <td>
+                                  <a
+                                    (click)="
+                                      doDeleteIndexRow(
+                                        control.get('text1')!.value,
+                                        formIndexRows,
+                                        control.get('seqOrder')!.value
+                                      )
+                                    "
+                                    ><i nz-icon nzType="delete"></i
+                                  ></a>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </nz-table>
+                        </div>
+                      </nz-form-item>
+                    </div>
+                  </div>
+                </li>
+                <li nz-list-item list-item>
+                  <div class="pr-4 pt-1">
+                    <i class="text-lg" nz-icon nzType="file-pdf"></i>
+                  </div>
+                  <div class="flex-grow" #step3>
+                    <h5 nz-typography class="pb-4">Upload Attachments</h5>
+                    <div *ngIf="transactionalEmailType.hasAttachment; else attachmentNotRequired">
+                      <nz-form-item>
+                        <div class="w-full">
+                          <div class="pb-4">
+                            <nz-spin [nzSpinning]="!canUploadAttachment">
+                              <nz-upload
+                                nzType="drag"
+                                [nzMultiple]="true"
+                                [nzBeforeUpload]="beforeUploadAttachment"
+                                nzAccept="application/pdf,application/zip"
+                                nzFileType="application/pdf,application/zip"
+                              >
+                                <p class="ant-upload-drag-icon">
+                                  <i nz-icon nzType="file"></i>
+                                </p>
+                                <p class="ant-upload-text">Click or drag file (PDF / ZIP) to this area to upload</p>
+                              </nz-upload>
+                            </nz-spin>
+                          </div>
+
+                          <div
+                            missing-error
+                            class="pb-4"
+                            *ngIf="getMissingAttachments(transactionalEmailActivityFiles).length > 0"
+                          >
+                            <nz-collapse>
+                              <ng-template #missingAttachmentHeader>
+                                <span class="text-red-500"
+                                  ><i nz-icon nzType="close-circle" nzTheme="fill"></i> Missing attachments:
+                                  {{ getMissingAttachments(transactionalEmailActivityFiles).length }} files</span
+                                >
+                              </ng-template>
+                              <nz-collapse-panel [nzHeader]="missingAttachmentHeader" [nzActive]="false">
+                                <p class="whitespace-pre-line m-0 text-red-500">
+                                  {{ getMissingAttachments(transactionalEmailActivityFiles).join(", ") }}
+                                </p>
+                              </nz-collapse-panel>
+                            </nz-collapse>
+                          </div>
+
+                          <div>
+                            <ul
+                              attachment-table
+                              nz-list
+                              nzBordered
+                              nzSize="small"
+                              [nzDataSource]="getFilterAttachments(transactionalEmailActivityFiles)"
+                              [nzPagination]="pagination"
+                            >
+                              <nz-list-header>
+                                <div class="flex items-center">
+                                  <div class="flex-1">
+                                    <nz-input-group [nzPrefix]="searchIcon">
+                                      <input
+                                        type="text"
+                                        nz-input
+                                        (input)="doSearchAttachment($event)"
+                                        placeholder="Find by attachment filename"
+                                      />
+                                    </nz-input-group>
+                                    <ng-template #searchIcon>
+                                      <i nz-icon nzType="search" class="mr-2"></i>
+                                    </ng-template>
+                                  </div>
+                                  <div class="flex-1 text-right">
+                                    <button type="button" (click)="doDeleteAllAttachments()" nz-button nzType="default">
+                                      Delete All
+                                    </button>
+                                  </div>
+                                </div>
+                              </nz-list-header>
+
+                              <li
+                                nz-list-item
+                                *ngFor="let item of doPageAttachments(transactionalEmailActivityFiles)"
+                                nzNoFlex
+                              >
+                                <ul nz-list-item-actions>
+                                  <nz-list-item-action>
+                                    <a (click)="doDeleteAttachment(item)">Delete</a>
+                                  </nz-list-item-action>
+                                </ul>
+                                {{ item.name }}
+                              </li>
+                            </ul>
+                            <ng-template #pagination>
+                              <nz-pagination
+                                [nzPageIndex]="attachmentPageIndex"
+                                [nzPageSize]="attachmentPageSize"
+                                [nzTotal]="getFilterAttachments(transactionalEmailActivityFiles).length"
+                                (nzPageIndexChange)="doAttachmentPageIndexChange($event)"
+                              ></nz-pagination>
+                            </ng-template>
+                          </div>
+                        </div>
+                      </nz-form-item>
+                    </div>
+                    <ng-template #attachmentNotRequired>
+                      <nz-card>
+                        <nz-empty empty-search [nzNotFoundContent]="contentTpl">
+                          <ng-template #contentTpl>
+                            <span>No attachment required</span>
+                          </ng-template>
+                        </nz-empty>
+                      </nz-card>
+                    </ng-template>
+                  </div>
+                </li>
+
+                <li nz-list-item list-item>
+                  <div class="pr-4 pt-1">
+                    <i class="text-lg" nz-icon nzType="mail"></i>
+                  </div>
+                  <div class="flex-grow" #step4>
+                    <h5 nz-typography class="pb-4">Preview Email</h5>
+                    <div>
+                      <nz-form-item>
+                        <nz-form-label [nzSpan]="5" nzRequired>From Email</nz-form-label>
+                        <nz-form-control
+                          [nzSpan]="18"
+                          nzHasFeedback
+                          [nzErrorTip]="getErrorMessage(form.controls['emailFrom'])"
+                        >
+                          <input nz-input formControlName="emailFrom" placeholder="From email" type="email" />
+                        </nz-form-control>
+                      </nz-form-item>
+                      <nz-form-item>
+                        <nz-form-label [nzSpan]="5" nzRequired>From Name</nz-form-label>
+                        <nz-form-control
+                          [nzSpan]="18"
+                          nzHasFeedback
+                          [nzErrorTip]="getErrorMessage(form.controls['emailFromName'])"
+                        >
+                          <input nz-input formControlName="emailFromName" placeholder="from email" />
+                        </nz-form-control>
+                      </nz-form-item>
+                      <nz-form-item>
+                        <nz-form-label [nzSpan]="5" nzRequired>Subject</nz-form-label>
+                        <nz-form-control
+                          [nzSpan]="18"
+                          nzHasFeedback
+                          [nzErrorTip]="getErrorMessage(form.controls['emailSubject'])"
+                        >
+                          <input nz-input formControlName="emailSubject" placeholder="email subject" />
+                        </nz-form-control>
+                      </nz-form-item>
+                      <nz-form-item>
+                        <nz-form-label [nzSpan]="5">Content</nz-form-label>
+                        <nz-form-control [nzSpan]="18">
+                          <div class="mt-1 mb-4"><a (click)="doEditEmailTemplate()">Edit email template</a></div>
+                          <grabbill-client-html-preview [html]="html"></grabbill-client-html-preview>
+
+                          <nz-drawer
+                            *ngIf="transactionalEmailActivity$ | async"
+                            [nzBodyStyle]="{ overflow: 'auto', padding: '0' }"
+                            [nzWidth]="'100%'"
+                            [nzClosable]="true"
+                            [nzKeyboard]="false"
+                            [nzVisible]="isEditorVisible"
+                            nzTitle="Email Editor"
+                            [nzFooter]="createFooterTemplate"
+                            (nzOnClose)="closeEditor()"
+                          >
+                            <div *nzDrawerContent>
+                              <grabbill-client-email-editor
+                                #editor
+                                [defaultComponents]="mjml"
+                                [fields]="getIndexFields(transactionalEmailType)"
+                                (htmlInit)="updateHtml($event)"
+                              >
+                              </grabbill-client-email-editor>
+                            </div>
+
+                            <ng-template #createFooterTemplate>
+                              <div class="text-right">
+                                <button
+                                  nz-button
+                                  [nzLoading]="isEditorLoading"
+                                  nzType="primary"
+                                  (click)="doUpdateTemplate()"
+                                >
+                                  Update Template
+                                </button>
+                              </div>
+                            </ng-template>
+                          </nz-drawer>
+                        </nz-form-control>
+                      </nz-form-item>
+                    </div>
+                  </div>
+                </li>
+
+                <li nz-list-item list-item *ngIf="transactionalEmailType.whatsAppTemplateName">
+                  <div class="pr-4 pt-1">
+                    <i class="text-lg" nz-icon nzType="message"></i>
+                  </div>
+                  <div class="flex-grow" #step5>
+                    <h5 nz-typography class="pb-4">Preview WhatsApp Message</h5>
+                    <div>
+                      <nz-form-item>
+                        <nz-form-label [nzSpan]="5">Template Name</nz-form-label>
+                        <nz-form-control [nzSpan]="18">{{whatsappTemplate?.name || '-'}}</nz-form-control>
+                      </nz-form-item>
+                      <nz-form-item>
+                        <nz-form-label [nzSpan]="5">Status</nz-form-label>
+                        <nz-form-control [nzSpan]="3">{{whatsappTemplate?.status || '-'}}</nz-form-control>
+                        <nz-form-label [nzSpan]="5">Category</nz-form-label>
+                        <nz-form-control [nzSpan]="3">{{whatsappTemplate?.category || '-'}}</nz-form-control>
+                      </nz-form-item>
+                      <nz-form-item>
+                        <nz-form-label [nzSpan]="5">Header</nz-form-label>
+                        <nz-form-control [nzSpan]="3">{{getWhatsappTemplateHeader()}}</nz-form-control>
+                        <nz-form-label [nzSpan]="5">Button</nz-form-label>
+                        <nz-form-control [nzSpan]="3">{{getWhatsappTemplateButton()}}</nz-form-control>
+                      </nz-form-item>
+                      <nz-form-item>
+                        <nz-form-label [nzSpan]="5">Footer</nz-form-label>
+                        <nz-form-control [nzSpan]="18">{{getWhatsappTemplateFooter()}}</nz-form-control>
+                      </nz-form-item>
+                      <nz-form-item>
+                        <nz-form-label [nzSpan]="5">Send if email error</nz-form-label>
+                        <nz-form-control [nzSpan]="18">
+                          <nz-switch formControlName="sendWhatsAppMessage"></nz-switch>
+                        </nz-form-control>
+                      </nz-form-item>
+                      <nz-form-item>
+                        <nz-table
+                          #whatsappIndexRowTable
+                          nzBordered
+                          [nzShowPagination]="true"
+                          [nzPageSize]="5"
+                          [nzData]="getWhatsappFilteredIndexRow()"
+                          nzSize="small"
+                          nzTableLayout="fixed"
+                        >
+                          <thead>
+                          <tr>
+                            <th nzWidth="44px">No</th>
+                            <th nzWidth="120px">Mobile No</th>
+                            <th nzWidth="100px" class="text-center">Valid No</th>
+                            <th>Body Content</th>
+                            <th nzWidth="200px" class="text-center">Error</th>
+                          </tr>
+                          </thead>
+                          <tbody>
+                          <tr *ngFor="let control of whatsappIndexRowTable.data; let i = index">
+                            <td>{{ control.get("seqOrder")!.value }}</td>
+                            <td>{{ control.get("text4")!.value }}</td>
+                            <td class="text-center">
+                              <i *ngIf="isValidMalaysiaMobileNo(control.get('text4')?.value); else invalid" nz-icon nzType="check"></i>
+                              <ng-template #invalid><i nz-icon nzType="close"></i></ng-template>
+                            </td>
+                            <td>{{ getWhatsappBodyContent(control) }}</td>
+                            <td>{{ validateWhatsappValidContent(control) }}</td>
+                          </tr>
+                          </tbody>
+                        </nz-table>
+                      </nz-form-item>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </form>
+
+            <nz-modal [nzVisible]="isScheduleModalVisible" nzTitle="Schedule" (nzOnCancel)="doCloseScheduleModal()">
+              <div *nzModalContent>
+                <div>
+                  <form nz-form [formGroup]="scheduleForm">
+                    <nz-form-item>
+                      <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>Schedule Time</nz-form-label>
+                      <nz-form-control [nzSm]="12" [nzXs]="24">
+                        <nz-date-picker
+                          [nzDisabledDate]="disabledDate"
+                          nzShowTime
+                          nzFormat="yyyy-MM-dd HH:mm:ss"
+                          formControlName="scheduledTimestamp"
+                        ></nz-date-picker>
+                      </nz-form-control>
+                    </nz-form-item>
+                  </form>
+                </div>
+              </div>
+              <div *nzModalFooter>
+                <button
+                  nz-button
+                  nzType="primary"
+                  (click)="doSchedule(transactionalEmailType, transactionalEmailActivityFiles)"
+                >
+                  Schedule
+                </button>
+              </div>
+            </nz-modal>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+    </div>
+  </ng-container>
+</div>
+
+<nz-drawer
+  [nzBodyStyle]="{ overflow: 'auto' }"
+  [nzWidth]="540"
+  [nzClosable]="false"
+  [nzVisible]="isIndexRowFormVisible"
+  nzTitle="Add New Row"
+  [nzFooter]="createFooterTemplate"
+  (nzOnClose)="closeIndexRowForm()"
+  *ngIf="addFormControls.length > 0"
+>
+  <form nz-form *nzDrawerContent [formGroup]="indexRowForm" nzLayout="vertical">
+    <div>
+      <div>
+        <ng-container *ngFor="let addFormControl of addFormControls" [ngSwitch]="addFormControl.type">
+          <nz-form-item *ngSwitchCase="'TEXT'">
+            <nz-form-label [nzRequired]="addFormControl.required">{{ addFormControl.label }}</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(indexRowForm.controls[addFormControl.name])">
+              <input
+                nz-input
+                [type]="addFormControl.label === 'Attachment Password' ? 'password' : 'text'"
+                [formControlName]="addFormControl.name"
+                placeholder=""
+              />
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item *ngSwitchCase="'EMAIL'">
+            <nz-form-label [nzRequired]="addFormControl.required">{{ addFormControl.label }}</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(indexRowForm.controls[addFormControl.name])">
+              <input nz-input [formControlName]="addFormControl.name" placeholder="" />
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item *ngSwitchCase="'NUMBER'">
+            <nz-form-label [nzRequired]="addFormControl.required">{{ addFormControl.label }}</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(indexRowForm.controls[addFormControl.name])">
+              <nz-input-number
+                [formControlName]="addFormControl.name"
+                [nzMin]="-9999999"
+                [nzMax]="9999999"
+                [nzStep]="1"
+              ></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item *ngSwitchCase="'DATE'">
+            <nz-form-label [nzRequired]="addFormControl.required">{{ addFormControl.label }}</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(indexRowForm.controls[addFormControl.name])">
+              <nz-date-picker [formControlName]="addFormControl.name"></nz-date-picker>
+            </nz-form-control>
+          </nz-form-item>
+        </ng-container>
+      </div>
+    </div>
+  </form>
+
+  <ng-template #createFooterTemplate>
+    <div class="text-right">
+      <button nz-button [nzLoading]="isIndexRowFormLoading" nzType="primary" (click)="doSubmitIndexRow()">
+        Add row
+      </button>
+    </div>
+  </ng-template>
+</nz-drawer>
+
+<nz-modal
+  [nzVisible]="isIndexRowErrorModalVisible"
+  nzTitle="Upload Errors"
+  [nzWidth]="'80%'"
+  (nzOnCancel)="doCloseIndexRowErrorModal()"
+>
+  <div *nzModalContent>
+    <div>
+      <div class="pb-2">Total Rows: {{ indexRows.length }}</div>
+      <div class="pb-2">Total Errors: {{ indexRowErrors.length }}</div>
+    </div>
+    <div error-table>
+      <nz-table [nzData]="indexRowErrors" [nzShowPagination]="false">
+        <thead>
+          <tr>
+            <th>Row</th>
+            <th>Errors</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of indexRowErrors">
+            <td>{{ data.row }}</td>
+            <td>
+              <div *ngFor="let message of data.messages">{{ message }}</div>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </div>
+  </div>
+  <div *nzModalFooter>
+    <button *ngIf="transactionalEmailType$ | async as type" nz-button (click)="doSkipInvalidEmails(type)">
+      Skip Invalid Emails
+    </button>
+    <button nz-button nzType="primary" (click)="doCloseIndexRowErrorModal()">Close</button>
+  </div>
+</nz-modal>

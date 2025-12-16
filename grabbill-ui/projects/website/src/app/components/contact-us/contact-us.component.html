@@ -1,0 +1,97 @@
+<div main-section>
+  <div class="container mx-auto z-5 h-full">
+    <div contact-us-container class="flex">
+      <div contact-us-line>&nbsp;</div>
+      <div>
+        <div contact-us-title>Contact Us</div>
+        <div contact-us-description>How can we help?<br />We'd love to <br class="md:hidden" />hear from you.</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div section>
+  <div class="container mx-auto" content>
+    <form
+      class="hidden lg:block"
+      nz-form nzLayout="vertical"
+      [formGroup]="form"
+      (ngSubmit)="submitForm()"
+    >
+      <div class="flex gap-10">
+        <nz-form-item class="flex-grow">
+          <nz-form-label>Name</nz-form-label>
+          <nz-form-control nzErrorTip="Required">
+            <input nzSize="large" nz-input formControlName="name" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item class="flex-grow">
+          <nz-form-label>Email Address</nz-form-label>
+          <nz-form-control nzErrorTip="Invalid email">
+            <input nzSize="large" nz-input formControlName="email" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <nz-form-item>
+        <nz-form-label>Subject</nz-form-label>
+        <nz-form-control nzErrorTip="Required">
+          <input nzSize="large" nz-input formControlName="subject" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>Message</nz-form-label>
+        <nz-form-control nzErrorTip="Required">
+          <textarea nzSize="large" nz-input formControlName="message" rows="5"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-control>
+          <button contact-us-button nzSize="large" nz-button nzType="primary">Sent</button>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+
+    <form
+      class="lg:hidden"
+      nz-form nzLayout="vertical"
+      [formGroup]="form"
+      (ngSubmit)="submitForm()"
+    >
+      <nz-form-item class="flex-grow">
+        <nz-form-label>Name</nz-form-label>
+        <nz-form-control nzErrorTip="Required">
+          <input nz-input formControlName="name" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item class="flex-grow">
+        <nz-form-label>Email Address</nz-form-label>
+        <nz-form-control nzErrorTip="Invalid email">
+          <input nz-input formControlName="email" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>Subject</nz-form-label>
+        <nz-form-control nzErrorTip="Required">
+          <input nzSize="large" nz-input formControlName="subject" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>Message</nz-form-label>
+        <nz-form-control nzErrorTip="Required">
+          <textarea nz-input formControlName="message" rows="5"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-control>
+          <button nz-button nzType="primary">Sent</button>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </div>
+</div>

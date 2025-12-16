@@ -1,0 +1,101 @@
+<div box>
+  <div box-title class="pb-4">Plan Summary</div>
+  <div class="flex flex-col lg:flex-row gap-12" *ngIf="prePlanSwitchInvoice$ | async as prePlanSwitchInvoice">
+    <div>
+      <div summary-box class="border w-full mr-20 flex flex-col">
+        <div summary-title class="pb-4">Summary</div>
+        <div class="flex-grow">
+          <table summary-table class="w-full text-lg">
+            <tr>
+              <td>{{ prePlanSwitchInvoice.planName }} Plan {{ prePlanSwitchInvoice.mode | titlecase }}</td>
+              <td class="text-right">RM {{ prePlanSwitchInvoice.totalAmountBeforeDiscount | number: "1.2" }}</td>
+            </tr>
+            <tr>
+              <td>
+                - Cycle Date: {{ prePlanSwitchInvoice.cycleStartDate | date: "dd/MM/yyyy" }} -
+                {{ prePlanSwitchInvoice.cycleEndDate | date: "dd/MM/yyyy" }}
+              </td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>&nbsp;</td>
+              <td></td>
+            </tr>
+
+            <ng-container *ngIf="user?.subscription || prePlanSwitchInvoice.discountAmount">
+              <ng-container *ngIf="user?.subscription">
+                <tr>
+                  <td>Previous Plan Offset</td>
+                  <td class="text-right">- RM {{ prePlanSwitchInvoice.offsetAmount | number: "1.2" }}</td>
+                </tr>
+                <tr>
+                  <td>
+                    - Previous Cycle Date: {{ prePlanSwitchInvoice.prevCycleStartDate | date: "dd/MM/yyyy" }} -
+                    {{ prePlanSwitchInvoice.prevCycleEndDate | date: "dd/MM/yyyy" }}
+                  </td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>- Remaining Days: {{ prePlanSwitchInvoice.remainingDays }}</td>
+                  <td></td>
+                </tr>
+              </ng-container>
+
+              <ng-container *ngIf="prePlanSwitchInvoice.discountAmount">
+                <tr>
+                  <td>&nbsp;</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>
+                    Promo Code:
+                    {{ prePlanSwitchInvoice.promoCode.code }}
+                    <span *ngIf="prePlanSwitchInvoice.promoCode.discountType === discountType.PERCENTAGE"
+                      >({{ prePlanSwitchInvoice.promoCode.discount }} %)</span
+                    >
+                  </td>
+                  <td class="text-right">- RM {{ prePlanSwitchInvoice.discountAmount | number: "1.2" }}</td>
+                </tr>
+              </ng-container>
+
+              <tr>
+                <td colspan="2">
+                  <nz-divider style="margin: 12px 0"></nz-divider>
+                </td>
+              </tr>
+              <tr>
+                <td>Total</td>
+                <td class="text-right">RM {{ prePlanSwitchInvoice.totalAmountWithTax | number: "1.2" }}</td>
+              </tr>
+            </ng-container>
+          </table>
+        </div>
+        <div class="text-right">
+          <button
+            *ngIf="user?.subscription"
+            nz-button
+            class="mr-4"
+            nzSize="large"
+            nzType="default"
+            [routerLink]="['/', 'account', 'plan']"
+            [queryParams]="{ tab: 'overview' }"
+          >
+            Back to Plan Detail
+          </button>
+          <button
+            nz-button
+            class="mr-4"
+            nzSize="large"
+            nzType="default"
+            [routerLink]="['/', 'register', 'plan-selection']"
+          >
+            Back to Plan Selection
+          </button>
+          <button nz-button nzSize="large" nzType="primary" [nzLoading]="isLoading" (click)="doSwitchPlan()">
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

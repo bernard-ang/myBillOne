@@ -1,0 +1,76 @@
+@import 'tailwind.css';
+
+@import '../../../node_modules/@fontsource/poppins/index.css';
+
+// Custom Theming for NG-ZORRO
+// For more information: https://ng.ant.design/docs/customize-theme/en
+@import '../../../node_modules/ng-zorro-antd/ng-zorro-antd.less';
+
+// Override less variables to here
+// View all variables: https://github.com/NG-ZORRO/ng-zorro-antd/blob/master/components/style/themes/default.less
+
+@import 'styles/variables';
+@import 'styles/zorro-overwrite';
+
+body {
+  font-family: @font-family;
+}
+
+[container] {
+  max-width: 1200px;
+}
+
+// fix sidebar being pushed up after modal or drawer open
+.cdk-global-scrollblock {
+  position: static !important;
+  width: initial !important;
+  overflow-y: inherit !important;
+}
+
+[result] svg {
+  display: inherit;
+}
+
+[app-layout] {
+  min-height: 100vh;
+}
+
+[header] {
+  height: 64px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  display: flex;
+  z-index: 4;
+}
+
+.logo {
+  background-image: url("/assets/logo_big.png");
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 100%;
+  background-position: left;
+  background-size: contain;
+}
+
+[search-group] {
+  border-right: 0;
+}
+
+[toolbar] {
+  border-left: 1px solid #f0f0f0;
+  border-right: 1px solid #f0f0f0;
+}
+
+[filter-tag] {
+  font-size: 14px;
+}
+
+[title] {
+  margin-bottom: 4px;
+}
+
+[subtitle] {
+  font-weight: bold;
+  font-size: 16px;
+  padding-bottom: 8px;
+}

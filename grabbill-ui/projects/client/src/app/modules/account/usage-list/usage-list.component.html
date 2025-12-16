@@ -1,0 +1,84 @@
+<div container class="mx-auto" *ngIf="accountStatementSearchResult$ | async as searchResult">
+  <div>
+    <grabbill-client-page-header
+      title="Account usages"
+    ></grabbill-client-page-header>
+  </div>
+
+  <nz-tabset nzLinkRouter nzSize="large">
+    <nz-tab>
+      <a *nzTabLink nz-tab-link [routerLink]="['.']" [queryParams]="{ tab: 'statement' }" queryParamsHandling="merge">
+        Statements
+      </a>
+
+      <div *ngIf="accountStatementPageable$ | async as pageable">
+        <div class="pb-8">
+          <div [formGroup]="form" class="text-right">
+            <nz-range-picker formControlName="range" (ngModelChange)="doDateRange($event)"> </nz-range-picker>
+          </div>
+        </div>
+        <nz-table
+          nzBordered
+          [nzLoading]="isTableLoading"
+          [nzData]="searchResult.items"
+          [nzFrontPagination]="false"
+          [nzTotal]="searchResult.totalItems"
+          [nzPageSize]="pageable.size"
+          [nzPageIndex]="pageable.page"
+          (nzQueryParams)="doQuery($event)"
+          nzSize="small"
+          nzTableLayout="fixed"
+        >
+          <thead>
+          <tr>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Total Storage Used</th>
+            <th>Total Transactional Email Sent</th>
+            <th>Total Email Campaign Sent</th>
+            <th>Total SMS Sent</th>
+            <th>Total WhatsApp Sent</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let data of searchResult.items; let i = index">
+            <td>{{ data.startDate | date: "medium" }}</td>
+            <td>{{ data.endDate | date: "medium" }}</td>
+            <td>{{ data.totalStorageUsed }}</td>
+            <td>{{ data.totalTransactionalEmailSent }}</td>
+            <td>{{ data.totalEmailCampaignSent }}</td>
+            <td>{{ data.totalSmsSent }}</td>
+            <td>{{ data.totalWhatsappMessageSent }}</td>
+          </tr>
+          </tbody>
+        </nz-table>
+      </div>
+    </nz-tab>
+
+    <nz-tab *ngIf="canTopUpSms">
+      <a *nzTabLink nz-tab-link [routerLink]="['.']" [queryParams]="{ tab: 'sms' }" queryParamsHandling="merge">
+        SMS Usage
+      </a>
+
+      <div class="pb-8">
+        <div [formGroup]="smsForm" class="text-right">
+          <nz-range-picker formControlName="range" (ngModelChange)="doSmsDateRange($event)"> </nz-range-picker>
+        </div>
+      </div>
+
+      <div class="flex text-center mb-8 bg-white" *ngIf="smsUsageSummary$ | async as smsUsageSummary">
+        <div class="stat-block flex-1">
+          <nz-statistic [nzValue]="(smsUsageSummary.sent | number)!" nzTitle="SMS Sent"></nz-statistic>
+        </div>
+        <div class="stat-block flex-1">
+          <nz-statistic [nzValue]="(smsUsageSummary.error | number)!" nzTitle="SMS Error"></nz-statistic>
+        </div>
+        <div class="stat-block flex-1">
+          <nz-statistic [nzValue]="(smsUsageSummary.creditUsed | number)!" nzTitle="Total Credit Used"></nz-statistic>
+        </div>
+      </div>
+    </nz-tab>
+  </nz-tabset>
+
+
+</div>

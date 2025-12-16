@@ -1,0 +1,14 @@
+<div class="flex text-center mb-8 bg-white">
+  <div class="stat-block flex-1">
+    <nz-statistic [nzValue]="(totalSms | number)!" nzTitle="Total SMS"></nz-statistic>
+  </div>
+  <div class="stat-block flex-1">
+    <nz-statistic [nzValue]="(smsSent | number)!" nzTitle="SMS Sent"></nz-statistic>
+  </div>
+  <div class="stat-block flex-1">
+    <nz-statistic [nzValue]="(smsError | number)!" nzTitle="SMS Error"></nz-statistic>
+  </div>
+  <div class="stat-block flex-1">
+    <nz-statistic [nzValue]="(totalCreditUsed | number)!" nzTitle="Total Credit Used"></nz-statistic>
+  </div>
+</div>

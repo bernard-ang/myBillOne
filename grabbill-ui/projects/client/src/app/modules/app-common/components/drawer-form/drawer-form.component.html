@@ -1,0 +1,67 @@
+<nz-drawer
+  [nzBodyStyle]="{ overflow: 'auto' }"
+  [nzWidth]="540"
+  [nzClosable]="false"
+  [nzVisible]="isVisible"
+  [nzTitle]="title"
+  [nzFooter]="footerTemplate"
+  (nzOnClose)="doClose()"
+>
+  <form nz-form *nzDrawerContent [formGroup]="form" nzLayout="vertical">
+    <div>
+      <div>
+        <ng-container *ngFor="let field of fields" [ngSwitch]="field.type">
+          <nz-form-item *ngSwitchCase="'HIDDEN'">
+            <input nz-input type="hidden" [formControlName]="field.name" />
+          </nz-form-item>
+          <nz-form-item *ngSwitchCase="'TEXT'">
+            <nz-form-label [nzRequired]="field.required">{{ field.label }}</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls[field.name])">
+              <input nz-input [formControlName]="field.name" placeholder="" />
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item *ngSwitchCase="'NUMBER'">
+            <nz-form-label [nzRequired]="field.required">{{ field.label }}</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls[field.name])">
+              <nz-input-number
+                [formControlName]="field.name"
+                [nzMin]="-9999999"
+                [nzMax]="9999999"
+                [nzStep]="1"
+              ></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item *ngSwitchCase="'DATE'">
+            <nz-form-label [nzRequired]="field.required">{{ field.label }}</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls[field.name])">
+              <nz-date-picker [formControlName]="field.name"></nz-date-picker>
+            </nz-form-control>
+          </nz-form-item>
+          <ng-container *ngSwitchCase="'MULTIPLE'">
+            <nz-form-item *ngIf="field.options && field.options.length > 0; else noOption">
+              <nz-form-label [nzRequired]="field.required">{{ field.label }}</nz-form-label>
+              <nz-form-control>
+                <nz-select
+                  [formControlName]="field.name" nzMode="multiple">
+                  <ng-container *ngFor="let option of field.options; let i = index">
+                    <nz-option [nzValue]="option.value" [nzLabel]="option.label"></nz-option>
+                  </ng-container>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+            <ng-template #noOption>
+              No {{field.label.toLowerCase()}} found.
+            </ng-template>
+          </ng-container>
+        </ng-container>
+      </div>
+    </div>
+  </form>
+
+  <ng-template #footerTemplate>
+    <div class="text-right">
+      <button type="button" nz-button [nzLoading]="isLoading" nzType="primary"
+              (click)="doSubmit()">{{buttonLabel}}</button>
+    </div>
+  </ng-template>
+</nz-drawer>

@@ -1,0 +1,16 @@
+<div class="mb-6">
+  <nz-breadcrumb>
+    <nz-breadcrumb-item [routerLink]="['/']">
+      <a><i nz-icon class="cursor-pointer" nzType="home"></i></a>
+    </nz-breadcrumb-item>
+    <nz-breadcrumb-item [routerLink]="rootLink" [queryParams]="rootQueryParam">
+      <a>{{ rootTitle }}</a>
+    </nz-breadcrumb-item>
+    <nz-breadcrumb-item *ngIf="hasCrumb2" [routerLink]="crumb2Link" [queryParams]="crumb2QueryParam">
+      <a>{{ crumb2Object && crumb2Object.name }}</a>
+    </nz-breadcrumb-item>
+    <nz-breadcrumb-item *ngIf="hasCrumb3" [routerLink]="crumb3Link" [queryParams]="crumb3QueryParam">
+      <a>{{ crumb3Object && crumb3Object.name }}</a>
+    </nz-breadcrumb-item>
+  </nz-breadcrumb>
+</div>

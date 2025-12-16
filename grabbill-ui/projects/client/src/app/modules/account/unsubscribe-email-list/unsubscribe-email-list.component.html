@@ -1,0 +1,63 @@
+<div container class="mx-auto" *ngIf="unsubscribedEmailSearchResult$ | async as unsubscribedEmailSearchResult">
+  <div class="pb-8">
+    <grabbill-client-page-header
+      title="Unsubscribed Emails"
+      description="You have {{ unsubscribedEmailSearchResult.totalItems | number }} unsubscribed emails."
+    ></grabbill-client-page-header>
+  </div>
+
+  <div *ngIf="unsubscribedEmailPageable$ | async as unsubscribedEmailPageable">
+    <div class="flex pb-8">
+      <div class="flex-grow">
+        <nz-input-group search-group [nzPrefix]="searchIcon">
+          <input type="text" (input)="doSearch($event)" nz-input placeholder="Find by email" />
+        </nz-input-group>
+        <ng-template #searchIcon>
+          <i nz-icon nzType="search" class="mr-2"></i>
+        </ng-template>
+      </div>
+      <div [formGroup]="form">
+        <nz-range-picker formControlName="range" (ngModelChange)="doDateRange($event)"> </nz-range-picker>
+      </div>
+    </div>
+    <nz-table
+      nzBordered
+      [nzLoading]="isTableLoading"
+      [nzData]="unsubscribedEmailSearchResult.items"
+      [nzFrontPagination]="false"
+      [nzTotal]="unsubscribedEmailSearchResult.totalItems"
+      [nzPageSize]="unsubscribedEmailPageable.size"
+      [nzPageIndex]="unsubscribedEmailPageable.page"
+      (nzQueryParams)="doQuery($event)"
+      nzSize="small"
+      nzTableLayout="fixed"
+    >
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Email</th>
+          <th>Domain</th>
+          <th>Type</th>
+          <th>Activity</th>
+          <th>Reason</th>
+          <th nzWidth="80px">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of unsubscribedEmailSearchResult.items; let i = index">
+          <td>{{ data.createdDate | date: "medium" }}</td>
+          <td>{{ data.email }}</td>
+          <td>{{ data.domainType }}</td>
+          <td>{{ data.typeName }}</td>
+          <td>
+            <a (click)="doNavigate(data)">{{ data.activityName }}</a>
+          </td>
+          <td>{{ data.reason }}</td>
+          <td>
+            <a (click)="doDelete(data)" nz-tooltip="Delete"><i nz-icon nzType="delete" class="mr-2"></i></a>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </div>
+</div>

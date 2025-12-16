@@ -1,0 +1,167 @@
+<div container class="mx-auto">
+
+  <div>
+    <grabbill-client-list
+      [store]="store"
+      [actions$]="actions$"
+      [pageable$]="contactGroupPageable$"
+      [result$]="contactGroupSearchResult$"
+      [isListLoading]="isListLoading"
+      [queryAction]="queryAction"
+      [resetAction]="resetAction"
+      [loadMoreAction]="loadMoreAction"
+      [pageableState]="state.contactGroupPageable"
+      [typeNameState]="state.name"
+      [getSubtitle]="getMessage()"
+      [contentTemplate]="contentTemplate"
+      [actionsTemplate]="actionsTemplate"
+      [additionalButtonTemplate]="additionalButtonTemplate"
+      (selectItem)="doOpenEditForm($event)"
+      icon="team"
+      searchText="Find by name"
+      noRecordText="No contact group found"
+    >
+      <ng-template #additionalButtonTemplate>
+        <button
+          class="ml-2"
+          list-button
+          (click)="doOpenCreateForm()"
+          *ngIf="hasPrivilege(privilege.CONTACT_GROUP_EDIT)"
+          nz-button
+          nzSize="small"
+          nzType="primary"
+        >
+          Add Group
+        </button>
+      </ng-template>
+      <ng-template #contentTemplate let-item>
+        <div class="flex-grow"></div>
+      </ng-template>
+      <ng-template #actionsTemplate let-item>
+        <ul nz-list-item-actions>
+          <nz-list-item-action>
+            <nz-upload
+              nz-tooltip="Assign Existing Contacts to Group"
+              [nzBeforeUpload]="beforeUploadContacts(item)"
+              nzAccept="text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              nzFileType="text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            >
+              <a><i nz-icon nzType="upload"></i></a>
+            </nz-upload>
+          </nz-list-item-action>
+          <nz-list-item-action>
+            <a list-title nz-tooltip="View Contacts" [routerLink]="['/', 'contact', 'list']" [queryParams]="{ tab: 'contacts', group: item.name }">
+              <i nz-icon nzType="container"></i>
+            </a>
+          </nz-list-item-action>
+          <nz-list-item-action>
+            <a list-title nz-tooltip="Delete" (click)="doDelete(item)"><i nz-icon nzType="delete"></i></a
+          ></nz-list-item-action>
+        </ul>
+      </ng-template>
+    </grabbill-client-list>
+  </div>
+
+  <div>
+    <nz-drawer
+      [nzBodyStyle]="{ overflow: 'auto' }"
+      [nzWidth]="540"
+      [nzClosable]="false"
+      [nzVisible]="isCreateFormVisible"
+      nzTitle="Add Contact Group"
+      [nzFooter]="createFooterTemplate"
+      (nzOnClose)="closeCreateForm()"
+    >
+      <form nz-form *nzDrawerContent [formGroup]="createForm" nzLayout="vertical">
+        <div>
+          <div>
+            <nz-form-item>
+              <nz-form-label nzRequired>Name</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['name'])">
+                <input nz-input formControlName="name" placeholder="Please enter name" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div>
+            <nz-form-item>
+              <nz-form-label>Description</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['description'])">
+                <nz-input-group>
+                  <input type="text" formControlName="description" nz-input />
+                </nz-input-group>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+      </form>
+
+      <ng-template #createFooterTemplate>
+        <div class="text-right">
+          <button
+            nz-button
+            [nzLoading]="isCreateFormLoading"
+            nzType="primary"
+            [disabled]="!createForm.valid"
+            (click)="doCreateContactGroup()"
+          >
+            Add
+          </button>
+        </div>
+      </ng-template>
+    </nz-drawer>
+
+    <nz-drawer
+      [nzBodyStyle]="{ overflow: 'auto' }"
+      [nzWidth]="540"
+      [nzClosable]="false"
+      [nzVisible]="isEditFormVisible"
+      nzTitle="Update Contact Group"
+      [nzFooter]="editFooterTemplate"
+      (nzOnClose)="closeEditForm()"
+    >
+      <form nz-form *nzDrawerContent [formGroup]="editForm" nzLayout="vertical">
+        <div>
+          <div>
+            <nz-form-item>
+              <nz-form-label nzRequired>Name</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['name'])">
+                <input nz-input formControlName="name" placeholder="Please enter name" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div>
+            <nz-form-item>
+              <nz-form-label>Description</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['description'])">
+                <nz-input-group>
+                  <input type="text" formControlName="description" nz-input />
+                </nz-input-group>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+      </form>
+
+      <ng-template #editFooterTemplate>
+        <div class="text-right">
+          <button
+            nz-button
+            [nzLoading]="isEditFormLoading"
+            nzType="primary"
+            [disabled]="!editForm.valid"
+            (click)="doUpdateContactGroup()"
+          >
+            Update
+          </button>
+        </div>
+      </ng-template>
+    </nz-drawer>
+
+    <grabbill-client-contact-row-error-modal
+      [isVisible]="isContactRowErrorModalVisible"
+      (close)="doCloseContactRowErrorModal()"
+      [contactRowErrors]="contactRowErrors"
+      [contacts]="contacts"
+    ></grabbill-client-contact-row-error-modal>
+  </div>
+</div>

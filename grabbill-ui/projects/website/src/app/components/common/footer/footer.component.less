@@ -1,0 +1,108 @@
+@import '../../../../styles/variables';
+
+[info-section] {
+  background-color: @grey-color;
+  padding: 26px 0;
+
+  [vertical-menu] {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 38px;
+    font-size: 16px;
+    line-height: 19px;
+
+    @media @media-md {
+      display: none;
+    }
+
+    a {
+      text-align: left;
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+
+  [left-content] {
+    flex-grow: 1;
+    font-size: 16px;
+    line-height: 19px;
+
+    @media @media-md {
+      font-size: 14px;
+    }
+
+    @media @media-lg {
+      font-size: 16px;
+      line-height: 25px;
+    }
+
+    [contact-us] {
+      font-weight: 500;
+      padding-bottom: 12px;
+
+      @media @media-md {
+        padding-bottom: 10px;
+      }
+
+      @media @media-lg {
+        padding-bottom: 12px;
+      }
+    }
+
+    [company-name] {
+      font-weight: 500;
+      line-height: 18px;
+      padding-bottom: 4px;
+
+      @media @media-lg {
+        line-height: inherit;
+        padding-bottom: 0;
+      }
+    }
+    [enquiry-email] {
+      padding-bottom: 18px;
+      line-height: 22px;
+
+      @media @media-md {
+        padding-bottom: 8px;
+      }
+
+      @media @media-lg {
+        padding-bottom: 12px;
+        line-height: inherit;
+      }
+
+      @media @media-xl {
+        padding-bottom: 18px;
+      }
+    }
+    [social-medias-container] {
+      [social-media] {
+        width: 28px;
+        height: 28px;
+        margin-right: 16px;
+      }
+    }
+  }
+
+  [right-content] {
+    [link] {
+      font-size: 14px;
+
+      @media @media-lg {
+        font-size: 16px;
+      }
+    }
+
+    [separator] {
+      border-right: 2px solid @separator-color;
+      height: 16px;
+    }
+  }
+}
+
+[copyright-section] {
+  font-size: 10px;
+  line-height: 12px;
+  padding: 16px 0;
+}

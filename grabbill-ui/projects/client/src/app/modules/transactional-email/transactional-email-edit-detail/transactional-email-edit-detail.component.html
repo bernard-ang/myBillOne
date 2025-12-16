@@ -1,0 +1,396 @@
+<div container class="mx-auto">
+  <div top>
+    <grabbill-client-breadcrumb
+      rootTitle="Transactional Email"
+      [rootLink]="['/', 'transactional-email', 'list']"
+      [hasCrumb2]="!isNew"
+      [crumb2Object]="transactionalEmailType$ | async"
+      [crumb2Link]="['/', 'transactional-email', 'detail', typeId]"
+      [crumb2QueryParam]="{ tab: 'settings' }"
+    >
+    </grabbill-client-breadcrumb>
+
+    <div class="mb-8">
+      <grabbill-client-page-header
+        title="{{ isNew ? 'Create' : 'Edit' }} Transactional Email Template"
+        [buttonTemplate]="buttonTemplate"
+      >
+        <ng-template #buttonTemplate>
+          <div class="flex items-center">
+            <button [nzLoading]="isLoading" (click)="submitForm()" nz-button nzType="primary">Save</button>
+          </div>
+        </ng-template>
+      </grabbill-client-page-header>
+    </div>
+
+    <div class="pb-8">
+      <nz-steps [nzCurrent]="0">
+        <nz-step nzTitle="Setup Template"></nz-step>
+        <nz-step nzTitle="Upload Index Data"></nz-step>
+        <nz-step nzTitle="Upload Attachments"></nz-step>
+        <nz-step nzTitle="Preview Email"></nz-step>
+      </nz-steps>
+    </div>
+  </div>
+  <div top-span>
+    <form nz-form [formGroup]="form" nzLayout="horizontal">
+      <div nz-list nzBordered *ngIf="!isInitialize">
+        <div nz-list-item>
+          <nz-skeleton [nzAvatar]="true" [nzActive]="true" [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+        </div>
+      </div>
+
+      <ul nz-list nzBordered nzSize="large" class="bg-white" *ngIf="isInitialize">
+        <li nz-list-item list-item>
+          <div class="pr-4 pt-1">
+            <i class="text-lg" nz-icon nzType="info-circle"></i>
+          </div>
+          <div class="flex-grow">
+            <h5 nz-typography class="pb-4">Basic Settings</h5>
+            <div>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5" nzRequired>Name</nz-form-label>
+                <nz-form-control [nzSpan]="18" nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['name'])">
+                  <input nz-input formControlName="name" placeholder="Transactional email name" />
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5">Code</nz-form-label>
+                <nz-form-control [nzSpan]="18" nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['code'])">
+                  <input nz-input formControlName="code" placeholder="Unique code identifier" />
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </div>
+        </li>
+        <li nz-list-item list-item>
+          <div class="pr-4 pt-1">
+            <i class="text-lg" nz-icon nzType="file-pdf"></i>
+          </div>
+          <div class="flex-grow">
+            <h5 nz-typography class="pb-4">Attachment Settings</h5>
+            <div>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5">Attachment</nz-form-label>
+                <nz-form-control [nzSpan]="3">
+                  <nz-switch formControlName="hasAttachment" (ngModelChange)="toggleAttachment($event)"></nz-switch>
+                </nz-form-control>
+                <nz-form-label [nzSpan]="5">Password Protect</nz-form-label>
+                <nz-form-control [nzSpan]="3">
+                  <nz-switch
+                    formControlName="passwordProtected"
+                    (ngModelChange)="togglePasswordProtect($event)"
+                  ></nz-switch>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5">Archive</nz-form-label>
+                <nz-form-control [nzSpan]="18">
+                  <nz-switch formControlName="archive" (ngModelChange)="toggleArchive($event)"></nz-switch>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5">Auto Purge</nz-form-label>
+                <nz-form-control [nzSpan]="3">
+                  <nz-switch formControlName="autoPurge" (ngModelChange)="toggleAutoPurge($event)"></nz-switch>
+                </nz-form-control>
+
+                <nz-form-label [nzSpan]="6">Auto Purge By Days</nz-form-label>
+                <nz-form-control
+                  [nzSpan]="3"
+                  nzHasFeedback
+                  [nzErrorTip]="getErrorMessage(form.controls['autoPurgeByDays'])"
+                >
+                  <nz-input-number
+                    formControlName="autoPurgeByDays"
+                    [nzMin]="0"
+                    [nzMax]="9999999"
+                    [nzStep]="1"
+                  ></nz-input-number>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </div>
+        </li>
+        <li nz-list-item list-item *ngIf="isNew || (!isNew && (transactionalEmailType$ | async))">
+          <div class="pr-4 pt-1">
+            <i class="text-lg" nz-icon nzType="table"></i>
+          </div>
+          <div class="flex-grow">
+            <h5 nz-typography class="pb-2">Index Fields Settings</h5>
+            <div>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5" supported-types-label nzRequired>Supported index file types </nz-form-label>
+                <nz-form-control
+                  [nzSpan]="18"
+                  supported-types-select
+                  nzHasFeedback
+                  [nzErrorTip]="getErrorMessage(form.controls['csvSeparator'])"
+                >
+                  <nz-select formControlName="csvSeparator">
+                    <nz-option
+                      *ngFor="let csvSeparator of getCsvSeparators()"
+                      [nzValue]="csvSeparator.value"
+                      [nzLabel]="csvSeparator.label"
+                    ></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item formArrayName="indexFields">
+                <div>
+                  <nz-form-control>
+                    <nz-table
+                      nzBordered
+                      [nzShowPagination]="false"
+                      [nzData]="indexFields.controls"
+                      nzTableLayout="fixed"
+                      field-table
+                    >
+                      <thead>
+                      <tr>
+                        <th>Label</th>
+                        <th>Excel Header</th>
+                        <th nzWidth="116px">Mandatory</th>
+                        <th nzWidth="136px">
+                          Type
+                          <i
+                            nz-tooltip
+                            nzTooltipTitle="Sample date format (DD/MM/YYYY)"
+                            nz-icon
+                            nzType="info-circle"
+                            nzTheme="outline"
+                          ></i>
+                        </th>
+                        <th nzWidth="48px"></th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <ng-container *ngFor="let control of indexFields.controls; let i = index" [formGroupName]="i">
+                        <tr *ngIf="control.get('show')!.value && control.get('applicable')!.value">
+                          <td>
+                            <div *ngIf="!control.get('systemDefined')!.value">
+                              <input nz-input formControlName="label" placeholder="Label" (blur)="doLabelChange(control)" />
+                              <div error-text>{{ getErrorMessage(control.get("label")!) }}</div>
+                            </div>
+                            <span *ngIf="control.get('systemDefined')!.value">{{ control.get("label")!.value }}</span>
+                          </td>
+                          <td>
+                            <input nz-input formControlName="header" placeholder="Header" />
+                            <div error-text>{{ getErrorMessage(control.get("header")!) }}</div>
+                          </td>
+                          <td>
+                            <label
+                              *ngIf="!control.get('systemDefined')!.value"
+                              nz-checkbox
+                              formControlName="required"
+                            ></label>
+                            <span *ngIf="control.get('systemDefined')!.value"
+                            ><i *ngIf="control.get('required')!.value" nz-icon nzType="check"></i
+                            ></span>
+                          </td>
+                          <td>
+                            <nz-select
+                              *ngIf="!control.get('systemDefined')!.value && !control.get('referenced')!.value"
+                              formControlName="dataType"
+                            >
+                              <nz-option
+                                *ngFor="let option of getDataTypeOptions()"
+                                [nzLabel]="option"
+                                [nzValue]="option"
+                              ></nz-option>
+                            </nz-select>
+                            <div error-text>{{ getErrorMessage(control.get("dataType")!) }}</div>
+                            <span *ngIf="control.get('systemDefined')!.value || control.get('referenced')!.value">{{
+                              control.get("dataType")!.value
+                              }}</span>
+                          </td>
+                          <td>
+                            <a
+                              *ngIf="!control.get('systemDefined')!.value && !control.get('referenced')!.value"
+                              (click)="doDeleteIndex(indexFields, i)"
+                            >
+                              <i nz-icon nzType="delete"></i>
+                            </a>
+                          </td>
+                        </tr>
+                      </ng-container>
+                      </tbody>
+                    </nz-table>
+                    <div class="pt-4">
+                      <button
+                        [disabled]="indexFields.controls.length > 9"
+                        (click)="addUserDefinedIndexField()"
+                        type="button"
+                        nz-button
+                        nzType="default"
+                      >
+                        Add field
+                      </button>
+                    </div>
+                  </nz-form-control>
+                </div>
+              </nz-form-item>
+            </div>
+          </div>
+        </li>
+        <li nz-list-item list-item *ngIf="whatsAppTemplates$ | async">
+          <div class="pr-4 pt-1">
+            <i class="text-lg" nz-icon nzType="message"></i>
+          </div>
+          <div class="flex-grow">
+            <h5 nz-typography class="pb-2">WhatsApp Settings</h5>
+            <div>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5">Template</nz-form-label>
+                <nz-form-control [nzSpan]="18" nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['whatsAppTemplateName'])">
+                  <nz-select formControlName="whatsAppTemplateName">
+                    <nz-option [nzValue]="null" nzLabel="N/A"></nz-option>
+                    <nz-option
+                      *ngFor="let whatsAppTemplate of whatsAppTemplateOptions"
+                      [nzValue]="whatsAppTemplate.name"
+                      [nzLabel]="whatsAppTemplate.name"
+                    ></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5">Status</nz-form-label>
+                <nz-form-control [nzSpan]="3">{{whatsAppTemplateName?.status || '-'}}</nz-form-control>
+                <nz-form-label [nzSpan]="5">Category</nz-form-label>
+                <nz-form-control [nzSpan]="3">{{whatsAppTemplateName?.category || '-'}}</nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5">Header</nz-form-label>
+                <nz-form-control [nzSpan]="3">{{getWhatsappTemplateHeader()}}</nz-form-control>
+                <nz-form-label [nzSpan]="5">Button</nz-form-label>
+                <nz-form-control [nzSpan]="3">{{getWhatsappTemplateButton()}}</nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5">Footer</nz-form-label>
+                <nz-form-control [nzSpan]="18">{{getWhatsappTemplateFooter()}}</nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5">Body</nz-form-label>
+                <nz-form-control [nzSpan]="18">{{getWhatsappTemplateBody()}}</nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5">Params</nz-form-label>
+                <nz-form-control [nzSpan]="18">
+                  <div formArrayName="whatsAppTemplateParams">
+                    <nz-form-control>
+                      <nz-table
+                        nzSize="small"
+                        nzBordered
+                        [nzShowPagination]="false"
+                        [nzData]="whatsAppTemplateParamTableData"
+                        nzTableLayout="fixed"
+                        field-table
+                      >
+                        <thead>
+                        <tr>
+                          <th nzWidth="80px">Index</th>
+                          <th>Header</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <ng-container *ngFor="let control of whatsAppTemplateParams.controls; let i = index" [formGroupName]="i">
+                          <tr>
+                            <td>{{ control.get("index")!.value }}</td>
+                            <td>
+                              <nz-select formControlName="field">
+                                <nz-option
+                                  *ngFor="let header of getIndexFieldHeader()"
+                                  [nzValue]="header"
+                                  [nzLabel]="header"
+                                ></nz-option>
+                              </nz-select>
+                              <div error-text>{{ getErrorMessage(control.get("field")!) }}</div>
+                            </td>
+                          </tr>
+                        </ng-container>
+                        </tbody>
+                      </nz-table>
+                    </nz-form-control>
+                  </div>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </div>
+        </li>
+        <li nz-list-item list-item>
+          <div class="pr-4 pt-1">
+            <i class="text-lg" nz-icon nzType="mail"></i>
+          </div>
+          <div class="flex-grow">
+            <h5 nz-typography class="pb-4">Email Settings</h5>
+            <div>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5" nzRequired>From Email</nz-form-label>
+                <nz-form-control [nzSpan]="18" nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['emailFrom'])">
+                  <input nz-input formControlName="emailFrom" placeholder="From email" type="email" />
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5" nzRequired>From Name</nz-form-label>
+                <nz-form-control
+                  [nzSpan]="18"
+                  nzHasFeedback
+                  [nzErrorTip]="getErrorMessage(form.controls['emailFromName'])"
+                >
+                  <input nz-input formControlName="emailFromName" placeholder="From name" />
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5" nzRequired>Subject</nz-form-label>
+                <nz-form-control
+                  [nzSpan]="18"
+                  nzHasFeedback
+                  [nzErrorTip]="getErrorMessage(form.controls['emailSubject'])"
+                >
+                  <input nz-input formControlName="emailSubject" placeholder="Email subject" />
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5">Template</nz-form-label>
+                <nz-form-control [nzSpan]="18">
+                  <div class="mt-1 mb-4"><a (click)="doEditEmailTemplate()">Edit email template</a></div>
+                  <grabbill-client-html-preview [html]="html"></grabbill-client-html-preview>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </form>
+  </div>
+</div>
+
+<nz-drawer
+  [nzBodyStyle]="{ overflow: 'auto', padding: '0' }"
+  [nzWidth]="'100%'"
+  [nzClosable]="true"
+  [nzKeyboard]="false"
+  [nzVisible]="isEditorVisible"
+  nzTitle="Email Editor"
+  [nzFooter]="createFooterTemplate"
+  (nzOnClose)="closeEditor()"
+  *ngIf="isNew || (transactionalEmailType$ | async)"
+>
+  <div *nzDrawerContent>
+    <grabbill-client-email-editor
+      #editor
+      [defaultComponents]="mjml"
+      [fields]="getIndexFields()"
+      (htmlInit)="updateHtml($event)"
+    >
+    </grabbill-client-email-editor>
+  </div>
+
+  <ng-template #createFooterTemplate>
+    <div class="text-right">
+      <button nz-button [nzLoading]="isEditorLoading" nzType="primary" (click)="doUpdateTemplate()">
+        Update Template
+      </button>
+    </div>
+  </ng-template>
+</nz-drawer>

@@ -1,0 +1,51 @@
+<div container class="mx-auto">
+  <grabbill-client-page-header
+    title="Email Campaigns"
+    description="Send targeted email to your customers based on their behavior, preferences, and engagement with your brand at your choice of time."
+    [button]="{
+      label: 'Create Email Campaign Template',
+      privilege: privilege.EMAIL_CAMPAIGN_EDIT,
+      link: ['/', 'email-campaign', 'detail', 'new']
+    }"
+  >
+  </grabbill-client-page-header>
+  <nz-divider></nz-divider>
+  <grabbill-client-list
+    [store]="store"
+    [actions$]="actions$"
+    [pageable$]="emailCampaignTypePageable$"
+    [result$]="emailCampaignTypeSearchResult$"
+    [isListLoading]="isListLoading"
+    [queryAction]="queryAction"
+    [resetAction]="resetAction"
+    [loadMoreAction]="loadMoreAction"
+    [pageableState]="state.emailCampaignTypePageable"
+    [typeNameState]="state.typeName"
+    [getSubtitle]="getMessage()"
+    [contentTemplate]="contentTemplate"
+    [actionsTemplate]="actionsTemplate"
+    (selectItem)="doSelect($event)"
+    icon="mail"
+    searchText="Find by email campaign name"
+    noRecordText="No email campaign found"
+  >
+    <ng-template #contentTemplate>
+      <div class="flex-grow ml-8"></div>
+    </ng-template>
+    <ng-template #actionsTemplate let-item>
+      <ul nz-list-item-actions>
+        <nz-list-item-action>
+          <a list-title (click)="doSelect(item)" nz-tooltip="Select"><i nz-icon nzType="select"></i></a
+        ></nz-list-item-action>
+        <ng-container *ngIf="hasPrivilege(privilege.TRX_EMAIL_EDIT)">
+          <nz-list-item-action>
+            <a list-title nz-tooltip="Duplicate" (click)="doDuplicate(item)"><i nz-icon nzType="copy"></i></a
+          ></nz-list-item-action>
+          <nz-list-item-action *ngIf="!item.lastSentDate">
+            <a list-title nz-tooltip="Delete" (click)="doDelete(item)"><i nz-icon nzType="delete"></i></a>
+          </nz-list-item-action>
+        </ng-container>
+      </ul>
+    </ng-template>
+  </grabbill-client-list>
+</div>

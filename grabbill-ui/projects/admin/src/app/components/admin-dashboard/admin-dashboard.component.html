@@ -1,0 +1,74 @@
+<div container class="mx-auto">
+  <h2 nz-typography>Dashboard</h2>
+
+  <ng-container *ngIf="currentStatistics$ | async as currentStatistics">
+    <div class="mb-16">
+      <nz-card>
+        <nz-row [nzGutter]="16">
+          <nz-col [nzSpan]="6">
+            <nz-statistic [nzValue]="(currentStatistics.totalAccount | number)!"
+                          nzTitle="Total Accounts"></nz-statistic>
+          </nz-col>
+          <nz-col [nzSpan]="6">
+            <nz-statistic [nzValue]="(currentStatistics.totalMonthlySubscriptionFees | number: '1.2')!" nzPrefix="RM"
+                          nzTitle="Monthly Subscription"></nz-statistic>
+          </nz-col>
+          <nz-col [nzSpan]="6">
+            <nz-statistic [nzValue]="(currentStatistics.totalActivitySubmitted | number)!"
+                          nzTitle="Submitted Activities"></nz-statistic>
+          </nz-col>
+          <nz-col [nzSpan]="6">
+            <nz-statistic [nzValue]="(currentStatistics.totalActivityProcessed | number)!"
+                          nzTitle="Processed Activities"></nz-statistic>
+          </nz-col>
+          <nz-col [nzSpan]="6">
+            <nz-statistic [nzValueTemplate]="storageTemplate"
+                          nzTitle="Storage Usage"></nz-statistic>
+            <ng-template #storageTemplate>
+              {{formatBytes(currentStatistics.totalStorageUsed) + ' / ' + formatBytes(currentStatistics.totalStorageAllocated)}}
+            </ng-template>
+          </nz-col>
+          <nz-col [nzSpan]="6">
+            <nz-statistic [nzValue]="(currentStatistics.totalTransactionalEmailSent | number)!"
+                          nzTitle="Transactional Email Sent"></nz-statistic>
+          </nz-col>
+          <nz-col [nzSpan]="6">
+            <nz-statistic [nzValue]="(currentStatistics.totalCampaignEmailSent | number)!"
+                          [nzTitle]="'Marketing Email Sent'"></nz-statistic>
+          </nz-col>
+          <nz-col [nzSpan]="6">
+            <nz-statistic [nzValue]="(currentStatistics.totalContacts | number)!"
+                          [nzTitle]="'Total Contacts'"></nz-statistic>
+          </nz-col>
+        </nz-row>
+      </nz-card>
+    </div>
+
+    <div class="mb-16">
+      <h3 nz-typography>Total Accounts by Plan</h3>
+      <nz-card>
+        <nz-row [nzGutter]="16">
+          <nz-col [nzSpan]="6">
+            <nz-statistic [nzValue]="(getKeyCount('NO_PLAN', currentStatistics.accountsByPlan)  | number)!" [nzTitle]="'No Plan Accounts'"></nz-statistic>
+          </nz-col>
+          <nz-col [nzSpan]="6">
+            <nz-statistic [nzValue]="(getKeyCount('Free', currentStatistics.accountsByPlan) | number)!" [nzTitle]="'Free Accounts'"></nz-statistic>
+          </nz-col>
+          <nz-col [nzSpan]="6">
+            <nz-statistic [nzValue]="(getKeyCount('Standard', currentStatistics.accountsByPlan)  | number)!" [nzTitle]="'Standard Accounts'"></nz-statistic>
+          </nz-col>
+          <nz-col [nzSpan]="6">
+            <nz-statistic [nzValue]="(getKeyCount('Professional', currentStatistics.accountsByPlan)  | number)!" [nzTitle]="'Professional Accounts'"></nz-statistic>
+          </nz-col>
+        </nz-row>
+      </nz-card>
+    </div>
+
+    <div class="mb-16">
+      <h3 nz-typography>Total Accounts by Country</h3>
+      <nz-card>
+        <countries-map [data]="mapData"></countries-map>
+      </nz-card>
+    </div>
+  </ng-container>
+</div>

@@ -1,0 +1,84 @@
+<ng-container>
+  <ng-container>
+    <div container class="mx-auto">
+      <grabbill-client-breadcrumb
+        rootTitle="WhatsApp"
+        [rootLink]="['/', 'mt-whatsapp', 'list']"
+        [hasCrumb2]="true"
+        [crumb2Object]="multiTemplateWhatsAppType$ | async"
+        [crumb2Link]="['/', 'mt-whatsapp', 'detail', typeId]"
+        [crumb2QueryParam]="{ tab: 'activities' }"
+        [hasCrumb3]="true"
+        [crumb3Object]="multiTemplateWhatsAppActivity$ | async"
+        [crumb3Link]="['/', 'mt-whatsapp', 'detail', typeId, 'activity', activityId]"
+        [crumb3QueryParam]="{ tab: 'records' }"
+      >
+      </grabbill-client-breadcrumb>
+
+      <ng-template #elseRecord>
+        <div nz-list nzBordered>
+          <div nz-list-item>
+            <nz-skeleton [nzAvatar]="true" [nzActive]="true" [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-container *ngIf="record; else elseRecord">
+        <ng-container *ngIf="multiTemplateWhatsAppActivity$ | async as whatsAppActivity">
+          <ng-container *ngIf="multiTemplateWhatsAppType$ | async as whatsAppType">
+            <div class="mb-4">
+              <grabbill-client-page-header [title]="record.indexRow.text1"></grabbill-client-page-header>
+            </div>
+
+            <nz-tabset nzSize="large">
+              <nz-tab nzTitle="Overview">
+                <nz-card>
+                  <grabbill-client-descriptions
+                    title="Index Data"
+                    [items]="getIndexRowObjects(record.indexRow, whatsAppType)"
+                  >
+                  </grabbill-client-descriptions>
+
+                  <grabbill-client-descriptions
+                    title="WhatsApp Status"
+                    [items]="[
+                    { span: 2, title: 'Body Content', value: record.whatsAppBodyContent, type: 'string' },
+                    { span: 2, title: 'Processed Timestamp', value: record.processedTimestamp, type: 'date' },
+                    { span: 2, title: 'Message Sent', value: record.whatsAppStatusSent, type: 'boolean' },
+                    { span: 2, title: 'Message Sent Timestamp', value: record.whatsAppStatusSentTimestamp, type: 'date' },
+                    { span: 2, title: 'Message Skip', value: record.whatsAppStatusSkip, type: 'boolean' },
+                    { span: 2, title: 'Message Skip Reason', value: record.whatsAppStatusSkipReason, type: 'date' },
+                    { span: 2, title: 'Message Delivered', value: record.whatsAppStatusDelivered, type: 'boolean' },
+                    { span: 2, title: 'Message Delivered Timestamp', value: record.whatsAppStatusDeliveredTimestamp, type: 'date' },
+                    { span: 2, title: 'Message Read', value: record.whatsAppStatusRead, type: 'boolean' },
+                    { span: 2, title: 'Message Read Timestamp', value: record.whatsAppStatusReadTimestamp, type: 'date' },
+                    { span: 2, title: 'Message Acknowledgement', value: record.whatsAppStatusAcknowledge, type: 'boolean' },
+                    { span: 2, title: 'Message Acknowledgement Timestamp', value: record.whatsAppStatusAcknowledgeTimestamp, type: 'date' },
+                    { span: 2, title: 'Message Failed', value: record.whatsAppStatusFailed, type: 'boolean' },
+                    { span: 2, title: 'Message Failed Timestamp', value: record.whatsAppStatusFailedTimestamp, type: 'date' },
+                    { span: 4, title: 'Message Failed Reason', value: record.whatsAppStatusFailedMessage, type: 'string' },
+                  ]"
+                  >
+                  </grabbill-client-descriptions>
+
+                  <grabbill-client-descriptions
+                    title="Record Status"
+                    containerClass=""
+                    [items]="[
+                    { span: 2, title: 'Status', value: record.status, type: 'tag', typeFn: getStatusTag, object: record.status },
+                    { span: 2, title: 'Message', value: record.message, type: 'string' },
+                    { span: 2, title: 'Retry Count', value: record.retryCount, type: 'string' },
+                  ]"
+                  >
+                  </grabbill-client-descriptions>
+
+                </nz-card>
+              </nz-tab>
+
+            </nz-tabset>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+    </div>
+  </ng-container>
+</ng-container>

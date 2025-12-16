@@ -1,0 +1,157 @@
+<div container class="mx-auto">
+  <div class="mb-4">
+    <nz-breadcrumb>
+      <nz-breadcrumb-item [routerLink]="['/']">
+        <a><i nz-icon class="cursor-pointer" nzType="home"></i></a>
+      </nz-breadcrumb-item>
+      <nz-breadcrumb-item [routerLink]="['/', 'invoice', 'list']">
+        <a>
+          <i nz-icon nzType="file-text"></i>
+          <span>Invoice</span>
+        </a>
+      </nz-breadcrumb-item>
+    </nz-breadcrumb>
+  </div>
+
+  <ng-template #elseType>
+    <nz-skeleton [nzActive]="true" [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+  </ng-template>
+
+  <div *ngIf="invoice$ | async as invoice; else elseType">
+    <div class="flex">
+      <div class="flex-grow mb-8">
+        <h2 nz-typography title>{{ invoice.invoiceNo }}</h2>
+      </div>
+    </div>
+
+    <div class="pb-8">
+      <h5 nz-typography>Invoice Information</h5>
+      <nz-descriptions nzBordered [nzColumn]="{ xxl: 4, xl: 4, lg: 4, md: 4, sm: 4, xs: 2 }">
+        <nz-descriptions-item nzTitle="Plan" [nzSpan]="2">{{ invoice.planName }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Status" [nzSpan]="2"
+          ><nz-tag [nzColor]="getStatusTag(invoice)">{{ invoice.status }}</nz-tag></nz-descriptions-item
+        >
+
+        <nz-descriptions-item nzTitle="Start Date" [nzSpan]="2">{{
+          invoice.cycleStartDate | date: dateFormat()
+        }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="End Date" [nzSpan]="2">{{
+          invoice.cycleEndDate | date: dateFormat()
+        }}</nz-descriptions-item>
+
+        <nz-descriptions-item nzTitle="Total Amount Before Discount" [nzSpan]="2">
+          RM{{ invoice.totalAmountBeforeDiscount | number: "1.2" }}</nz-descriptions-item
+        >
+        <nz-descriptions-item [nzTitle]="'Discount Amount' + (invoice.promoCode ? ' (' + invoice.promoCode.code + ')': '')" [nzSpan]="2">
+          RM{{ invoice.discountAmount | number: "1.2" }}</nz-descriptions-item
+        >
+
+        <nz-descriptions-item nzTitle="Subscription Mode" [nzSpan]="2">{{
+          invoice.accountSubscription.mode
+          }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Subscription Mode Discount (10%)"
+                              *ngIf="invoice.accountSubscription.mode === subscriptionMode.ANNUALLY"
+                              [nzSpan]="2">RM{{invoice.totalAmountBeforeDiscount * 0.1 | number: "1.2"}}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Subscription Mode Discount"
+                              *ngIf="invoice.accountSubscription.mode === subscriptionMode.MONTHLY"
+                              [nzSpan]="2">RM{{0 | number: "1.2"}}</nz-descriptions-item>
+
+        <nz-descriptions-item nzTitle="Total Tax Amount" [nzSpan]="2">
+          RM{{ invoice.totalTaxAmount | number: "1.2" }}</nz-descriptions-item
+        >
+        <nz-descriptions-item nzTitle="Offset Amount" [nzSpan]="2">
+          RM{{ invoice.offsetAmount | number: "1.2" }}</nz-descriptions-item
+        >
+        <nz-descriptions-item nzTitle="Total Amount with Tax" [nzSpan]="2">
+          RM{{ invoice.totalAmountWithTax | number: "1.2" }}</nz-descriptions-item
+        >
+        <nz-descriptions-item nzTitle="Total Amount" [nzSpan]="2">
+          RM{{ invoice.totalAmount | number: "1.2" }}</nz-descriptions-item
+        >
+      </nz-descriptions>
+    </div>
+
+    <div class="pb-8">
+      <h5 nz-typography>Plan Information</h5>
+      <nz-descriptions
+        *ngIf="invoice.type === invoiceType.PLAN"
+        nzBordered
+        [nzColumn]="{ xxl: 4, xl: 4, lg: 4, md: 4, sm: 4, xs: 2 }"
+      >
+        <nz-descriptions-item nzTitle="Storage Size" [nzSpan]="2">{{
+          formatBytes(invoice.storageSize)
+        }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Storage Price" [nzSpan]="2"
+          >RM{{ invoice.storagePrice | number: "1.2" }}</nz-descriptions-item
+        >
+        <nz-descriptions-item nzTitle="Transactional Email Size" [nzSpan]="2">{{
+          invoice.transactionalEmailSize | number: "1.0"
+        }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Transactional Email Price" [nzSpan]="2"
+          >RM{{ invoice.transactionalEmailPrice | number: "1.2" }}</nz-descriptions-item
+        >
+        <nz-descriptions-item nzTitle="Email Campaign Size" [nzSpan]="2">{{
+          invoice.emailCampaignSize | number: "1.0"
+        }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Email Campaign Price" [nzSpan]="2"
+          >RM{{ invoice.emailCampaignPrice | number: "1.2" }}</nz-descriptions-item
+        >
+      </nz-descriptions>
+
+      <nz-descriptions
+        *ngIf="invoice.type === invoiceType.TOPUP"
+        nzBordered
+        [nzColumn]="{ xxl: 4, xl: 4, lg: 4, md: 4, sm: 4, xs: 2 }"
+      >
+        <nz-descriptions-item nzTitle="SMS Topup Size" [nzSpan]="2">{{
+          invoice.smsTopupSize | number: "1.0"
+        }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="SMS Topup Price" [nzSpan]="2"
+          >RM{{ invoice.smsTopupPrice | number: "1.2" }}</nz-descriptions-item
+        >
+      </nz-descriptions>
+    </div>
+
+    <div class="pb-8">
+      <h5 nz-typography>Billing Information</h5>
+      <nz-descriptions nzBordered [nzColumn]="{ xxl: 4, xl: 4, lg: 4, md: 4, sm: 4, xs: 2 }">
+        <nz-descriptions-item nzTitle="Account Name" [nzSpan]="2">{{ invoice.accountName }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Name" [nzSpan]="2">{{ invoice.billToName }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Contact No" [nzSpan]="2">{{ invoice.billToContactNo }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Email" [nzSpan]="2">{{ invoice.billToEmail }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Address" [nzSpan]="2"
+          ><span class="whitespace-pre">{{ getAddress(invoice) }}</span></nz-descriptions-item
+        >
+      </nz-descriptions>
+    </div>
+
+    <div class="pb-8" *ngIf="invoice.events.length > 0; else noTransaction">
+      <h5 nz-typography>Events</h5>
+      <nz-table nzBordered [nzData]="invoice.events" nzSize="small" nzTableLayout="fixed">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Event</th>
+            <th>Ref Id</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let event of invoice.events; let i = index">
+            <td>{{ event.createdDate | date: dateTimeFormat() }}</td>
+            <td>{{ event.type }}</td>
+            <td>
+              <a [routerLink]="['/', 'stripe-event', 'detail', event.id]">{{ event.eventType }}</a>
+            </td>
+            <td>{{ event.refId }}</td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </div>
+
+    <ng-template #noTransaction>
+      <h5 nz-typography>Events</h5>
+      <div>No event</div>
+    </ng-template>
+  </div>
+</div>

@@ -1,0 +1,16 @@
+<nz-layout app-layout>
+  <nz-header header>
+    <div logo-container>
+    <div class="logo"></div>
+    </div>
+  </nz-header>
+  <nz-content>
+    <div result>
+      <nz-result nzStatus="404" nzTitle="404" nzSubTitle="Page not found.">
+        <div nz-result-extra>
+          <button [routerLink]="['/']" nz-button nzType="primary">Back to Home</button>
+        </div>
+      </nz-result>
+    </div>
+  </nz-content>
+</nz-layout>

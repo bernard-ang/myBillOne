@@ -1,0 +1,54 @@
+<div container class="mx-auto">
+  <grabbill-client-page-header
+    title="Digital Filing"
+    description="Electronic Document Repository / Warehousing to organize and store digital documents, PDF attachments with indexes."
+    [button]="{
+      label: 'Create Digital Filing Template',
+      privilege: privilege.DGTL_FILING_EDIT,
+      link: ['/', 'digital-filing', 'detail', 'new']
+    }"
+  >
+  </grabbill-client-page-header>
+  <nz-divider></nz-divider>
+  <grabbill-client-list
+    [store]="store"
+    [actions$]="actions$"
+    [pageable$]="digitalFilingTypePageable$"
+    [result$]="digitalFilingTypeSearchResult$"
+    [isListLoading]="isListLoading"
+    [queryAction]="queryAction"
+    [resetAction]="resetAction"
+    [loadMoreAction]="loadMoreAction"
+    [pageableState]="state.digitalFilingTypePageable"
+    [typeNameState]="state.typeName"
+    [getSubtitle]="getMessage()"
+    [contentTemplate]="contentTemplate"
+    [actionsTemplate]="actionsTemplate"
+    (selectItem)="doSelect($event)"
+    icon="folder"
+    searchText="Find by digital filing name"
+    noRecordText="No digital filing found"
+  >
+    <ng-template #contentTemplate let-item>
+      <div class="flex-grow ml-8">
+        <div total list-title>{{ item.noOfFiles | number: "1.0" }}</div>
+        <div>Files</div>
+      </div>
+    </ng-template>
+    <ng-template #actionsTemplate let-item>
+      <ul nz-list-item-actions>
+        <nz-list-item-action>
+          <a list-title (click)="doSelect(item)" nz-tooltip="Select"><i nz-icon nzType="select"></i></a>
+        </nz-list-item-action>
+        <ng-container *ngIf="hasPrivilege(privilege.DGTL_FILING_EDIT)">
+          <nz-list-item-action>
+            <a list-title (click)="doDuplicate(item)" nz-tooltip="Duplicate"><i nz-icon nzType="copy"></i></a>
+          </nz-list-item-action>
+          <nz-list-item-action *ngIf="!item.lastUploadDate">
+            <a list-title (click)="doDelete(item)" nz-tooltip="Delete"><i nz-icon nzType="delete"></i></a>
+          </nz-list-item-action>
+        </ng-container>
+      </ul>
+    </ng-template>
+  </grabbill-client-list>
+</div>

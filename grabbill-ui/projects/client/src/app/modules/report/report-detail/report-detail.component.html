@@ -1,0 +1,95 @@
+<div container class="mx-auto" *ngIf="user$ | async as user">
+  <div class="flex pb-8">
+    <grabbill-client-page-header
+      title="Reports"
+      description="Generate report for different domains (digital filing / transactional email / email campaign / whatsapp / sms)"
+    >
+    </grabbill-client-page-header>
+  </div>
+
+  <div>
+    <nz-card>
+      <form nz-form [formGroup]="reportForm" nzLayout="vertical" (ngSubmit)="generateReport()">
+        <nz-form-item>
+          <nz-form-label nzRequired>Domain</nz-form-label>
+          <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(reportForm.controls['domain'])">
+            <nz-select
+              nzPlaceHolder="Select Domain"
+              formControlName="domain"
+              (ngModelChange)="doDomainChange($event)"
+            >
+              <nz-option
+                *ngFor="let domain of getDomainTypeOptions(user)"
+                [nzValue]="domain"
+                [nzLabel]="getDomainLabel(domain)"
+              ></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label nzRequired>Type</nz-form-label>
+          <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(reportForm.controls['type'])">
+            <nz-select
+              nzPlaceHolder="Select Type"
+              nzShowSearch
+              nzServerSearch
+              formControlName="type"
+              (nzOnSearch)="doSearchType($event)"
+              (ngModelChange)="doTypeChange($event)"
+            >
+              <ng-container *ngFor="let option of typeOptions">
+                <nz-option *ngIf="!isTypeLoading" [nzValue]="option.id" [nzLabel]="option.name"></nz-option>
+              </ng-container>
+              <nz-option *ngIf="isTypeLoading" nzDisabled nzCustomContent>
+                <i nz-icon nzType="loading" class="loading-icon"></i>
+                Loading Data...
+              </nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label nzRequired>Activities</nz-form-label>
+          <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(reportForm.controls['activities'])">
+            <nz-select
+              nzPlaceHolder="Select Activities"
+              nzShowSearch
+              nzServerSearch
+              nzMode="tags"
+              formControlName="activities"
+              (nzOnSearch)="doSearchActivity($event)"
+            >
+              <ng-container *ngFor="let option of activitiesOptions">
+                <nz-option *ngIf="!isActivityLoading" [nzValue]="option.id" [nzLabel]="option.name"></nz-option>
+              </ng-container>
+              <nz-option *ngIf="isActivityLoading" nzDisabled nzCustomContent>
+                <i nz-icon nzType="loading" class="loading-icon"></i>
+                Loading Data...
+              </nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label nzRequired>Worksheets</nz-form-label>
+          <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(reportForm.controls['reportTypes'])">
+            <nz-checkbox-group formControlName="reportTypes" ></nz-checkbox-group>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label nzRequired>Masked</nz-form-label>
+          <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(reportForm.controls['encryptPassword'])">
+            <nz-checkbox-group formControlName="encryptPassword" ></nz-checkbox-group>
+          </nz-form-control>
+        </nz-form-item>
+
+        <div class="text-right pb-4 mt-4">
+          <button nz-button type="button" class="mr-2" (click)="doResetForm()">Reset</button>
+          <button nz-button type="submit" nzType="primary" [nzLoading]="isFormLoading">Generate</button>
+        </div>
+      </form>
+    </nz-card>
+  </div>
+</div>

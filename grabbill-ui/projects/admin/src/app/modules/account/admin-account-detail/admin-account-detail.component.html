@@ -1,0 +1,228 @@
+<div container class="mx-auto">
+  <div class="mb-4">
+    <nz-breadcrumb>
+      <nz-breadcrumb-item [routerLink]="['/']">
+        <a><i nz-icon class="cursor-pointer" nzType="home"></i></a>
+      </nz-breadcrumb-item>
+      <nz-breadcrumb-item [routerLink]="['/', 'account', 'list']">
+        <a>
+          <i nz-icon nzType="folder"></i>
+          <span>Accounts</span>
+        </a>
+      </nz-breadcrumb-item>
+    </nz-breadcrumb>
+  </div>
+
+  <ng-template #elseType>
+    <nz-skeleton [nzActive]="true" [nzParagraph]="false"></nz-skeleton>
+  </ng-template>
+
+  <div *ngIf="account$ | async as account; else elseType">
+    <div class="flex mb-4">
+      <div class="flex-grow">
+        <h2 nz-typography title>{{account.companyName}}</h2>
+      </div>
+      <div>
+        <button *ngIf="account.active" nz-button nzType="default" (click)="doUpdateAccountStatus(false)">
+          Deactivate
+        </button>
+        <button *ngIf="!account.active" nz-button nzType="default" (click)="doUpdateAccountStatus(true)">
+          Activate
+        </button>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <nz-card nzTitle="Current Month Usage">
+        <div progress-chart class="flex justify-between mx-auto">
+          <div class="text-center">
+            <h5 nz-typography>Total storage<br />used</h5>
+            <nz-progress [nzPercent]="storagePercentage" nzType="circle"></nz-progress>
+            <h5 class="pt-4" nz-typography>({{formatBytes(account.storageUsed)}} / {{formatBytes(account.storageLimit)}})</h5>
+          </div>
+          <div class="text-center">
+            <h5 nz-typography>Total transactional email<br />sent per month</h5>
+            <nz-progress [nzPercent]="transactionalEmailPercentage" nzType="circle"></nz-progress>
+            <h5 class="pt-4" nz-typography>({{account.transactionalEmailSent | number: '1.0'}} / {{account.transactionalEmailLimit | number: '1.0'}})</h5>
+          </div>
+          <div class="text-center">
+            <h5 nz-typography>Total marketing email<br />sent per month</h5>
+            <nz-progress [nzPercent]="emailCampaignPercentage" nzType="circle"></nz-progress>
+            <h5 class="pt-4" nz-typography>({{account.emailCampaignSent | number: '1.0'}} / {{account.emailCampaignLimit | number: '1.0'}})</h5>
+          </div>
+        </div>
+      </nz-card>
+    </div>
+
+    <nz-tabset nzSize="large">
+      <nz-tab nzTitle="Information">
+
+        <div class="pb-8">
+          <nz-card>
+            <div class="pb-8">
+              <nz-descriptions nzTitle="Overview" nzBordered [nzColumn]="{ xxl: 2, xl: 2, lg: 2, md: 2, sm: 2, xs: 2 }">
+                <nz-descriptions-item nzTitle="Contact No" [nzSpan]="2">{{account.companyContactNo}}</nz-descriptions-item>
+                <nz-descriptions-item nzTitle="Address" [nzSpan]="2">{{account.address}}</nz-descriptions-item>
+                <nz-descriptions-item nzTitle="Plan" [nzSpan]="2">{{account.plan}}</nz-descriptions-item>
+                <nz-descriptions-item nzTitle="Affiliate Code" [nzSpan]="2">{{account.affiliateCode}}</nz-descriptions-item>
+                <nz-descriptions-item nzTitle="Created at" [nzSpan]="4">{{account.createdTime|date: dateTimeFormat()}}</nz-descriptions-item>
+              </nz-descriptions>
+            </div>
+
+            <div>
+              <nz-descriptions nzTitle="Billing Information" nzBordered [nzColumn]="{ xxl: 2, xl: 2, lg: 2, md: 2, sm: 2, xs: 2 }">
+                <nz-descriptions-item nzTitle="Billing Name" [nzSpan]="2">{{account.billingName}}</nz-descriptions-item>
+                <nz-descriptions-item nzTitle="Billing Address" [nzSpan]="2">{{account.billingAddress}}</nz-descriptions-item>
+                <nz-descriptions-item nzTitle="Payment Exempted" [nzSpan]="2">{{account.paymentExempted ? 'Exempted': 'Not exempted'}}</nz-descriptions-item>
+              </nz-descriptions>
+            </div>
+          </nz-card>
+        </div>
+      </nz-tab>
+
+      <nz-tab [nzTitle]="'Users' + (account.plan ? ' (Max ' + account.maxUser + ' users)': '')" *ngIf="accountUsers$ | async as accountUsers">
+        <nz-table nzBordered [nzData]="accountUsers" nzSize="small" nzTableLayout="fixed">
+          <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th nzWidth="100px">Role</th>
+            <th nzWidth="74px">Active</th>
+            <th nzWidth="74px">Verified</th>
+            <th>Last Logged In</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let user of accountUsers; let i = index">
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+              <nz-tag nzColor="blue">{{ user.role }}</nz-tag>
+            </td>
+            <td><i *ngIf="user.active" nz-icon nzType="check" class="mr-2"></i></td>
+            <td><i *ngIf="user.verified" nz-icon nzType="check" class="mr-2"></i></td>
+            <td>{{ user.lastLoggedIn | date: 'medium' }}</td>
+          </tr>
+          </tbody>
+        </nz-table>
+      </nz-tab>
+
+      <nz-tab nzTitle="Whatsapp">
+
+        <nz-modal [nzVisible]="isUpdateWabaModalVisible" nzTitle="Update WABA Info" (nzOnCancel)="doCloseUpdateWabaInfoModal()">
+          <div *nzModalContent>
+            <div>
+              <form nz-form [formGroup]="updateWabaForm">
+                <nz-form-item>
+                  <nz-form-label [nzSm]="12" [nzXs]="24" nzRequired>WABA Email</nz-form-label>
+                  <nz-form-control [nzSm]="12" [nzXs]="24" nzHasFeedback [nzErrorTip]="getErrorMessage(updateWabaForm.controls['wabaEmail'])">
+                    <input nz-input formControlName="wabaEmail" placeholder="Please WABA email" />
+                  </nz-form-control>
+                </nz-form-item>
+
+                <nz-form-item>
+                  <nz-form-label [nzSm]="12" [nzXs]="24">WABA Password</nz-form-label>
+                  <nz-form-control [nzSm]="12" [nzXs]="24" nzHasFeedback [nzErrorTip]="getErrorMessage(updateWabaForm.controls['wabaPassword'])"
+                                   nzExtra="Key in password if you want to update password">
+                    <input nz-input formControlName="wabaPassword" placeholder="Please WABA password" type="password" />
+                  </nz-form-control>
+                </nz-form-item>
+
+                <nz-form-item>
+                  <nz-form-label [nzSm]="12" [nzXs]="24">WABA ID</nz-form-label>
+                  <nz-form-control [nzSm]="12" [nzXs]="24" nzHasFeedback [nzErrorTip]="getErrorMessage(updateWabaForm.controls['wabaId'])">
+                    <input nz-input formControlName="wabaId" placeholder="Please WABA ID" />
+                  </nz-form-control>
+                </nz-form-item>
+
+                <nz-form-item>
+                  <nz-form-label [nzSm]="12" [nzXs]="24" nzRequired>WABA GUID</nz-form-label>
+                  <nz-form-control [nzSm]="12" [nzXs]="24" nzHasFeedback [nzErrorTip]="getErrorMessage(updateWabaForm.controls['wabaGuid'])">
+                    <input nz-input formControlName="wabaGuid" placeholder="Please WABA GUID" />
+                  </nz-form-control>
+                </nz-form-item>
+
+                <nz-form-item>
+                  <nz-form-label [nzSm]="12" [nzXs]="24">WABA Name</nz-form-label>
+                  <nz-form-control [nzSm]="12" [nzXs]="24" nzHasFeedback [nzErrorTip]="getErrorMessage(updateWabaForm.controls['wabaName'])">
+                    <input nz-input formControlName="wabaName" placeholder="Please WABA Name" />
+                  </nz-form-control>
+                </nz-form-item>
+
+                <nz-form-item>
+                  <nz-form-label [nzSm]="12" [nzXs]="24">WABA Phone ID</nz-form-label>
+                  <nz-form-control [nzSm]="12" [nzXs]="24" nzHasFeedback [nzErrorTip]="getErrorMessage(updateWabaForm.controls['wabaPhoneId'])">
+                    <input nz-input formControlName="wabaPhoneId" placeholder="Please WABA Phone ID" />
+                  </nz-form-control>
+                </nz-form-item>
+
+                <nz-form-item>
+                  <nz-form-label [nzSm]="12" [nzXs]="24">WABA Phone</nz-form-label>
+                  <nz-form-control [nzSm]="12" [nzXs]="24" nzHasFeedback [nzErrorTip]="getErrorMessage(updateWabaForm.controls['wabaPhone'])">
+                    <input nz-input formControlName="wabaPhone" placeholder="Please WABA Phone" />
+                  </nz-form-control>
+                </nz-form-item>
+              </form>
+            </div>
+          </div>
+          <div *nzModalFooter>
+            <button nz-button nzType="primary" [nzLoading]="isUpdateWabaFormLoading" (click)="doUpdateWabaInfo()">Update</button>
+          </div>
+        </nz-modal>
+
+        <div class="pb-8">
+          <div class="text-right mb-4">
+            <button class="mr-2" nz-button (click)="doOpenUpdateWabaInfoModal(account)">Update WABA Information</button>
+            <button [disabled]="!account.wabaEmail" nz-button (click)="doTestWabaLogin()">Test WABA Login</button>
+          </div>
+          <nz-card>
+            <div class="pb-8">
+              <nz-descriptions nzBordered [nzColumn]="{ xxl: 2, xl: 2, lg: 2, md: 2, sm: 2, xs: 2 }">
+                <nz-descriptions-item nzTitle="WABA Email" [nzSpan]="2">{{account.wabaEmail}}</nz-descriptions-item>
+                <nz-descriptions-item nzTitle="WABA GUID" [nzSpan]="2">{{account.wabaGuid}}</nz-descriptions-item>
+                <nz-descriptions-item nzTitle="WABA ID" [nzSpan]="2">{{account.wabaId}}</nz-descriptions-item>
+                <nz-descriptions-item nzTitle="WABA Name" [nzSpan]="2">{{account.wabaName}}</nz-descriptions-item>
+                <nz-descriptions-item nzTitle="WABA Phone ID" [nzSpan]="2">{{account.wabaPhoneId}}</nz-descriptions-item>
+                <nz-descriptions-item nzTitle="WABA Phone" [nzSpan]="2">{{account.wabaPhone}}</nz-descriptions-item>
+                <nz-descriptions-item nzTitle="WABA Webhook ID" [nzSpan]="2">
+                  {{account.wabaWebhookId}}
+                  <button *ngIf="!account.wabaWebhookId" [disabled]="!account.wabaEmail" nz-button (click)="doRegisterWebhook()">Register Webhook</button>
+                  <button *ngIf="account.wabaWebhookId" nz-button (click)="doUnregisterWebhook()">Unregister Webhook</button>
+                </nz-descriptions-item>
+                <nz-descriptions-item nzTitle="WABA Webhook URL" [nzSpan]="2">{{account.wabaWebhookUrl}}</nz-descriptions-item>
+              </nz-descriptions>
+            </div>
+
+            <div class="pb-8" *ngIf="wabaTemplates$ | async as wabaTemplates">
+              <h5 nz-typography>Templates</h5>
+              <nz-table [nzPageSize]="5" nzBordered #templateTable [nzData]="wabaTemplates" nzSize="small" nzTableLayout="fixed">
+                <thead>
+                <tr>
+                  <th>Name</th>
+                  <th nzWidth="100px">Language</th>
+                  <th nzWidth="100px">Status</th>
+                  <th nzWidth="100px">Category</th>
+                  <th nzWidth="120px">No of Params</th>
+                  <th>Components</th>
+                  <th>Updated at</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let template of templateTable.data; let i = index">
+                  <td>{{ template.name }}</td>
+                  <td>{{ template.language }}</td>
+                  <td><nz-tag [nzColor]="getWabaStatusTag(template.status)">{{template.status}}</nz-tag></td>
+                  <td>{{ template.category }}</td>
+                  <td>{{ template.noOfParams }}</td>
+                  <td>{{ getWabaComponents(template.component) }}</td>
+                  <td>{{ template.updatedDate |date: dateTimeFormat() }}</td>
+                </tr>
+                </tbody>
+              </nz-table>
+            </div>
+          </nz-card>
+        </div>
+      </nz-tab>
+    </nz-tabset>
+  </div>
+</div>

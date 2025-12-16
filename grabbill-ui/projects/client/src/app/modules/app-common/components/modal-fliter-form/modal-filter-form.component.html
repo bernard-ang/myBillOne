@@ -1,0 +1,62 @@
+<nz-modal [nzVisible]="isVisible" nzTitle="Add Filter" (nzOnCancel)="doClose()">
+  <div *nzModalContent>
+    <div>
+      <form nz-form [formGroup]="form">
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Field</nz-form-label>
+          <nz-form-control [nzSm]="14" [nzXs]="24">
+            <nz-select
+              formControlName="field"
+              (ngModelChange)="doFieldChange($event)"
+            >
+              <ng-container *ngFor="let field of fields; let i = index">
+                <nz-option [nzValue]="field.name" [nzLabel]="field.label"></nz-option>
+              </ng-container>
+            </nz-select>
+            <input type="hidden" formControlName="type" />
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item *ngIf="form.get('type')!.value === 'MULTIPLE' || form.get('type')!.value === 'SELECT'">
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Value</nz-form-label>
+          <nz-form-control [nzSm]="14" [nzXs]="24">
+            <nz-select formControlName="textValue" [nzMode]="form.get('type')!.value === 'MULTIPLE' ? 'multiple': 'default'">
+              <ng-container *ngFor="let option of form.get('options')!.value; let i = index">
+                <nz-option [nzValue]="option.value" [nzLabel]="option.label"></nz-option>
+              </ng-container>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item *ngIf="form.get('type')!.value === 'TEXT'">
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Value</nz-form-label>
+          <nz-form-control [nzSm]="14" [nzXs]="24">
+            <input nz-input formControlName="textValue" />
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item *ngIf="form.get('type')!.value === 'NUMBER'">
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Value</nz-form-label>
+          <nz-form-control [nzSm]="14" [nzXs]="24">
+            <nz-input-number
+              formControlName="numberValue"
+              [nzMin]="-9999999"
+              [nzMax]="9999999"
+              [nzStep]="1"
+            ></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item *ngIf="form.get('type')!.value === 'DATE'">
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Value</nz-form-label>
+          <nz-form-control [nzSm]="14" [nzXs]="24">
+            <nz-date-picker formControlName="dateValue"></nz-date-picker>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </div>
+  </div>
+  <div *nzModalFooter>
+    <button nz-button nzType="primary" (click)="doFilter()">Add</button>
+  </div>
+</nz-modal>

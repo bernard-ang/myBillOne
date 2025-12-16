@@ -1,0 +1,64 @@
+<nz-layout app-layout *ngIf="user$ | async as user">
+  <nz-sider
+    menu-sidebar
+    nzCollapsible
+    nzWidth="300px"
+    nzTheme="light"
+    nzBreakpoint="md"
+    [(nzCollapsed)]="isCollapsed"
+  >
+    <div sidebar-logo>
+      <a routerLink="/">
+        <div class="logo" [ngClass]="{'collapse-logo': isCollapsed}"></div>
+      </a>
+    </div>
+    <ul nz-menu nzTheme="light" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
+      <li nz-menu-item [nzSelected]="url === '/' || url === ''">
+        <a [routerLink]="['/']">
+          <i nz-icon nzType="dashboard"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+
+      <ng-container *ngFor="let route of routes">
+        <li nz-menu-item nzMatchRouter>
+          <a [routerLink]="route.path">
+            <i nz-icon [nzType]="route.icon"></i>
+            <span>{{route.menuTitle}}</span>
+          </a>
+        </li>
+      </ng-container>
+
+      <li nz-menu-item nzMatchRouter>
+        <a (click)="logout()">
+          <i nz-icon nzType="logout"></i>
+          <span>Logout</span>
+        </a>
+      </li>
+    </ul>
+  </nz-sider>
+  <nz-layout>
+    <nz-header header>
+      <div class="flex-grow"></div>
+      <div class="mr-4">
+        <a [routerLink]="['profile']">
+          <nz-avatar nz-dropdown nzPlacement="bottomRight" nzIcon="user" avatar></nz-avatar>
+          <span account-name>{{user.name}}</span>
+        </a>
+      </div>
+    </nz-header>
+    <nz-content>
+      <div class="inner-content" [ngClass]="{'collapse-inner-content': isCollapsed}">
+        <nz-spin [nzSpinning]="isLoading">
+          <div inner-fixed-top-wrapper>
+            <div inner-fixed-top></div>
+          </div>
+          <div inner-top-padding>
+            <router-outlet></router-outlet>
+          </div>
+        </nz-spin>
+      </div>
+    </nz-content>
+    <nz-footer footer>Version: admin:{{buildInfo.git.createdAt}}</nz-footer>
+  </nz-layout>
+</nz-layout>

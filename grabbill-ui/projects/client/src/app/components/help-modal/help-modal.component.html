@@ -1,0 +1,18 @@
+<nz-modal [nzVisible]="isVisible" [nzWidth]="'80%'" (nzOnCancel)="doHelpClose()" (nzOnOk)="doHelpClose()" nzCentered>
+  <ng-container *nzModalContent>
+    <div markdown [innerHTML]="markdown | markdown | async"></div>
+    <div class="text-center pt-4" *ngIf="videoUrl">
+      <iframe
+        class="m-auto"
+        [src]="videoUrl | safe"
+        width="800"
+        height="480"
+        allow="autoplay"
+      ></iframe>
+    </div>
+  </ng-container>
+
+  <div *nzModalFooter>
+    <button nz-button nzType="primary" (click)="doHelpClose()">OK</button>
+  </div>
+</nz-modal>

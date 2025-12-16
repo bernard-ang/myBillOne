@@ -1,0 +1,327 @@
+<div container class="mx-auto" *ngIf="promoCodeSearchResult$ | async as searchResult">
+  <div class="flex pb-8">
+    <div class="flex-grow">
+      <h2 title nz-typography class="flex-grow mb-8">Promo Codes</h2>
+      <div class="text-lg">You have {{ searchResult.totalItems | number: "1.0" }} promo codes.</div>
+    </div>
+    <div>
+      <button nz-button nzType="primary" nzSize="large" (click)="doOpenCreateForm()">Add Promo Code</button>
+    </div>
+  </div>
+
+  <div *ngIf="promoCodePageable$ | async as pageable">
+    <div class="flex pb-8">
+      <div class="flex-1">
+        <nz-input-group [nzPrefix]="searchIcon" nzSize="large">
+          <input type="text" (input)="doSearch($event)" nz-input placeholder="Find by code" />
+        </nz-input-group>
+        <ng-template #searchIcon>
+          <i nz-icon nzType="search" class="mr-2"></i>
+        </ng-template>
+      </div>
+    </div>
+    <nz-table
+      nzBordered
+      [nzLoading]="isTableLoading"
+      [nzData]="searchResult.items"
+      [nzFrontPagination]="false"
+      [nzTotal]="searchResult.totalItems"
+      [nzPageSize]="pageable.size"
+      [nzPageIndex]="pageable.page"
+      (nzQueryParams)="doQuery($event)"
+      nzSize="small"
+      nzTableLayout="fixed"
+    >
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Code</th>
+          <th>Discount</th>
+          <th>Occurrence</th>
+          <th>Validity Start</th>
+          <th>Validity End</th>
+          <th>Created At</th>
+          <th>Updated At</th>
+          <th nzWidth="160px">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of searchResult.items; let i = index">
+          <td>
+            {{ data.name }}
+            <span
+              *ngIf="data.remarks"
+              nz-icon
+              nzType="info-circle"
+              nzTheme="outline"
+              nz-tooltip
+              [nzTooltipOverlayStyle]="{ whiteSpace: 'pre-line' }"
+              [nzTooltipTitle]="data.remarks"
+            ></span>
+          </td>
+          <td>{{ data.code }}</td>
+          <td>{{ data.discountType === discountType.PERCENTAGE ? data.discount + "%" : "$" + data.discount }}</td>
+          <td>
+            {{
+              data.discountOccurrence === discountOccurrence.CYCLE
+                ? data.discountOccurrenceCount + " CYCLE"
+                : discountOccurrence.FOREVER
+            }}
+          </td>
+          <td>{{ data.start | date: dateFormat() }}</td>
+          <td>{{ data.end | date: dateFormat() }}</td>
+          <td>{{ data.createdTime | date: dateTimeFormat() }}</td>
+          <td>{{ data.lastModifiedTime | date: dateTimeFormat() }}</td>
+          <td nzRight>
+            <div>
+              <a *ngIf="data.active" (click)="doUpdatePromoCodeStatus(data)">
+                <i nz-icon nzType="close" class="mr-2"></i>Deactivate</a
+              >
+              <a *ngIf="!data.active" (click)="doUpdatePromoCodeStatus(data)">
+                <i nz-icon nzType="check" class="mr-2"></i>Activate</a
+              >
+            </div>
+            <div>
+              <a (click)="doOpenEditForm(data)"><i nz-icon nzType="edit" class="mr-2"></i>Edit</a>
+            </div>
+            <div>
+              <a (click)="doDeletePromoCode(data)"><i nz-icon nzType="delete" class="mr-2"></i>Delete</a>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </div>
+
+  <nz-drawer
+    [nzBodyStyle]="{ overflow: 'auto' }"
+    [nzWidth]="540"
+    [nzClosable]="false"
+    [nzVisible]="isCreateFormVisible"
+    nzTitle="Add New Promo Code"
+    [nzFooter]="createFooterTemplate"
+    (nzOnClose)="closeCreateForm()"
+  >
+    <form nz-form *nzDrawerContent [formGroup]="createForm" nzLayout="vertical">
+      <div>
+        <div>
+          <nz-form-item>
+            <nz-form-label nzRequired>Name</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['name'])">
+              <input nz-input formControlName="name" placeholder="Please enter name" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div>
+          <nz-form-item>
+            <nz-form-label nzRequired>Code</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['code'])">
+              <nz-input-group>
+                <input type="text" formControlName="code" nz-input placeholder="Please enter code" />
+              </nz-input-group>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div class="flex space-x-4">
+          <nz-form-item class="flex-grow">
+            <nz-form-label>Start Date</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['start'])">
+              <nz-input-group>
+                <nz-date-picker
+                  (ngModelChange)="handleStartDateChange(createForm)"
+                  class="w-full"
+                  formControlName="start"
+                ></nz-date-picker>
+              </nz-input-group>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item class="flex-grow">
+            <nz-form-label>End Date</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['end'])">
+              <nz-input-group>
+                <nz-date-picker
+                  (ngModelChange)="handleEndDateChange(createForm)"
+                  class="w-full"
+                  formControlName="end"
+                ></nz-date-picker>
+              </nz-input-group>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div class="flex space-x-4">
+          <nz-form-item select-width>
+            <nz-form-label nzRequired>Discount Type</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['discountType'])">
+              <nz-select formControlName="discountType">
+                <nz-option [nzValue]="discountType.PERCENTAGE" [nzLabel]="discountType.PERCENTAGE"></nz-option>
+                <nz-option
+                  [nzValue]="discountType.ABSOLUTE_AMOUNT"
+                  [nzLabel]="discountType.ABSOLUTE_AMOUNT"
+                ></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item class="flex-grow">
+            <nz-form-label nzRequired
+              >Discount
+              {{
+                createForm.controls["discountType"].value === discountType.ABSOLUTE_AMOUNT ? "$" : "%"
+              }}</nz-form-label
+            >
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['discount'])">
+              <nz-input-number class="w-full" formControlName="discount" [nzStep]="1"></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div class="flex space-x-4">
+          <nz-form-item select-width>
+            <nz-form-label nzRequired>Discount Occurrence</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['discountOccurrence'])">
+              <nz-select
+                formControlName="discountOccurrence"
+                (ngModelChange)="handleDiscountOccurrenceChange(createForm, $event)"
+              >
+                <nz-option [nzValue]="discountOccurrence.FOREVER" [nzLabel]="discountOccurrence.FOREVER"></nz-option>
+                <nz-option [nzValue]="discountOccurrence.CYCLE" [nzLabel]="discountOccurrence.CYCLE"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item class="flex-grow">
+            <nz-form-label nzRequired>Occurrence</nz-form-label>
+            <nz-form-control
+              nzHasFeedback
+              [nzErrorTip]="getErrorMessage(createForm.controls['discountOccurrenceCount'])"
+            >
+              <nz-input-number class="w-full" formControlName="discountOccurrenceCount" [nzStep]="1"></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div>
+          <nz-form-item>
+            <nz-form-label>Active</nz-form-label>
+            <nz-form-control>
+              <nz-switch formControlName="active"></nz-switch>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div>
+          <nz-form-item>
+            <nz-form-label>Remarks</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['remarks'])">
+              <nz-input-group>
+                <textarea rows="4" nz-input formControlName="remarks"></textarea>
+              </nz-input-group>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+    </form>
+
+    <ng-template #createFooterTemplate>
+      <div class="text-right">
+        <button
+          nz-button
+          [nzLoading]="isCreateFormLoading"
+          nzType="primary"
+          [disabled]="!createForm.valid"
+          (click)="doCreatePromoCode()"
+        >
+          Create New Promo Code
+        </button>
+      </div>
+    </ng-template>
+  </nz-drawer>
+
+  <nz-drawer
+    [nzBodyStyle]="{ overflow: 'auto' }"
+    [nzWidth]="540"
+    [nzClosable]="false"
+    [nzVisible]="isEditFormVisible"
+    nzTitle="Edit Promo Code"
+    [nzFooter]="editFooterTemplate"
+    (nzOnClose)="closeEditForm()"
+  >
+    <form nz-form *nzDrawerContent [formGroup]="editForm" nzLayout="vertical">
+      <div>
+        <div>
+          <nz-form-item>
+            <nz-form-label nzRequired>Name</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(editForm.controls['name'])">
+              <input nz-input formControlName="name" placeholder="Please enter name" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div class="flex space-x-4">
+          <nz-form-item class="flex-grow">
+            <nz-form-label>Start Date</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(editForm.controls['start'])">
+              <nz-input-group>
+                <nz-date-picker
+                  (ngModelChange)="handleStartDateChange(editForm)"
+                  class="w-full"
+                  formControlName="start"
+                ></nz-date-picker>
+              </nz-input-group>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item class="flex-grow">
+            <nz-form-label>End Date</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(editForm.controls['end'])">
+              <nz-input-group>
+                <nz-date-picker
+                  (ngModelChange)="handleEndDateChange(editForm)"
+                  class="w-full"
+                  formControlName="end"
+                ></nz-date-picker>
+              </nz-input-group>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div class="flex space-x-4">
+          <nz-form-item select-width>
+            <nz-form-label nzRequired>Discount Occurrence</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(editForm.controls['discountOccurrence'])">
+              <nz-select
+                formControlName="discountOccurrence"
+                (ngModelChange)="handleDiscountOccurrenceChange(createForm, $event)"
+              >
+                <nz-option [nzValue]="discountOccurrence.FOREVER" [nzLabel]="discountOccurrence.FOREVER"></nz-option>
+                <nz-option [nzValue]="discountOccurrence.CYCLE" [nzLabel]="discountOccurrence.CYCLE"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item class="flex-grow">
+            <nz-form-label nzRequired>Occurrence</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(editForm.controls['discountOccurrenceCount'])">
+              <nz-input-number class="w-full" formControlName="discountOccurrenceCount" [nzStep]="1"></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div>
+          <nz-form-item>
+            <nz-form-label>Remarks</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(editForm.controls['remarks'])">
+              <nz-input-group>
+                <textarea rows="4" nz-input formControlName="remarks"></textarea>
+              </nz-input-group>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+    </form>
+
+    <ng-template #editFooterTemplate>
+      <div class="text-right">
+        <button
+          nz-button
+          [nzLoading]="isEditFormLoading"
+          nzType="primary"
+          [disabled]="!editForm.valid"
+          (click)="doEditPromoCode()"
+        >
+          Edit Promo Code
+        </button>
+      </div>
+    </ng-template>
+  </nz-drawer>
+</div>

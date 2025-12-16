@@ -1,0 +1,193 @@
+<div container class="mx-auto">
+  <grabbill-client-page-header title="Manage Plan & Credits"></grabbill-client-page-header>
+
+  <nz-tabset nzLinkRouter nzSize="large">
+    <nz-tab>
+      <a *nzTabLink nz-tab-link [routerLink]="['.']" [queryParams]="{ tab: 'overview' }" queryParamsHandling="merge">
+        Overview
+      </a>
+      <div>
+        <div *ngIf="user$ | async as user">
+          <div class="pb-8 flex gap-8">
+            <nz-card nzTitle="Current Plan" class="flex-1">
+              <h3 nz-typography class="pb-4">{{ user.subscription!.planName }}</h3>
+              <div class="flex">
+                <span class="text-base pr-2">RM</span
+                ><span class="text-4xl">{{ getPrice(user.subscription!) | number: "1.2" }}</span
+                ><span class="text-2xl self-end"
+                  >&nbsp;/&nbsp;{{ user.subscription!.mode.toLowerCase().replace("ly", "") }}</span
+                >
+              </div>
+            </nz-card>
+            <nz-card nzTitle="Switch Plan" class="flex-1">
+              <div class="pb-4">
+                Switching plan will update / downgrade storage, transactional emails, email campaign's email size.
+              </div>
+              <button (click)="doUpdatePlan()" nz-button nzType="primary">Update</button>
+            </nz-card>
+          </div>
+          <div class="pb-8 flex gap-8">
+            <nz-card nzTitle="SMS Remaining Credits" class="flex-1">
+              <div class="flex pb-4" *ngIf="currentStatistics$ | async as currentStatistics">
+                <span class="text-4xl">{{ currentStatistics.smsRemainingCredits }}</span
+                >&nbsp;<span class="text-2xl self-end">credits</span>
+              </div>
+              <button *ngIf="canTopUpSms" (click)="doOpenTopUpModal()" nz-button nzType="primary">Top Up</button>
+              <a *ngIf="!canTopUpSms"
+                 href="mailto:enquiry@mybillone.com?subject=SMS%20Top%20Up&body=I%20would%20like%20to%20inquire%20about%20SMS%20Top%20Up%20Feature."
+              ><button nz-button nzType="primary">Contact Us</button></a
+              >
+            </nz-card>
+            <nz-card nzTitle="Manage Billing Info" class="flex-1">
+              <div class="pb-4">
+                To manage payment methods (credit cards) or billing address information.
+                <br /><br />
+              </div>
+              <button (click)="doManageBillingInfo()" nz-button nzType="primary">Manage</button>
+            </nz-card>
+          </div>
+        </div>
+
+        <div class="mb-8" *ngIf="currentStatistics$ | async as currentStatistics">
+          <grabbill-client-usage-stat
+            title="Current Month Usage"
+            [currentStatistics]="currentStatistics"
+          ></grabbill-client-usage-stat>
+        </div>
+      </div>
+    </nz-tab>
+    <nz-tab>
+      <a
+        *nzTabLink
+        nz-tab-link
+        [routerLink]="['.']"
+        [queryParams]="{ tab: 'subscription-history' }"
+        queryParamsHandling="merge"
+      >
+        Subscription History
+      </a>
+      <ng-container *ngIf="accountSubscriptionSearchResult$ | async as accountSubscriptionSearchResult">
+        <div *ngIf="accountSubscriptionPageable$ | async as accountSubscriptionPageable">
+          <nz-table
+            nzBordered
+            [nzData]="accountSubscriptionSearchResult.items"
+            [nzFrontPagination]="false"
+            [nzTotal]="accountSubscriptionSearchResult.totalItems"
+            [nzPageSize]="accountSubscriptionPageable.size"
+            [nzPageIndex]="accountSubscriptionPageable.page"
+            (nzQueryParams)="doAccountSubscriptionQuery($event)"
+            [nzLoading]="isAccountSubscriptionTableLoading"
+            nzSize="small"
+            nzTableLayout="fixed"
+          >
+            <thead>
+              <tr>
+                <th>Plan</th>
+                <th>Mode</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Storage Size</th>
+                <th>Transactional Email Size</th>
+                <th>Email Campaign Size</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let data of accountSubscriptionSearchResult.items; let i = index">
+                <td>
+                  <a [routerLink]="['/', 'account', 'account-subscription', data.id]">{{ data.planName }} Plan</a>
+                </td>
+                <td>{{ data.mode }}</td>
+                <td>{{ data.startDate | date: dateFormat() }}</td>
+                <td>{{ data.endDate | date: dateFormat() }}</td>
+                <td>{{ formatBytes(data.storageSize) }}</td>
+                <td>{{ data.transactionalEmailSize }}</td>
+                <td>{{ data.emailCampaignSize }}</td>
+              </tr>
+            </tbody>
+          </nz-table>
+        </div>
+      </ng-container>
+    </nz-tab>
+    <nz-tab>
+      <a
+        *nzTabLink
+        nz-tab-link
+        [routerLink]="['.']"
+        [queryParams]="{ tab: 'billing-history' }"
+        queryParamsHandling="merge"
+      >
+        Billing History
+      </a>
+      <ng-container *ngIf="invoiceSearchResult$ | async as invoiceSearchResult">
+        <div *ngIf="invoicePageable$ | async as invoicePageable">
+          <nz-table
+            nzBordered
+            [nzData]="invoiceSearchResult.items"
+            [nzFrontPagination]="false"
+            [nzTotal]="invoiceSearchResult.totalItems"
+            [nzPageSize]="invoicePageable.size"
+            [nzPageIndex]="invoicePageable.page"
+            (nzQueryParams)="doInvoiceQuery($event)"
+            [nzLoading]="isInvoiceTableLoading"
+            nzSize="small"
+            nzTableLayout="fixed"
+          >
+            <thead>
+              <tr>
+                <th>Invoice No</th>
+                <th>Plan</th>
+                <th>Subscription Date</th>
+                <th nzWidth="140px">Status</th>
+                <th>Amount</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let data of invoiceSearchResult.items; let i = index">
+                <td>
+                  <a [routerLink]="['/', 'account', 'invoice', data.id]">{{ data.invoiceNo }}</a>
+                </td>
+                <td>{{ data.planName }} Plan</td>
+                <td>{{ data.cycleStartDate | date: dateFormat() }} - {{ data.cycleEndDate | date: dateFormat() }}</td>
+                <td>
+                  <nz-tag [nzColor]="getStatusTag(data.status)">{{ data.status.replace("_", " ") | titlecase }}</nz-tag>
+                </td>
+                <td>RM{{ data.totalAmountWithTax | number: "1.2" }}</td>
+                <td nzRight>
+                  <a *ngIf="data.status === 'PAYMENT_FAILED'" (click)="doPay(data)" class="mr-4"
+                    ><i nz-icon nzType="dollar" class="mr-2"></i>Pay</a
+                  ><br />
+                </td>
+              </tr>
+            </tbody>
+          </nz-table>
+        </div>
+      </ng-container>
+    </nz-tab>
+  </nz-tabset>
+</div>
+
+<nz-modal [nzVisible]="isTopUpModalVisible" nzTitle="Top Up SMS Credits" (nzOnCancel)="doCloseTopUpModal()">
+  <div *nzModalContent>
+    <div>
+      <form nz-form [formGroup]="topUpForm">
+        <nz-form-item *ngIf="smsOptions$ | async as smsOptions">
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Credits</nz-form-label>
+          <nz-form-control [nzSm]="14" [nzXs]="24" [nzErrorTip]="getErrorMessage(topUpForm.get('option')!)">
+            <nz-select formControlName="option" nzMode="default">
+              <ng-container *ngFor="let smsOption of smsOptions; let i = index">
+                <nz-option
+                  [nzValue]="smsOption.id"
+                  [nzLabel]="'RM' + (smsOption.price | number: '1.2') + ' per ' + smsOption.quantity + ' credits'"
+                ></nz-option>
+              </ng-container>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </div>
+  </div>
+  <div *nzModalFooter>
+    <button nz-button nzType="primary" (click)="doTopup()">Top Up</button>
+  </div>
+</nz-modal>

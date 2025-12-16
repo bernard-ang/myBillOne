@@ -1,0 +1,141 @@
+<div container class="mx-auto" *ngIf="affiliateCodeSearchResult$ | async as searchResult">
+  <div class="flex pb-8">
+    <div class="flex-grow">
+      <h2 title nz-typography class="flex-grow mb-8">Affiliate Codes</h2>
+      <div class="text-lg">You have {{searchResult.totalItems | number: '1.0'}} affiliate codes.</div>
+    </div>
+    <div>
+      <button nz-button nzType="primary" nzSize="large" (click)="doOpenCreateForm()">Add Affiliate Code</button>
+    </div>
+  </div>
+
+  <div *ngIf="affiliateCodePageable$ | async as pageable">
+    <div class="flex pb-8">
+      <div class="flex-1">
+        <nz-input-group [nzPrefix]="searchIcon" nzSize="large">
+          <input type="text" (input)="doSearch($event)" nz-input placeholder="Find by code"/>
+        </nz-input-group>
+        <ng-template #searchIcon>
+          <i nz-icon nzType="search" class="mr-2"></i>
+        </ng-template>
+      </div>
+    </div>
+    <nz-table nzBordered
+              [nzLoading]="isTableLoading"
+              [nzData]="searchResult.items"
+              [nzFrontPagination]="false"
+              [nzTotal]="searchResult.totalItems"
+              [nzPageSize]="pageable.size"
+              [nzPageIndex]="pageable.page"
+              (nzQueryParams)="doQuery($event)"
+              nzSize="small"
+              nzTableLayout="fixed">
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th>Code</th>
+        <th>Created At</th>
+        <th>Updated At</th>
+        <th nzWidth="160px">Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of searchResult.items; let i = index">
+        <td>{{ data.name }}</td>
+        <td>{{ data.code }}</td>
+        <td>{{ data.createdTime | date: dateTimeFormat() }}</td>
+        <td>{{ data.lastModifiedTime | date: dateTimeFormat() }}</td>
+        <td nzRight>
+          <a (click)="doOpenEditForm(data)" class="mr-4"><i nz-icon nzType="edit" class="mr-2"></i>Edit</a><br/>
+          <a (click)="doDeleteAffiliateCode(data)"><i nz-icon nzType="delete" class="mr-2"></i>Delete</a><br/>
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </div>
+
+  <div>
+    <nz-drawer
+      [nzBodyStyle]="{ overflow: 'auto' }"
+      [nzWidth]="540"
+      [nzClosable]="false"
+      [nzVisible]="isCreateFormVisible"
+      nzTitle="Add New Affiliate Code"
+      [nzFooter]="createFooterTemplate"
+      (nzOnClose)="closeCreateForm()"
+    >
+      <form nz-form *nzDrawerContent [formGroup]="createForm" nzLayout="vertical">
+        <div>
+          <div>
+            <nz-form-item>
+              <nz-form-label nzRequired>Name</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['name'])">
+                <input nz-input formControlName="name" placeholder="Please enter name"/>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div>
+            <nz-form-item>
+              <nz-form-label nzRequired>Code</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['code'])">
+                <nz-input-group>
+                  <input type="text" formControlName="code" nz-input placeholder="Please enter code"/>
+                </nz-input-group>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+      </form>
+
+      <ng-template #createFooterTemplate>
+        <div class="text-right">
+          <button nz-button [nzLoading]="isCreateFormLoading" nzType="primary" [disabled]="!createForm.valid"
+                  (click)="doCreateAffiliateCode()">Create New Affiliate Code
+          </button>
+        </div>
+      </ng-template>
+    </nz-drawer>
+
+    <nz-drawer
+      [nzBodyStyle]="{ overflow: 'auto' }"
+      [nzWidth]="540"
+      [nzClosable]="false"
+      [nzVisible]="isEditFormVisible"
+      nzTitle='Update Affiliate Code'
+      [nzFooter]="editFooterTemplate"
+      (nzOnClose)="closeEditForm()"
+    >
+      <form nz-form *nzDrawerContent [formGroup]="editForm" nzLayout="vertical">
+        <div>
+          <div>
+            <input nz-input type="hidden" formControlName="id"/>
+            <nz-form-item>
+              <nz-form-label nzRequired>Name</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(editForm.controls['name'])">
+                <input nz-input formControlName="name" placeholder="Please enter name"/>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div>
+            <nz-form-item>
+              <nz-form-label nzRequired>Email</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(editForm.controls['code'])">
+                <nz-input-group>
+                  <input type="text" formControlName="code" nz-input placeholder="Please enter code"/>
+                </nz-input-group>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+      </form>
+
+      <ng-template #editFooterTemplate>
+        <div class="text-right">
+          <button nz-button [nzLoading]="isEditFormLoading" nzType="primary" [disabled]="!editForm.valid"
+                  (click)="doUpdateAffiliateCode()">Update Affiliate Code
+          </button>
+        </div>
+      </ng-template>
+    </nz-drawer>
+  </div>
+</div>

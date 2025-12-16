@@ -1,0 +1,139 @@
+<nz-spin [nzSpinning]="isDataLoading">
+  <div container class="mx-auto">
+    <div class="pb-2">
+      <grabbill-client-page-header
+        title="Mail Server Settings"
+        [buttonTemplate]="buttonTemplate"
+        [extraTemplate]="extraTemplate"
+      >
+        <ng-template #extraTemplate>
+          <div class="mr-4 flex items-center mb-2">
+            <div class="pr-2">Custom Server</div>
+            <nz-switch [formControl]="customServer" (ngModelChange)="toggleCustomServer($event)"></nz-switch>
+          </div>
+        </ng-template>
+        <ng-template #buttonTemplate>
+          <div class="mb-2">
+            <button (click)="doSave()" nz-button nzType="primary">Save</button>
+          </div>
+        </ng-template>
+      </grabbill-client-page-header>
+    </div>
+
+    <div class="pb-8" *ngIf="user?.subscription?.planName === 'Free' && isSaas">
+      <nz-alert nzType="info" nzMessage="Upgrade plan to configure custom SMTP & IMAP settings."></nz-alert>
+    </div>
+
+    <form nz-form [formGroup]="form" nzLayout="vertical">
+      <div class="flex gap-4 items-stretch">
+        <div class="flex-1">
+          <div class="pb-4">
+            <nz-card nzTitle="SMTP Settings">
+              <div class="flex gap-4">
+                <nz-form-item class="flex-grow">
+                  <nz-form-label nzRequired>Host</nz-form-label>
+                  <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['smtpHost'])">
+                    <input nz-input formControlName="smtpHost" />
+                  </nz-form-control>
+                </nz-form-item>
+                <nz-form-item>
+                  <nz-form-label nzRequired>Port</nz-form-label>
+                  <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['smtpPort'])">
+                    <nz-input-number
+                      formControlName="smtpPort"
+                      [nzMin]="0"
+                      [nzMax]="9999999"
+                      [nzStep]="1"
+                    ></nz-input-number>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <nz-form-item>
+                <nz-form-label nzRequired>Protocol</nz-form-label>
+                <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['smtpEncryption'])">
+                  <nz-select formControlName="smtpEncryption" nzPlaceHolder="Protocol">
+                    <nz-option nzValue="NON_ENCRYPTED" nzLabel="None"></nz-option>
+                    <nz-option nzValue="TLS" nzLabel="TLS"></nz-option>
+                    <nz-option nzValue="SSL" nzLabel="SSL"></nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label>Username</nz-form-label>
+                <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['smtpUsername'])">
+                  <input nz-input formControlName="smtpUsername" />
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label>Password</nz-form-label>
+                <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['smtpPassword'])">
+                  <input type="password" nz-input formControlName="smtpPassword" />
+                </nz-form-control>
+              </nz-form-item>
+            </nz-card>
+          </div>
+          <nz-card nzTitle="Email Settings">
+            <nz-form-item>
+              <nz-form-label nzRequired>From Email</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['smtpFrom'])">
+                <input nz-input formControlName="smtpFrom" />
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-label nzRequired>From Name</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['smtpFromName'])">
+                <input nz-input formControlName="smtpFromName" />
+              </nz-form-control>
+            </nz-form-item>
+          </nz-card>
+        </div>
+
+        <div class="flex-1">
+          <nz-card nzTitle="IMAP Settings">
+            <div class="flex gap-4">
+              <nz-form-item class="flex-grow">
+                <nz-form-label nzRequired>Host</nz-form-label>
+                <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['imapHost'])">
+                  <input nz-input formControlName="imapHost" />
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label nzRequired>Port</nz-form-label>
+                <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['imapPort'])">
+                  <nz-input-number
+                    formControlName="imapPort"
+                    [nzMin]="0"
+                    [nzMax]="9999999"
+                    [nzStep]="1"
+                  ></nz-input-number>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <nz-form-item>
+              <nz-form-label nzRequired>Protocol</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['imapEncryption'])">
+                <nz-select formControlName="imapEncryption" nzPlaceHolder="Protocol">
+                  <nz-option nzValue="NON_ENCRYPTED" nzLabel="None"></nz-option>
+                  <nz-option nzValue="TLS" nzLabel="TLS"></nz-option>
+                  <nz-option nzValue="SSL" nzLabel="SSL"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-label>Username</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['imapUsername'])">
+                <input nz-input formControlName="imapUsername" />
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+              <nz-form-label>Password</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['imapPassword'])">
+                <input nz-input type="password" formControlName="imapPassword" />
+              </nz-form-control>
+            </nz-form-item>
+          </nz-card>
+        </div>
+      </div>
+    </form>
+  </div>
+</nz-spin>

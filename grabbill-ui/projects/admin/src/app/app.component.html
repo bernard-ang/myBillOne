@@ -1,0 +1,18 @@
+<nz-modal
+  [nzVisible]="loading"
+  [nzClosable]="false"
+  [nzMaskClosable]="false"
+  [nzKeyboard]="false"
+  [nzFooter]="null"
+  [nzWidth]="280"
+  nzCentered>
+  <ng-container *nzModalContent>
+    <div class="p-8">
+      <nz-spin page-spinner nzSize="large" nzTip="Loading"></nz-spin>
+    </div>
+  </ng-container>
+</nz-modal>
+
+<router-outlet></router-outlet>
+
+

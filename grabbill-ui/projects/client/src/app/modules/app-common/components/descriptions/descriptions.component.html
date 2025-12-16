@@ -1,0 +1,38 @@
+<div class="{{ containerClass }}">
+  <h5 nz-typography>{{ title }}</h5>
+  <nz-descriptions nzBordered [nzColumn]="{ xxl: 4, xl: 4, lg: 4, md: 4, sm: 4, xs: 2 }">
+    <nz-descriptions-item *ngFor="let item of items" [nzTitle]="item.title" [nzSpan]="item.span">
+      <ng-container *ngIf="item.value; else noValue">
+        <ng-container *ngIf="item.type === 'boolean'">
+          <i *ngIf="item.value" nz-icon nzType="check"></i>
+        </ng-container>
+        <ng-container *ngIf="item.type === 'string'">
+          {{ item.value }}
+        </ng-container>
+        <ng-container *ngIf="item.type === 'number'">
+          {{ item.value | number: "1.0" }}
+        </ng-container>
+        <ng-container *ngIf="item.type === 'date'">
+          {{ item.value | date: getDateFormat() }}
+        </ng-container>
+        <ng-container *ngIf="item.type === 'pre'">
+          <pre>{{ item.value }}</pre>
+        </ng-container>
+        <ng-container *ngIf="item.type === 'tag'">
+          <nz-tag [nzColor]="item.typeFn!(item.object)">{{ item.value }}</nz-tag>
+        </ng-container>
+        <ng-container *ngIf="item.type === 'files'">
+          <ng-container *ngFor="let file of item.value">
+            <a (click)="item.typeFn!(file, item.object)">{{ file.name }}</a>
+          </ng-container>
+        </ng-container>
+        <ng-container *ngIf="item.type === 'html'">
+          <div preview>
+            <grabbill-client-html-preview [html]="item.value"></grabbill-client-html-preview>
+          </div>
+        </ng-container>
+      </ng-container>
+      <ng-template #noValue>-</ng-template>
+    </nz-descriptions-item>
+  </nz-descriptions>
+</div>

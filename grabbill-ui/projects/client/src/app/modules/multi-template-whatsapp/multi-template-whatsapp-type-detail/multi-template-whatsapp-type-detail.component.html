@@ -1,0 +1,454 @@
+<div container class="mx-auto">
+  <grabbill-client-breadcrumb
+    rootTitle="WhatsApp"
+    [rootLink]="['/', 'mt-whatsapp', 'list']"
+  ></grabbill-client-breadcrumb>
+
+  <ng-template #elseType>
+    <nz-skeleton [nzActive]="true" [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+  </ng-template>
+
+  <ng-container *ngIf="multiTemplateWhatsAppType$ | async as whatsAppType; else elseType">
+    <div class="mb-8">
+      <grabbill-client-page-header
+        [title]="whatsAppType.name"
+        [subtitle]="getCode(whatsAppType)"
+        [button]="{
+          label: 'Create WhatsApp Activity',
+          privilege: privilege.WA_ACTIVITY_EDIT
+        }"
+        (buttonClick)="doCreateWhatsApp(whatsAppType, whatsAppType.name)"
+      >
+      </grabbill-client-page-header>
+    </div>
+
+    <grabbill-client-whatsapp-stat
+      [total]="whatsAppType.total"
+      [totalSent]="whatsAppType.statusSent"
+      [totalDelivered]="whatsAppType.statusDelivered"
+      [totalRead]="whatsAppType.statusRead"
+      [totalAcknowledge]="whatsAppType.statusAcknowledge"
+      [totalSkip]="whatsAppType.statusSkip"
+      [totalFailed]="whatsAppType.statusFailed"
+    >
+    </grabbill-client-whatsapp-stat>
+
+    <nz-tabset nzSize="large" nzLinkRouter>
+      <nz-tab>
+        <a
+          *nzTabLink
+          nz-tab-link
+          [routerLink]="['.']"
+          [queryParams]="{ tab: 'activities' }"
+          queryParamsHandling="merge"
+        >
+          Activities
+        </a>
+
+        <grabbill-client-list
+          [store]="store"
+          [actions$]="actions$"
+          [pageable$]="multiTemplateWhatsAppActivityPageable$"
+          [result$]="multiTemplateWhatsAppActivitySearchResult$"
+          [isListLoading]="isListLoading"
+          [queryAction]="listQueryAction"
+          [queryActionParams]="[typeId]"
+          [loadMoreAction]="listLoadMoreAction"
+          [pageableState]="listState.whatsAppActivityPageable"
+          [typeNameState]="listState.activityName"
+          [subtitleTemplate]="subtitleTemplate"
+          [contentTemplate]="contentTemplate"
+          [statusTemplate]="statusTemplate"
+          [actionsTemplate]="actionsTemplate"
+          [hasSort]="false"
+          (selectItem)="doViewActivity($event)"
+          icon="file-pdf"
+          searchText="Find by activity name"
+          noRecordText="No activities found."
+        >
+          <ng-template #subtitleTemplate let-item>
+            <div list-description>{{ getActivityStatusText(item) }}</div>
+            <div list-description *ngIf="item.purgedTimestamp">Purged at {{ item.purgedTimestamp | date: dateFormat }}</div>
+          </ng-template>
+          <ng-template #contentTemplate let-item>
+            <div class="flex-grow flex sm:flex-col xl:flex-row">
+              <div class="flex-grow pr-4">
+                <ng-container>
+                  <div total list-title>{{ item.whatsAppTotal | number: "1.0" }}</div>
+                  <div>Total</div>
+                </ng-container>
+              </div>
+              <div class="flex-grow pr-4">
+                <ng-container>
+                  <div total list-title>{{ item.whatsAppStatusSent | number: "1.0" }}</div>
+                  <div>Sent</div>
+                </ng-container>
+              </div>
+              <div class="flex-grow pr-4">
+                <ng-container>
+                  <div total list-title>{{ item.whatsAppStatusSkip | number: "1.0" }}</div>
+                  <div>Skip</div>
+                </ng-container>
+              </div>
+              <div class="flex-grow pr-4">
+                <ng-container>
+                  <div total list-title>{{ item.whatsAppStatusDelivered | number: "1.0" }}</div>
+                  <div>Delivered</div>
+                </ng-container>
+              </div>
+              <div class="flex-grow pr-4">
+                <ng-container>
+                  <div total list-title>{{ item.whatsAppStatusRead | number: "1.0" }}</div>
+                  <div>Read</div>
+                </ng-container>
+              </div>
+              <div class="flex-grow pr-4">
+                <ng-container>
+                  <div total list-title>{{ item.whatsAppStatusAcknowledge | number: "1.0" }}</div>
+                  <div>Acknowledged</div>
+                </ng-container>
+              </div>
+              <div class="flex-grow">
+                <ng-container>
+                  <div total list-title>{{ item.whatsAppStatusFailed | number: "1.0" }}</div>
+                  <div>Failed</div>
+                </ng-container>
+              </div>
+            </div>
+          </ng-template>
+          <ng-template #statusTemplate let-item>
+            <div class="w-1/5">
+              <nz-tag [nzColor]="getStatusTag(item)">{{ item.status }}</nz-tag>
+            </div>
+          </ng-template>
+          <ng-template #actionsTemplate let-item>
+            <ul nz-list-item-actions actions-width>
+              <nz-list-item-action *ngIf="item.status === 'DRAFT' && hasPrivilege(privilege.WA_ACTIVITY_EDIT)">
+                <a list-title (click)="doEditActivity(whatsAppType.id, item.id)">
+                  <i nz-tooltip="Edit" nz-icon nzType="edit"></i>
+                </a>
+              </nz-list-item-action>
+              <nz-list-item-action *ngIf="item.status === 'DRAFT' && hasPrivilege(privilege.WA_ACTIVITY_EDIT)">
+                <a list-title (click)="doDeleteActivity(whatsAppType.id, item)"
+                ><i nz-tooltip="Delete" nz-icon nzType="delete"></i
+                ></a>
+              </nz-list-item-action>
+              <ng-container *ngIf="user$ | async as user">
+                <nz-list-item-action
+                  *ngIf="
+                    item.status === 'COMPLETED' &&
+                    item.noOfFiles > 0 &&
+                    !item.purgedTimestamp &&
+                    multiTemplateWhatsAppActivityPageable$ &&
+                    hasPrivilege(privilege.WA_ACTIVITY_VIEW) &&
+                    user.subscription!.exportFile
+                  "
+                >
+                  <a list-title (click)="doExportActivity(whatsAppType.id, item)">
+                    <i nz-tooltip="Export" nz-icon nzType="download"></i
+                    ></a>
+                </nz-list-item-action>
+              </ng-container>
+
+              <nz-list-item-action
+                *ngIf="
+                  item.status === 'COMPLETED' &&
+                  item.noOfFiles > 0 &&
+                  !item.purgedTimestamp &&
+                  hasPrivilege(privilege.WA_ACTIVITY_EDIT)
+                "
+              >
+                <a list-title (click)="doPurgeActivity(whatsAppType.id, item)"
+                ><i nz-tooltip="Purge Files" nz-icon nzType="file-exclamation"></i
+                ></a>
+              </nz-list-item-action>
+            </ul>
+          </ng-template>
+        </grabbill-client-list>
+      </nz-tab>
+
+      <nz-tab>
+        <a *nzTabLink nz-tab-link [routerLink]="['.']" [queryParams]="{ tab: 'settings' }" queryParamsHandling="merge">
+          Template Settings
+        </a>
+
+        <div class="text-right mb-4" *ngIf="hasPrivilege(privilege.WA_EDIT)">
+          <button nz-button (click)="doEdit(whatsAppType.id)">Edit</button>
+        </div>
+
+        <nz-card>
+          <grabbill-client-descriptions
+            title="Attachment Settings"
+            [items]="[
+              { span: 2, title: 'Attachment', value: whatsAppType.hasAttachment, type: 'boolean' },
+              { span: 2, title: 'Password protect', value: whatsAppType.passwordProtected, type: 'boolean' },
+            ]"
+          >
+          </grabbill-client-descriptions>
+
+          <div class="pb-8">
+            <grabbill-client-descriptions
+              title="Index Settings"
+              containerClass="pb-4"
+              [items]="[
+                {
+                  span: 1,
+                  title: 'Supported index file types',
+                  value: getSeparatorLabel(whatsAppType.csvSeparator),
+                  type: 'string'
+                }
+              ]"
+            >
+            </grabbill-client-descriptions>
+
+            <div class="pb-4">
+              <nz-table
+                nzBordered
+                [nzShowPagination]="false"
+                [nzData]="getApplicableFields(whatsAppType)"
+                nzSize="small"
+                nzTableLayout="fixed"
+              >
+                <thead>
+                <tr>
+                  <th>Label</th>
+                  <th>Excel Header</th>
+                  <th nzWidth="15%">Mandatory</th>
+                  <th nzWidth="14%">Type</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td>Code</td>
+                  <td>code</td>
+                  <td><i nz-icon nzType="check"></i></td>
+                  <td>TEXT</td>
+                </tr>
+                <ng-container *ngFor="let data of getApplicableFields(whatsAppType); let i = index">
+                  <tr *ngIf="data.applicable">
+                    <td>{{ data.label }}</td>
+                    <td>{{ data.header }}</td>
+                    <td><i *ngIf="data.required" nz-icon nzType="check"></i></td>
+                    <td>{{ data.dataType }}</td>
+                  </tr>
+                </ng-container>
+                </tbody>
+              </nz-table>
+            </div>
+          </div>
+
+          <div class="pb-8">
+            <grabbill-client-descriptions
+              title="WhatsApp Settings"
+              containerClass="pb-4"
+            >
+            </grabbill-client-descriptions>
+
+            <div *ngFor="let currentTemplate of whatsAppType.whatsAppTemplates; let i = index">
+              <grabbill-client-descriptions
+                *ngIf="whatsAppTemplates$ | async"
+                title="{{currentTemplate.whatsAppTemplateName}}"
+                containerClass="pb-4"
+                [items]="[
+                {
+                  span: 4,
+                  title: 'Header',
+                  value: getWhatsappTemplateHeader(currentTemplate.whatsAppTemplateName),
+                  type: 'string'
+                },
+                {
+                  span: 4,
+                  title: 'Body',
+                  value: getWhatsappTemplateBody(currentTemplate.whatsAppTemplateName),
+                  type: 'string'
+                },
+                {
+                  span: 2,
+                  title: 'Footer',
+                  value: getWhatsappTemplateFooter(currentTemplate.whatsAppTemplateName),
+                  type: 'string'
+                },
+                {
+                  span: 2,
+                  title: 'Button',
+                  value: getWhatsappTemplateButton(currentTemplate.whatsAppTemplateName),
+                  type: 'string'
+                }
+              ]"
+              >
+              </grabbill-client-descriptions>
+
+              <div class="pb-4">
+                <nz-table
+                  nzBordered
+                  [nzShowPagination]="false"
+                  [nzData]="currentTemplate.whatsAppTemplateParams"
+                  nzSize="small"
+                  nzTableLayout="fixed"
+                >
+                  <thead>
+                  <tr>
+                    <th nzWidth="100px">Index</th>
+                    <th>Field</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <ng-container *ngFor="let data of currentTemplate.whatsAppTemplateParams; let i = index">
+                    <tr>
+                      <td>{{ data.index }}</td>
+                      <td>{{ data.field }}</td>
+                    </tr>
+                  </ng-container>
+                  </tbody>
+                </nz-table>
+              </div>
+            </div>
+          </div>
+        </nz-card>
+      </nz-tab>
+
+      <ng-container *ngIf="fileSearchResult$ | async as whatsAppFileSearchResult">
+        <nz-tab *ngIf="whatsAppType.hasAttachment || whatsAppFileSearchResult.items.length > 0">
+          <a *nzTabLink nz-tab-link [routerLink]="['.']" [queryParams]="{ tab: 'files' }" queryParamsHandling="merge">
+            Files
+          </a>
+
+          <div>
+            <div class="flex">
+              <div class="flex-1">
+                <nz-input-group search-group [nzPrefix]="searchIcon">
+                  <input type="text" (input)="doSearchFilename($event)" nz-input placeholder="Find by filename" />
+                </nz-input-group>
+                <ng-template #searchIcon>
+                  <i nz-icon nzType="search" class="mr-2"></i>
+                </ng-template>
+              </div>
+            </div>
+            <div toolbar class="flex items-center p-2">
+              <div class="flex-grow">
+                <nz-tag
+                  *ngFor="let tag of getFilters(); let i = index"
+                  nzMode="closeable"
+                  (nzOnClose)="doRemoveFilter(tag[0])"
+                >
+                  {{ getIndexFieldByFieldName(tag[0], whatsAppType).label }}
+                  = {{ getIndexFieldValue(tag[1]) }}
+                </nz-tag>
+              </div>
+              <div>
+                <button (click)="doOpenFilterModal(whatsAppType)" nz-button nzType="link">
+                  <i nz-icon nzType="filter"></i>Add Filter
+                </button>
+              </div>
+            </div>
+            <ng-container *ngIf="whatsAppFilePageable$ | async as whatsAppFilePageable">
+              <nz-table
+                nzBordered
+                [nzLoading]="isFileTableLoading"
+                [nzData]="whatsAppFileSearchResult.items"
+                [nzFrontPagination]="false"
+                [nzTotal]="whatsAppFileSearchResult.totalItems"
+                [nzPageSize]="whatsAppFilePageable.size"
+                [nzPageIndex]="whatsAppFilePageable.page"
+                (nzQueryParams)="doQueryFile($event)"
+                nzSize="small"
+                nzTableLayout="fixed"
+              >
+                <thead>
+                <tr>
+                  <th>Activity Name</th>
+                  <th *ngFor="let fieldLabel of getIndexFieldLabels(whatsAppType); let i = index">
+                    <div class="flex items-center" *ngIf="i === passwordFieldIndex">
+                      <div class="mr-2">{{ fieldLabel }}</div>
+                      <div>
+                        <i *ngIf="showPassword" (click)="togglePasswordVisible()" nz-icon nzType="eye"></i>
+                        <i *ngIf="!showPassword" (click)="togglePasswordVisible()" nz-icon nzType="eye-invisible"></i>
+                      </div>
+                    </div>
+                    <div *ngIf="i !== passwordFieldIndex">
+                      {{ fieldLabel }}
+                    </div>
+                  </th>
+                  <th nzRight nzWidth="80px">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let data of whatsAppFileSearchResult.items; let i = index">
+                  <td>{{ data.activityName }}</td>
+                  <td *ngFor="let value of getIndexRowValues(data, whatsAppType); let i = index">
+                    <div *ngIf="i === attachmentFieldIndex">
+                      <a (click)="doDownloadFile(data)">{{ value }}</a>
+                    </div>
+                    <div *ngIf="i === passwordFieldIndex">
+                      <span *ngIf="showPassword">{{ value }}</span>
+                      <span *ngIf="!showPassword">******</span>
+                    </div>
+                    <div *ngIf="i !== attachmentFieldIndex && i !== passwordFieldIndex">{{ value }}</div>
+                  </td>
+                  <td nzRight *ngIf="hasPrivilege(privilege.WA_ACTIVITY_EDIT)">
+                    <a nz-tooltip="Delete" (click)="doDeleteFile(data, whatsAppType)">
+                      <i nz-icon nzType="delete"></i>
+                    </a>
+                  </td>
+                </tr>
+                </tbody>
+              </nz-table>
+            </ng-container>
+          </div>
+        </nz-tab>
+      </ng-container>
+    </nz-tabset>
+
+    <nz-modal [nzVisible]="isFilterModalVisible" nzTitle="Add Filter" (nzOnCancel)="doCloseFilterModal()">
+      <div *nzModalContent>
+        <div>
+          <form nz-form [formGroup]="filterForm">
+            <nz-form-item>
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Index Field</nz-form-label>
+              <nz-form-control [nzSm]="14" [nzXs]="24">
+                <nz-select
+                  formControlName="field"
+                  (ngModelChange)="doFilterIndexFieldChange(whatsAppType, $event)"
+                >
+                  <ng-container *ngFor="let field of getApplicableFields(whatsAppType); let i = index">
+                    <nz-option *ngIf="i !== 0" [nzValue]="'idxf' + (i + 1)" [nzLabel]="field.label"></nz-option>
+                  </ng-container>
+                </nz-select>
+                <input type="hidden" formControlName="type" />
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item *ngIf="filterForm.get('type')!.value === 'TEXT'">
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Value</nz-form-label>
+              <nz-form-control [nzSm]="14" [nzXs]="24">
+                <input nz-input formControlName="textValue" />
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item *ngIf="filterForm.get('type')!.value === 'NUMBER'">
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Value</nz-form-label>
+              <nz-form-control [nzSm]="14" [nzXs]="24">
+                <nz-input-number
+                  formControlName="numberValue"
+                  [nzMin]="-9999999"
+                  [nzMax]="9999999"
+                  [nzStep]="1"
+                ></nz-input-number>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item *ngIf="filterForm.get('type')!.value === 'DATE'">
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Value</nz-form-label>
+              <nz-form-control [nzSm]="14" [nzXs]="24">
+                <nz-date-picker formControlName="dateValue"></nz-date-picker>
+              </nz-form-control>
+            </nz-form-item>
+          </form>
+        </div>
+      </div>
+      <div *nzModalFooter>
+        <button nz-button nzType="primary" (click)="doAddFilter()">Add</button>
+      </div>
+    </nz-modal>
+  </ng-container>
+</div>

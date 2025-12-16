@@ -1,0 +1,132 @@
+<ng-container>
+  <ng-container>
+    <div container class="mx-auto">
+      <grabbill-client-breadcrumb
+        rootTitle="Transactional Email"
+        [rootLink]="['/', 'mt-transactional-email', 'list']"
+        [hasCrumb2]="true"
+        [crumb2Object]="transactionalEmailType$ | async"
+        [crumb2Link]="['/', 'mt-transactional-email', 'detail', typeId]"
+        [crumb2QueryParam]="{ tab: 'activities' }"
+        [hasCrumb3]="true"
+        [crumb3Object]="transactionalEmailActivity$ | async"
+        [crumb3Link]="['/', 'mt-transactional-email', 'detail', typeId, 'activity', activityId]"
+        [crumb3QueryParam]="{ tab: 'records' }"
+      >
+      </grabbill-client-breadcrumb>
+
+      <ng-template #elseRecord>
+        <div nz-list nzBordered>
+          <div nz-list-item>
+            <nz-skeleton [nzAvatar]="true" [nzActive]="true" [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-container *ngIf="record; else elseRecord">
+        <ng-container *ngIf="transactionalEmailActivity$ | async as transactionalEmailActivity">
+          <ng-container *ngIf="transactionalEmailType$ | async as transactionalEmailType">
+            <div class="mb-4">
+              <grabbill-client-page-header [title]="record.indexRow.text1"></grabbill-client-page-header>
+            </div>
+
+            <nz-tabset nzSize="large">
+              <nz-tab nzTitle="Overview">
+                <nz-card>
+                  <grabbill-client-descriptions
+                    title="Index Data"
+                    [items]="getIndexRowObjects(record.indexRow, transactionalEmailType)"
+                  >
+                  </grabbill-client-descriptions>
+
+                  <grabbill-client-descriptions
+                    title="Email Status"
+                    [items]="[
+                    { span: 2, title: 'Email Sent', value: record.emailStatusSent, type: 'boolean' },
+                    { span: 2, title: 'Processed Timestamp', value: record.processedTimestamp, type: 'date' },
+                    { span: 2, title: 'Email Bounced Skip', value: record.emailStatusSkipBounced, type: 'boolean' },
+                    { span: 2, title: 'Email Unsubscribed Skip', value: record.emailStatusSkipUnsubscribed, type: 'boolean' },
+                    { span: 2, title: 'Email Hard Bounced', value: record.emailStatusHardBounce, type: 'boolean' },
+                    { span: 2, title: 'Email Soft Bounced', value: record.emailStatusSoftBounce, type: 'boolean' },
+                    { span: 2, title: 'Delivery Status Notification', value: record.emailDsnReceivedConfirmation, type: 'boolean' },
+                    { span: 2, title: 'Delivery Status Notification Processed Timestamp', value: record.dsnProcessedTimestamp, type: 'date' },
+                    { span: 4, title: 'Delivery Status Notification', value: record.emailDsnMessage, type: 'pre' },
+                    { span: 2, title: 'Email Open', value: record.emailStatusUserReadTimestamp, type: 'boolean' },
+                    { span: 2, title: 'Email Open Timestamp', value: record.emailStatusUserReadTimestamp, type: 'date' },
+                    { span: 2, title: 'Email Unsubscribed Timestamp', value: record.emailStatusUnsubscribedTimestamp, type: 'date' },
+                    { span: 2, title: 'Unsubscribe Reason', value: record.emailStatusUnsubscribedReason, type: 'string' },
+                  ]"
+                  >
+                  </grabbill-client-descriptions>
+
+                  <grabbill-client-descriptions
+                    *ngIf="record.whatsappBodyContent"
+                    title="WhatsApp Status"
+                    [items]="[
+                    { span: 4, title: 'Body Content', value: record.whatsappBodyContent, type: 'string' },
+                    { span: 2, title: 'Message Sent', value: record.whatsappStatusSent, type: 'boolean' },
+                    { span: 2, title: 'Message Sent Timestamp', value: record.whatsappStatusSentTimestamp, type: 'date' },
+                    { span: 2, title: 'Message Skip', value: record.whatsappStatusSkip, type: 'boolean' },
+                    { span: 2, title: 'Message Skip Reason', value: record.whatsappStatusSkipReason, type: 'date' },
+                    { span: 2, title: 'Message Delivered', value: record.whatsappStatusDelivered, type: 'boolean' },
+                    { span: 2, title: 'Message Delivered Timestamp', value: record.whatsappStatusDeliveredTimestamp, type: 'date' },
+                    { span: 2, title: 'Message Read', value: record.whatsappStatusRead, type: 'boolean' },
+                    { span: 2, title: 'Message Read Timestamp', value: record.whatsappStatusReadTimestamp, type: 'date' },
+                    { span: 2, title: 'Message Acknowledgement', value: record.whatsappStatusAcknowledge, type: 'boolean' },
+                    { span: 2, title: 'Message Acknowledgement Timestamp', value: record.whatsappStatusAcknowledgeTimestamp, type: 'date' },
+                    { span: 2, title: 'Message Failed', value: record.whatsappStatusFailed, type: 'boolean' },
+                    { span: 2, title: 'Message Failed Timestamp', value: record.whatsappStatusFailedTimestamp, type: 'date' },
+                    { span: 4, title: 'Message Failed Reason', value: record.whatsappStatusFailedMessage, type: 'string' },
+                  ]"
+                  >
+                  </grabbill-client-descriptions>
+
+                  <grabbill-client-descriptions
+                    title="Record Status"
+                    containerClass=""
+                    [items]="[
+                    { span: 2, title: 'Status', value: record.status, type: 'tag', typeFn: getStatusTag, object: record.status },
+                    { span: 2, title: 'Message', value: record.message, type: 'string' },
+                    { span: 2, title: 'Retry Count', value: record.retryCount, type: 'string' },
+                  ]"
+                  >
+                  </grabbill-client-descriptions>
+
+                </nz-card>
+              </nz-tab>
+
+              <nz-tab nzTitle="Email Content">
+                <nz-card>
+                  <div class="pb-8">
+                    <grabbill-client-descriptions
+                      title="Email"
+                      containerClass=""
+                      [items]="[
+                    { span: 2, title: 'From Email', value: transactionalEmailActivity.emailFrom, type: 'string' },
+                    { span: 2, title: 'From Name', value: transactionalEmailActivity.emailFromName, type: 'string' },
+                  ]"
+                    >
+                    </grabbill-client-descriptions>
+                  </div>
+
+                  <div *ngFor="let template of transactionalEmailActivity.mtTransactionalEmailActivityTemplates">
+                    <grabbill-client-descriptions
+                      *ngIf="template.emailTemplateName === record.indexRow.text4"
+                      [title]="template.emailTemplateName"
+                      [items]="[
+                        { span: 4, title: 'Subject', value: template.emailSubject, type: 'string' },
+                        { span: 4, title: 'Template', value: template.emailContent, type: 'html' },
+                      ]"
+                    >
+                    </grabbill-client-descriptions>
+                  </div>
+
+                </nz-card>
+              </nz-tab>
+            </nz-tabset>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+    </div>
+  </ng-container>
+</ng-container>

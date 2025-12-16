@@ -1,0 +1,370 @@
+<div container class="mx-auto" *ngIf="userResult$ | async as userResult">
+  <grabbill-client-page-header
+    title="Users"
+    description="You have {{ userResult.totalItems | number }} users."
+    [buttonTemplate]="buttonTemplate"
+  >
+    <ng-template #buttonTemplate let-user>
+      <button nz-button nzType="primary" (click)="doOpenCreateForm(userResult.totalItems, user.subscription!.maxUser)">
+        Add User
+      </button>
+    </ng-template>
+  </grabbill-client-page-header>
+
+  <div class="pt-8" *ngIf="userPageable$ | async as userPageable">
+    <div class="flex pb-6">
+      <div class="flex-1">
+        <nz-input-group search-group [nzPrefix]="searchIcon">
+          <input type="text" (input)="doSearch($event)" nz-input placeholder="Find by name" />
+        </nz-input-group>
+        <ng-template #searchIcon>
+          <i nz-icon nzType="search" class="mr-2"></i>
+        </ng-template>
+      </div>
+    </div>
+    <nz-table
+      nzBordered
+      [nzData]="userResult.items"
+      [nzFrontPagination]="false"
+      [nzTotal]="userResult.totalItems"
+      [nzPageSize]="userPageable.size"
+      [nzPageIndex]="userPageable.page"
+      (nzQueryParams)="doQuery($event)"
+      [nzLoading]="isTableLoading"
+      nzSize="small"
+      nzTableLayout="fixed"
+    >
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role
+            <span
+              *ngIf="isSaasMode"
+              nz-icon
+              nzType="question-circle"
+              nzTheme="outline"
+              nz-tooltip
+              nzTooltipTitle="Click for more information"
+              (click)="doOpenRoleInfo()"
+            ></span>
+          </th>
+          <th>
+            Codes
+            <span
+              nz-icon
+              nzType="question-circle"
+              nzTheme="outline"
+              nz-tooltip="If code(s) being specified, user only able access to specific Digital Filing / Transactional Email / Email Campaign with the same code"
+            ></span>
+          </th>
+          <th nzWidth="78px">Verified</th>
+          <th nzWidth="124px">Last Signed In</th>
+          <th nzWidth="124px">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of userResult.items; let i = index">
+          <td>{{ data.name }}</td>
+          <td>{{ data.email }}</td>
+          <td>
+            <nz-tag nzColor="blue">{{ data.role }}</nz-tag>
+          </td>
+          <td>
+            <nz-tag *ngFor="let code of data.codes">{{ code }}</nz-tag>
+          </td>
+          <td><i *ngIf="data.verified" nz-icon nzType="check" class="mr-2"></i></td>
+          <td>{{ data.lastLoggedIn | date: dateFormat() }}</td>
+          <td nzRight>
+            <i nz-tooltip="Edit" (click)="doOpenEditForm(data)" nz-icon nzType="edit" class="mr-3"></i>
+            <i nz-tooltip="Delete" (click)="doDeleteUser(data)" nz-icon nzType="delete" class="mr-3"></i>
+            <i nz-tooltip="Reset Password" (click)="doResetPassword(data)" nz-icon nzType="lock" class="mr-3"></i>
+            <i
+              nz-tooltip="Click to deactivate user"
+              *ngIf="data.active"
+              green
+              (click)="doDeactivateUser(data)"
+              nz-icon
+              nzType="poweroff"
+            ></i>
+            <i
+              nz-tooltip="Click to activate user"
+              *ngIf="!data.active"
+              red
+              (click)="doActivateUser(data)"
+              nz-icon
+              nzType="poweroff"
+            ></i>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+    <div *ngIf="isSaasMode">Remark: Maximum {{user!.subscription!.maxUser}} users include owner email.</div>
+  </div>
+
+  <div *ngIf="roles$ | async as roles">
+    <nz-drawer
+      [nzBodyStyle]="{ overflow: 'auto' }"
+      [nzWidth]="540"
+      [nzClosable]="false"
+      [nzVisible]="isCreateFormVisible"
+      nzTitle="Add New User"
+      [nzFooter]="createFooterTemplate"
+      (nzOnClose)="closeCreateForm()"
+    >
+      <form nz-form *nzDrawerContent [formGroup]="createForm" nzLayout="vertical">
+        <div>
+          <div>
+            <nz-form-item>
+              <nz-form-label nzRequired>Name</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['name'])">
+                <input nz-input formControlName="name" placeholder="Please enter name" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div>
+            <nz-form-item>
+              <nz-form-label nzRequired>Email</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['email'])">
+                <nz-input-group>
+                  <input type="text" formControlName="email" nz-input placeholder="Please enter email address" />
+                </nz-input-group>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div>
+            <nz-form-item>
+              <nz-form-label nzRequired
+                >Role&nbsp;
+                <span
+                  *ngIf="isSaasMode"
+                  nz-icon
+                  nzType="question-circle"
+                  nzTheme="outline"
+                  nz-tooltip
+                  nzTooltipTitle="Click for more information"
+                  (click)="doOpenRoleInfo()"
+                ></span>
+              </nz-form-label>
+              <nz-form-control [nzErrorTip]="getErrorMessage(createForm.controls['role'])">
+                <nz-select formControlName="role" nzPlaceHolder="Select role">
+                  <nz-option
+                    *ngFor="let roleName of getRoles(roles)"
+                    [nzValue]="roleName"
+                    [nzLabel]="roleName"
+                  ></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div>
+            <nz-form-item>
+              <nz-form-label
+                >Codes&nbsp;
+                <span
+                  nz-icon
+                  nzType="question-circle"
+                  nzTheme="outline"
+                  nz-tooltip
+                  nzTooltipTitle="If code(s) being specified, user can access to specific Digital Filing / Transactional Email / Email Campaign / WhatsApp / SMS with the same code."
+                ></span
+              ></nz-form-label>
+              <nz-form-control [nzErrorTip]="getErrorMessage(createForm.controls['codes'])">
+                <input nz-input type="hidden" formControlName="codes" />
+                <nz-tag
+                  *ngFor="let tag of createForm.get('codes')!.value"
+                  nzMode="closeable"
+                  (nzOnClose)="handleRemoveCode(createForm, tag)"
+                >
+                  {{ tag }}
+                </nz-tag>
+                <nz-tag *ngIf="!newCodeInputVisible" class="editable-tag" nzNoAnimation (click)="doAddCode(true)">
+                  <span nz-icon nzType="plus"></span> New Code
+                </nz-tag>
+                <input
+                  #createFormAddCodeInputElement
+                  [formControl]="createFormCodeInput"
+                  nz-input
+                  nzSize="small"
+                  *ngIf="newCodeInputVisible"
+                  type="text"
+                  style="width: 78px"
+                  (blur)="handleAddCode(createForm, createFormCodeInput)"
+                  (keydown.enter)="handleAddCode(createForm, createFormCodeInput)"
+                />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+      </form>
+
+      <ng-template #createFooterTemplate>
+        <div class="text-right">
+          <button
+            nz-button
+            [nzLoading]="isCreateFormLoading"
+            nzType="primary"
+            [disabled]="!createForm.valid"
+            (click)="doCreateUser()"
+          >
+            Create New User
+          </button>
+        </div>
+      </ng-template>
+    </nz-drawer>
+
+    <nz-drawer
+      [nzBodyStyle]="{ overflow: 'auto' }"
+      [nzWidth]="540"
+      [nzClosable]="false"
+      [nzVisible]="isEditFormVisible"
+      nzTitle="Update User"
+      [nzFooter]="editFooterTemplate"
+      (nzOnClose)="closeEditForm()"
+    >
+      <form nz-form *nzDrawerContent [formGroup]="editForm" nzLayout="vertical">
+        <div>
+          <div>
+            <input nz-input type="hidden" formControlName="id" />
+            <nz-form-item>
+              <nz-form-label nzRequired>Name</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(editForm.controls['name'])">
+                <input nz-input formControlName="name" placeholder="Please enter name" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div>
+            <nz-form-item>
+              <nz-form-label nzRequired>Email</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(editForm.controls['email'])">
+                <nz-input-group>
+                  <input type="text" formControlName="email" nz-input placeholder="Please enter email address" />
+                </nz-input-group>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div>
+            <nz-form-item>
+              <nz-form-label nzRequired>Role&nbsp;
+                <span
+                  nz-icon
+                  nzType="question-circle"
+                  nzTheme="outline"
+                  nz-tooltip
+                  nzTooltipTitle="Click for more information"
+                  (click)="doOpenRoleInfo()"
+                ></span></nz-form-label>
+              <nz-form-control [nzErrorTip]="getErrorMessage(editForm.controls['role'])">
+                <nz-select formControlName="role" nzPlaceHolder="Select role">
+                  <nz-option
+                    *ngFor="let roleName of getRoles(roles)"
+                    [nzValue]="roleName"
+                    [nzLabel]="roleName"
+                  ></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div>
+            <nz-form-item>
+              <nz-form-label
+                >Codes&nbsp;
+                <span
+                  nz-icon
+                  nzType="question-circle"
+                  nzTheme="outline"
+                  nz-tooltip
+                  nzTooltipTitle="Restrict user access to specific Digital Filing / Transactional Email / Email Campaign with these codes"
+                ></span
+              ></nz-form-label>
+              <nz-form-control [nzErrorTip]="getErrorMessage(editForm.controls['codes'])">
+                <input nz-input type="hidden" formControlName="codes" />
+                <nz-tag
+                  *ngFor="let tag of editForm.get('codes')!.value"
+                  nzMode="closeable"
+                  (nzOnClose)="handleRemoveCode(editForm, tag)"
+                >
+                  {{ tag }}
+                </nz-tag>
+                <nz-tag *ngIf="!newCodeInputVisible" class="editable-tag" nzNoAnimation (click)="doAddCode(false)">
+                  <span nz-icon nzType="plus"></span> New Code
+                </nz-tag>
+                <input
+                  #editFormAddCodeInputElement
+                  [formControl]="editFormCodeInput"
+                  nz-input
+                  nzSize="small"
+                  *ngIf="newCodeInputVisible"
+                  type="text"
+                  style="width: 78px"
+                  (blur)="handleAddCode(editForm, editFormCodeInput)"
+                  (keydown.enter)="handleAddCode(editForm, editFormCodeInput)"
+                />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+      </form>
+
+      <ng-template #editFooterTemplate>
+        <div class="text-right">
+          <button
+            nz-button
+            [nzLoading]="isEditFormLoading"
+            nzType="primary"
+            [disabled]="!editForm.valid"
+            (click)="doUpdateUser()"
+          >
+            Update User
+          </button>
+        </div>
+      </ng-template>
+    </nz-drawer>
+
+    <nz-modal
+      [nzVisible]="isRoleInfoVisible"
+      [nzContent]="modalContent"
+      [nzFooter]="modalFooter"
+      (nzOnCancel)="handleRoleInfoOk()"
+      nzTitle="Roles"
+      nzWidth="80%"
+    >
+      <ng-template #modalContent>
+        <nz-table
+          nzBordered
+          [nzData]="items"
+          [nzFrontPagination]="false"
+          nzSize="small"
+          nzTableLayout="fixed"
+        >
+          <thead>
+          <tr>
+            <th>Role</th>
+            <th>Owner</th>
+            <th>Admin</th>
+            <th>Manager</th>
+            <th>Author</th>
+            <th>Viewer</th>
+          </tr>
+          </thead>
+          <tbody>
+          <ng-container  *ngFor="let current of items; let i = index">
+            <tr *ngIf="!current.mode || current.mode === deploymentMode">
+              <td class="bg-slate-50">{{ current.item }}</td>
+              <td>{{ current.owner }}</td>
+              <td>{{ current.admin }}</td>
+              <td>{{ current.manager }}</td>
+              <td>{{ current.author }}</td>
+              <td>{{ current.viewer }}</td>
+            </tr>
+          </ng-container>
+          </tbody>
+        </nz-table>
+      </ng-template>
+
+      <ng-template #modalFooter>
+        <button nz-button nzType="primary" (click)="handleRoleInfoOk()">OK</button>
+      </ng-template>
+    </nz-modal>
+  </div>
+</div>

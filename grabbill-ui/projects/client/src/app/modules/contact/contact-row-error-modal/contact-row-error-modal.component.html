@@ -1,0 +1,34 @@
+<nz-modal
+  [nzVisible]="isVisible"
+  nzTitle="Upload Errors"
+  [nzWidth]="'80%'"
+  (nzOnCancel)="doCloseContactRowErrorModal()"
+>
+  <div *nzModalContent>
+    <div>
+      <div class="pb-2">Total Rows: {{ contacts.length }}</div>
+      <div class="pb-2">Total Errors: {{ contactRowErrors.length }}</div>
+    </div>
+    <div error-table>
+      <nz-table [nzData]="contactRowErrors" [nzShowPagination]="false">
+        <thead>
+        <tr>
+          <th>Row</th>
+          <th>Errors</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of contactRowErrors">
+          <td>{{ data.row }}</td>
+          <td>
+            <div *ngFor="let message of data.messages">{{ message }}</div>
+          </td>
+        </tr>
+        </tbody>
+      </nz-table>
+    </div>
+  </div>
+  <div *nzModalFooter>
+    <button type="button" nz-button nzType="primary" (click)="doCloseContactRowErrorModal()">Close</button>
+  </div>
+</nz-modal>

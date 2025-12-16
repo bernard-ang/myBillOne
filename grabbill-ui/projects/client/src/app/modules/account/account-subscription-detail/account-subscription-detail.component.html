@@ -1,0 +1,112 @@
+<ng-container>
+  <div container class="mx-auto">
+    <div class="mb-4">
+      <nz-breadcrumb>
+        <nz-breadcrumb-item [routerLink]="['/']">
+          <a><i nz-icon class="cursor-pointer" nzType="home"></i></a>
+        </nz-breadcrumb-item>
+        <nz-breadcrumb-item [routerLink]="['/', 'account', 'plan']" [queryParams]="{ tab: 'subscription-history' }">
+          <a>
+            <i nz-icon nzType="solution"></i>
+            <span>Plan</span>
+          </a>
+        </nz-breadcrumb-item>
+      </nz-breadcrumb>
+    </div>
+
+    <ng-template #elseActivity>
+      <nz-skeleton [nzActive]="true" [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+    </ng-template>
+    <ng-container *ngIf="invoice$ | async as invoice; else elseActivity">
+      <div class="flex">
+        <div class="flex-grow mb-8">
+          <h2 nz-typography title>{{ invoice.planName }} Plan</h2>
+        </div>
+      </div>
+
+      <div class="pb-8">
+        <h5 nz-typography>Subscription Information</h5>
+        <nz-descriptions
+          nzBordered
+          [nzColumn]="{ xxl: 4, xl: 4, lg: 4, md: 4, sm: 4, xs: 2 }"
+        >
+          <nz-descriptions-item nzTitle="Start Date" [nzSpan]="2">{{
+            invoice.accountSubscription.startDate | date: dateFormat()
+            }}</nz-descriptions-item>
+          <nz-descriptions-item nzTitle="End Date" [nzSpan]="2">{{
+            invoice.accountSubscription.endDate | date: dateFormat()
+            }}</nz-descriptions-item>
+
+          <nz-descriptions-item nzTitle="Mode" [nzSpan]="2">{{
+            invoice.accountSubscription.mode
+            }}</nz-descriptions-item>
+        </nz-descriptions>
+      </div>
+
+      <ng-template #no><i nz-icon nzType="close"></i></ng-template>
+
+      <div class="pb-8">
+        <h5 nz-typography>Plan Information</h5>
+        <nz-descriptions
+          nzBordered
+          [nzColumn]="{ xxl: 4, xl: 4, lg: 4, md: 4, sm: 4, xs: 2 }"
+        >
+          <nz-descriptions-item nzTitle="Storage Size" [nzSpan]="2">{{
+            formatBytes(invoice.accountSubscription.storageSize)
+            }}</nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Storage Price" [nzSpan]="2"
+          >RM{{ invoice.accountSubscription.storagePrice | number: "1.2" }}</nz-descriptions-item
+          >
+          <nz-descriptions-item nzTitle="Transactional Email Size" [nzSpan]="2">{{
+            invoice.accountSubscription.transactionalEmailSize | number: "1.0"
+            }}</nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Transactional Email Price" [nzSpan]="2"
+          >RM{{ invoice.accountSubscription.transactionalEmailPrice | number: "1.2" }}</nz-descriptions-item
+          >
+          <nz-descriptions-item nzTitle="Email Campaign Size" [nzSpan]="2">{{
+            invoice.accountSubscription.emailCampaignSize | number: "1.0"
+            }}</nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Email Campaign Price" [nzSpan]="2"
+          >RM{{ invoice.accountSubscription.emailCampaignPrice | number: "1.2" }}</nz-descriptions-item
+          >
+          <nz-descriptions-item nzTitle="Max Attachment Size" [nzSpan]="2">
+            {{formatBytes(invoice.accountSubscription.maxAttachmentSize)}}
+          </nz-descriptions-item>
+          <nz-descriptions-item nzTitle="myBillOne Logo" [nzSpan]="2">
+            <i *ngIf="invoice.accountSubscription.grabbillLogo; else no" nz-icon nzType="check" class="mr-2"></i>
+          </nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Custom Mail Server" [nzSpan]="2">
+            <i *ngIf="invoice.accountSubscription.customSmtp; else no" nz-icon nzType="check" class="mr-2"></i>
+          </nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Max Users" [nzSpan]="2">
+            {{invoice.accountSubscription.maxUser}} users
+          </nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Support" [nzSpan]="2">
+            {{invoice.accountSubscription.supportDays}} days support
+          </nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Reporting" [nzSpan]="2">
+            <i *ngIf="invoice.accountSubscription.reporting; else no" nz-icon nzType="check" class="mr-2"></i>
+          </nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Schedule Email" [nzSpan]="2">
+            <i *ngIf="invoice.accountSubscription.scheduleEmail; else no" nz-icon nzType="check" class="mr-2"></i>
+          </nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Export Files" [nzSpan]="2">
+            <i *ngIf="invoice.accountSubscription.exportFile; else no" nz-icon nzType="check" class="mr-2"></i>
+          </nz-descriptions-item>
+        </nz-descriptions>
+      </div>
+
+      <div class="pb-8">
+        <h5 nz-typography>Invoice Information</h5>
+        <nz-descriptions nzBordered [nzColumn]="{ xxl: 4, xl: 4, lg: 4, md: 4, sm: 4, xs: 2 }">
+          <nz-descriptions-item nzTitle="Invoice No" [nzSpan]="2" *ngIf="invoice.invoiceNo">
+            <a [routerLink]="['/', 'account', 'invoice', invoice.id]">{{ invoice.invoiceNo }}</a>
+          </nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Invoice No" [nzSpan]="2" *ngIf="!invoice.invoiceNo">-</nz-descriptions-item>
+          <nz-descriptions-item nzTitle="Total Amount" [nzSpan]="2">
+            RM{{ invoice.totalAmountWithTax | number: "1.2" }}</nz-descriptions-item>
+        </nz-descriptions>
+      </div>
+    </ng-container>
+  </div>
+</ng-container>

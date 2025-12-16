@@ -1,0 +1,279 @@
+<ng-container>
+  <div container class="mx-auto">
+    <grabbill-client-breadcrumb
+      rootTitle="Transactional Email"
+      [rootLink]="['/', 'transactional-email', 'list']"
+      [hasCrumb2]="true"
+      [crumb2Object]="transactionalEmailType$ | async"
+      [crumb2Link]="['/', 'transactional-email', 'detail', typeId]"
+      [crumb2QueryParam]="{ tab: 'activities' }"
+    >
+    </grabbill-client-breadcrumb>
+
+    <ng-template #elseActivity>
+      <nz-skeleton [nzActive]="true" [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+    </ng-template>
+    <ng-container *ngIf="transactionalEmailActivity$ | async as transactionalEmailActivity; else elseActivity">
+      <ng-container *ngIf="transactionalEmailType$ | async as transactionalEmailType">
+        <div class="mb-4">
+          <grabbill-client-page-header
+            [title]="transactionalEmailActivity.name"
+            [subtitle]="getCode(transactionalEmailType)"
+          ></grabbill-client-page-header>
+        </div>
+
+        <grabbill-client-email-stat
+          [emailTotal]="transactionalEmailActivity.emailTotal"
+          [emailSent]="transactionalEmailActivity.emailStatusSent"
+          [emailOpened]="transactionalEmailActivity.emailStatusOpened"
+          [emailBounced]="transactionalEmailActivity.emailStatusBounced"
+          [emailUnsubscribed]="transactionalEmailActivity.emailStatusUnsubscribed"
+          [emailSkip]="transactionalEmailActivity.emailStatusBouncedSkip + transactionalEmailActivity.emailStatusUnsubscribedSkip"
+        >
+        </grabbill-client-email-stat>
+
+        <nz-tabset nzSize="large" nzLinkRouter>
+          <nz-tab>
+            <a
+              *nzTabLink
+              nz-tab-link
+              [routerLink]="['.']"
+              [queryParams]="{ tab: 'records' }"
+              queryParamsHandling="merge"
+            >
+              Records
+            </a>
+            <div class="flex pb-4">
+              <div class="flex-1">
+                <nz-input-group [nzPrefix]="searchIcon">
+                  <input type="text" nz-input placeholder="Find by record email" (input)="doSearch($event)" />
+                </nz-input-group>
+                <ng-template #searchIcon>
+                  <i nz-icon nzType="search" class="mr-2"></i>
+                </ng-template>
+              </div>
+              <div class="flex-1"></div>
+            </div>
+
+            <nz-table
+              #recordTable
+              nzBordered
+              [nzShowPagination]="true"
+              [nzData]="getFilterRecords(transactionalEmailActivity.records)"
+              nzSize="small"
+              nzTableLayout="fixed"
+            >
+              <thead>
+                <tr>
+                  <th nzWidth="44px">No</th>
+                  <th>Date</th>
+                  <th>Email</th>
+                  <th>Record Status</th>
+                  <th>
+                    Email Statuses
+                    <i
+                      nz-tooltip
+                      nzTooltipTitle="There are 6 statuses available: Sent, Unsubscribed Skip, Bounced Skip, Hard Bounced, Soft Bounced, Opened"
+                      nz-icon
+                      nzType="info-circle"
+                      nzTheme="outline"
+                    ></i>
+                  </th>
+                  <th *ngIf="transactionalEmailActivity.sendWhatsAppMessage">
+                    WhatsApp Statuses
+                    <i
+                      nz-tooltip
+                      nzTooltipTitle="There are 6 statuses available: Sent, Delivered, Skip, Read, Acknowledge, Failed"
+                      nz-icon
+                      nzType="info-circle"
+                      nzTheme="outline"
+                    ></i>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let data of recordTable.data; let i = index">
+                  <td>{{ data.indexRow.seqOrder }}</td>
+                  <td>{{ data.processedTimestamp | date: "medium" }}</td>
+                  <td>
+                    <a
+                      [routerLink]="[
+                        '/',
+                        'transactional-email',
+                        'detail',
+                        typeId,
+                        'activity',
+                        activityId,
+                        'record',
+                        data.id
+                      ]"
+                      >{{ data.indexRow.text1 }}
+                    </a>
+                  </td>
+                  <td>
+                    <nz-tag [nzColor]="getStatusTag(data.status)">{{ data.status }}</nz-tag>
+                  </td>
+                  <td>
+                    <nz-tag *ngIf="data.emailStatusSent" nzColor="success">Sent</nz-tag>
+                    <nz-tag *ngIf="data.emailStatusSkipUnsubscribed" nzColor="warning">Unsubscribed Skip</nz-tag>
+                    <nz-tag *ngIf="data.emailStatusSkipBounced" nzColor="warning">Bounced Skip</nz-tag>
+                    <nz-tag *ngIf="data.emailStatusHardBounce" nzColor="error">Hard Bounced</nz-tag>
+                    <nz-tag *ngIf="data.emailStatusSoftBounce" nzColor="error">Soft Bounced</nz-tag>
+                    <nz-tag *ngIf="data.emailStatusUserReadTimestamp" nzColor="success">Opened</nz-tag>
+                  </td>
+                  <td *ngIf="transactionalEmailActivity.sendWhatsAppMessage">
+                    <nz-tag *ngIf="data.whatsappStatusSent" nzColor="success">Sent</nz-tag>
+                    <nz-tag *ngIf="data.whatsappStatusDelivered" nzColor="success">Delivered</nz-tag>
+                    <nz-tag *ngIf="data.whatsappStatusSkip" nzColor="warning">Skip</nz-tag>
+                    <nz-tag *ngIf="data.whatsappStatusRead" nzColor="success">Read</nz-tag>
+                    <nz-tag *ngIf="data.whatsappStatusAcknowledge" nzColor="success">Acknowledge</nz-tag>
+                    <nz-tag *ngIf="data.whatsappStatusFailed" [nz-tooltip]="data.whatsappStatusFailedMessage" nzColor="error">Failed</nz-tag>
+                  </td>
+                </tr>
+              </tbody>
+            </nz-table>
+          </nz-tab>
+          <nz-tab>
+            <a *nzTabLink nz-tab-link [routerLink]="['.']" [queryParams]="{ tab: 'email' }" queryParamsHandling="merge">
+              Email
+            </a>
+            <nz-card>
+              <grabbill-client-descriptions
+                title="Email"
+                containerClass=""
+                [items]="[
+                  { span: 2, title: 'From Email', value: transactionalEmailActivity.emailFrom, type: 'string' },
+                  { span: 2, title: 'From Name', value: transactionalEmailActivity.emailFromName, type: 'string' },
+                  { span: 4, title: 'Subject', value: transactionalEmailActivity.emailSubject, type: 'string' },
+                  { span: 4, title: 'Content', value: transactionalEmailType.emailContent, type: 'html' }
+                ]"
+              >
+              </grabbill-client-descriptions>
+            </nz-card>
+          </nz-tab>
+          <nz-tab>
+            <a *nzTabLink nz-tab-link [routerLink]="['.']" [queryParams]="{ tab: 'url-click' }" queryParamsHandling="merge">
+              URL Click
+            </a>
+            <div class="pb-4">
+              <nz-table
+                nzBordered
+                [nzShowPagination]="false"
+                [nzData]="transactionalEmailActivity.embeddedLinks"
+                nzSize="small"
+                nzTableLayout="fixed"
+              >
+                <thead>
+                <tr>
+                  <th>URL</th>
+                  <th>Total Unique Click</th>
+                  <th>Total Clicks</th>
+                </tr>
+                </thead>
+                <tbody>
+                <ng-container *ngFor="let data of transactionalEmailActivity.embeddedLinks; let i = index">
+                  <tr>
+                    <td>{{ data.url }}</td>
+                    <td>{{ data.totalUniqueClicks }}</td>
+                    <td>{{ data.totalClicks }}</td>
+                  </tr>
+                </ng-container>
+                </tbody>
+              </nz-table>
+            </div>
+          </nz-tab>
+          <nz-tab *ngIf="transactionalEmailActivity.sendWhatsAppMessage">
+            <a *nzTabLink nz-tab-link [routerLink]="['.']" [queryParams]="{ tab: 'whatsapp' }" queryParamsHandling="merge">
+              WhatsApp
+            </a>
+            <nz-card>
+              <grabbill-client-descriptions
+                containerClass=""
+                [items]="[
+                  { span: 2, title: 'Template Name', value: transactionalEmailActivity.whatsAppTemplateName, type: 'string' },
+                  { span: 2, title: 'Attachment', value: transactionalEmailActivity.whatsAppDocument, type: 'boolean' },
+                  { span: 4, title: 'Body', value: transactionalEmailActivity.whatsAppBodyContent, type: 'string' },
+                  { span: 4, title: 'Footer', value: transactionalEmailActivity.whatsAppFooterContent, type: 'string' },
+                  { span: 4, title: 'Button', value: transactionalEmailActivity.whatsAppButton, type: 'string' }
+                ]"
+              >
+              </grabbill-client-descriptions>
+            </nz-card>
+          </nz-tab>
+          <nz-tab>
+            <a *nzTabLink nz-tab-link [routerLink]="['.']" [queryParams]="{ tab: 'info' }" queryParamsHandling="merge">
+              Info
+            </a>
+            <nz-card>
+              <grabbill-client-descriptions
+                [items]="[
+                  {
+                    span: 2,
+                    title: 'Status',
+                    value: transactionalEmailActivity.status,
+                    type: 'tag',
+                    typeFn: getStatusTag,
+                    object: transactionalEmailActivity.status
+                  },
+                  {
+                    span: 2,
+                    title: 'Message',
+                    value: transactionalEmailActivity.message,
+                    type: 'string'
+                  },
+                  {
+                    span: 2,
+                    title: 'Expected purged at',
+                    value: transactionalEmailActivity.expectedPurgedTimestamp,
+                    type: 'date'
+                  },
+                  { span: 2, title: 'Purged at', value: transactionalEmailActivity.purgedTimestamp, type: 'date' },
+                  {
+                    span: 2,
+                    title: 'Scheduled at',
+                    value: transactionalEmailActivity.scheduledTimestamp,
+                    type: 'date'
+                  },
+                  {
+                    span: 2,
+                    title: 'Submitted at',
+                    value: transactionalEmailActivity.submittedTimestamp,
+                    type: 'date'
+                  },
+                  {
+                    span: 2,
+                    title: 'Processing at',
+                    value: transactionalEmailActivity.processingTimestamp,
+                    type: 'date'
+                  },
+                  {
+                    span: 2,
+                    title: 'Processed at',
+                    value: transactionalEmailActivity.processedTimestamp,
+                    type: 'date'
+                  },
+                  { span: 2, title: 'Error at', value: transactionalEmailActivity.errorTimestamp, type: 'date' },
+                  { span: 2, title: 'Created by', value: transactionalEmailActivity.createdBy, type: 'string' },
+                  { span: 2, title: 'Created at', value: transactionalEmailActivity.createdDate, type: 'date' },
+                  {
+                    span: 2,
+                    title: 'Last updated by',
+                    value: transactionalEmailActivity.lastModifiedBy,
+                    type: 'string'
+                  },
+                  {
+                    span: 2,
+                    title: 'Last updated at',
+                    value: transactionalEmailActivity.lastModifiedDate,
+                    type: 'date'
+                  }
+                ]"
+              >
+              </grabbill-client-descriptions>
+            </nz-card>
+          </nz-tab>
+        </nz-tabset>
+      </ng-container>
+    </ng-container>
+  </div>
+</ng-container>

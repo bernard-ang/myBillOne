@@ -1,0 +1,213 @@
+<ng-container>
+  <div container class="mx-auto">
+    <grabbill-client-breadcrumb
+      rootTitle="WhatsApp"
+      [rootLink]="['/', 'whatsapp', 'list']"
+      [hasCrumb2]="true"
+      [crumb2Object]="whatsAppType$ | async"
+      [crumb2Link]="['/', 'whatsapp', 'detail', typeId]"
+      [crumb2QueryParam]="{ tab: 'activities' }"
+    >
+    </grabbill-client-breadcrumb>
+
+    <ng-template #elseActivity>
+      <nz-skeleton [nzActive]="true" [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+    </ng-template>
+    <ng-container *ngIf="whatsAppActivity$ | async as whatsAppActivity; else elseActivity">
+      <ng-container *ngIf="whatsAppType$ | async as whatsAppType">
+        <div class="mb-4">
+          <grabbill-client-page-header
+            [title]="whatsAppActivity.name"
+            [subtitle]="getCode(whatsAppType)"
+          ></grabbill-client-page-header>
+        </div>
+
+        <grabbill-client-whatsapp-stat
+          [total]="whatsAppActivity.indexRows.length"
+          [totalSent]="whatsAppActivity.whatsAppStatusSent"
+          [totalDelivered]="whatsAppActivity.whatsAppStatusDelivered"
+          [totalRead]="whatsAppActivity.whatsAppStatusRead"
+          [totalAcknowledge]="whatsAppActivity.whatsAppStatusAcknowledge"
+          [totalSkip]="whatsAppActivity.whatsAppStatusSkip"
+          [totalFailed]="whatsAppActivity.whatsAppStatusSkip"
+        >
+        </grabbill-client-whatsapp-stat>
+
+        <nz-tabset nzSize="large" nzLinkRouter>
+          <nz-tab>
+            <a
+              *nzTabLink
+              nz-tab-link
+              [routerLink]="['.']"
+              [queryParams]="{ tab: 'records' }"
+              queryParamsHandling="merge"
+            >
+              Records
+            </a>
+            <div class="flex pb-4">
+              <div class="flex-1">
+                <nz-input-group [nzPrefix]="searchIcon">
+                  <input type="text" nz-input placeholder="Find by record email" (input)="doSearch($event)" />
+                </nz-input-group>
+                <ng-template #searchIcon>
+                  <i nz-icon nzType="search" class="mr-2"></i>
+                </ng-template>
+              </div>
+              <div class="flex-1"></div>
+            </div>
+
+            <nz-table
+              #recordTable
+              nzBordered
+              [nzShowPagination]="true"
+              [nzData]="getFilterRecords(whatsAppActivity.records)"
+              nzSize="small"
+              nzTableLayout="fixed"
+            >
+              <thead>
+                <tr>
+                  <th nzWidth="44px">No</th>
+                  <th>Date</th>
+                  <th>WhatsApp No</th>
+                  <th>Record Status</th>
+                  <th>
+                    WhatsApp Statuses
+                    <i
+                      nz-tooltip
+                      nzTooltipTitle="There are 6 statuses available: Sent, Delivered, Skip, Read, Acknowledge, Failed"
+                      nz-icon
+                      nzType="info-circle"
+                      nzTheme="outline"
+                    ></i>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let data of recordTable.data; let i = index">
+                  <td>{{ data.indexRow.seqOrder }}</td>
+                  <td>{{ data.processedTimestamp | date: "medium" }}</td>
+                  <td>
+                    <a
+                      [routerLink]="[
+                        '/',
+                        'whatsapp',
+                        'detail',
+                        typeId,
+                        'activity',
+                        activityId,
+                        'record',
+                        data.id
+                      ]"
+                      >{{ data.indexRow.text1 }}
+                    </a>
+                  </td>
+                  <td>
+                    <nz-tag [nzColor]="getStatusTag(data.status)">{{ data.status }}</nz-tag>
+                  </td>
+                  <td>
+                    <nz-tag *ngIf="data.whatsAppStatusSent" nzColor="success">Sent</nz-tag>
+                    <nz-tag *ngIf="data.whatsAppStatusDelivered" nzColor="success">Delivered</nz-tag>
+                    <nz-tag *ngIf="data.whatsAppStatusSkip" nzColor="warning">Skip</nz-tag>
+                    <nz-tag *ngIf="data.whatsAppStatusRead" nzColor="success">Read</nz-tag>
+                    <nz-tag *ngIf="data.whatsAppStatusAcknowledge" nzColor="success">Acknowledge</nz-tag>
+                    <nz-tag *ngIf="data.whatsAppStatusFailed" [nz-tooltip]="data.whatsAppStatusFailedMessage" nzColor="error">Failed</nz-tag>
+                  </td>
+                </tr>
+              </tbody>
+            </nz-table>
+          </nz-tab>
+          <nz-tab>
+            <a *nzTabLink nz-tab-link [routerLink]="['.']" [queryParams]="{ tab: 'whatsapp' }" queryParamsHandling="merge">
+              WhatsApp
+            </a>
+            <nz-card>
+              <grabbill-client-descriptions
+                containerClass=""
+                [items]="[
+                  { span: 4, title: 'Template Name', value: whatsAppActivity.whatsappTemplateName, type: 'string' },
+                  { span: 4, title: 'Attachment', value: whatsAppActivity.whatsappDocument, type: 'boolean' },
+                  { span: 4, title: 'Body', value: whatsAppActivity.whatsappBodyContent, type: 'string' },
+                  { span: 4, title: 'Footer', value: whatsAppActivity.whatsappFooterContent, type: 'string' },
+                  { span: 4, title: 'Button', value: whatsAppActivity.whatsappButton, type: 'string' }
+                ]"
+              >
+              </grabbill-client-descriptions>
+            </nz-card>
+          </nz-tab>
+          <nz-tab>
+            <a *nzTabLink nz-tab-link [routerLink]="['.']" [queryParams]="{ tab: 'info' }" queryParamsHandling="merge">
+              Info
+            </a>
+            <nz-card>
+              <grabbill-client-descriptions
+                [items]="[
+                  {
+                    span: 2,
+                    title: 'Status',
+                    value: whatsAppActivity.status,
+                    type: 'tag',
+                    typeFn: getStatusTag,
+                    object: whatsAppActivity.status
+                  },
+                  {
+                    span: 2,
+                    title: 'Message',
+                    value: whatsAppActivity.message,
+                    type: 'string'
+                  },
+                  {
+                    span: 2,
+                    title: 'Expected purged at',
+                    value: whatsAppActivity.expectedPurgedTimestamp,
+                    type: 'date'
+                  },
+                  { span: 2, title: 'Purged at', value: whatsAppActivity.purgedTimestamp, type: 'date' },
+                  {
+                    span: 2,
+                    title: 'Scheduled at',
+                    value: whatsAppActivity.scheduledTimestamp,
+                    type: 'date'
+                  },
+                  {
+                    span: 2,
+                    title: 'Submitted at',
+                    value: whatsAppActivity.submittedTimestamp,
+                    type: 'date'
+                  },
+                  {
+                    span: 2,
+                    title: 'Processing at',
+                    value: whatsAppActivity.processingTimestamp,
+                    type: 'date'
+                  },
+                  {
+                    span: 2,
+                    title: 'Processed at',
+                    value: whatsAppActivity.processedTimestamp,
+                    type: 'date'
+                  },
+                  { span: 2, title: 'Error at', value: whatsAppActivity.errorTimestamp, type: 'date' },
+                  { span: 2, title: 'Created by', value: whatsAppActivity.createdBy, type: 'string' },
+                  { span: 2, title: 'Created at', value: whatsAppActivity.createdDate, type: 'date' },
+                  {
+                    span: 2,
+                    title: 'Last updated by',
+                    value: whatsAppActivity.lastModifiedBy,
+                    type: 'string'
+                  },
+                  {
+                    span: 2,
+                    title: 'Last updated at',
+                    value: whatsAppActivity.lastModifiedDate,
+                    type: 'date'
+                  }
+                ]"
+              >
+              </grabbill-client-descriptions>
+            </nz-card>
+          </nz-tab>
+        </nz-tabset>
+      </ng-container>
+    </ng-container>
+  </div>
+</ng-container>

@@ -1,0 +1,198 @@
+<ng-container>
+  <div container class="mx-auto">
+    <grabbill-client-breadcrumb rootTitle="Job" [rootLink]="['/', 'account', 'jobs']"></grabbill-client-breadcrumb>
+
+    <ng-template #elseActivity>
+      <nz-skeleton [nzActive]="true" [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+    </ng-template>
+
+    <ng-container *ngIf="job$ | async as job; else elseActivity">
+      <div class="mb-4">
+        <grabbill-client-page-header [title]="job.activityName"></grabbill-client-page-header>
+      </div>
+
+      <nz-card>
+        <grabbill-client-descriptions
+          title="Information"
+          [items]="[
+            { span: 2, title: 'Domain', value: job.domainType, type: 'string' },
+            { span: 2, title: 'Type', value: job.typeName, type: 'string' },
+            {
+              span: 2,
+              title: 'Status',
+              value: job.status,
+              type: 'tag',
+              typeFn: getStatusTag,
+              object: job.status
+            },
+            {
+              span: 2,
+              title: 'Account',
+              value: job.accountName,
+              type: 'string'
+            },
+            {
+              span: 2,
+              title: 'Event Type',
+              value: job.eventType,
+              type: 'string'
+            },
+            {
+              span: 2,
+              title: 'Execution Mode',
+              value: job.executionMode,
+              type: 'string'
+            },
+            {
+              span: 2,
+              title: 'Reason',
+              value: job.reason,
+              type: 'string'
+            },
+            {
+              span: 2,
+              title: 'Scheduled at',
+              value: job.scheduledExecutionTimestamp,
+              type: 'date'
+            },
+            {
+              span: 2,
+              title: 'Processing at',
+              value: job.executionStartTimestamp,
+              type: 'date'
+            },
+            {
+              span: 2,
+              title: 'Processed at',
+              value: job.executionEndTimestamp,
+              type: 'date'
+            },
+            { span: 2, title: 'Created by', value: job.createdBy, type: 'string' },
+            { span: 2, title: 'Created at', value: job.createdTimestamp, type: 'date' }
+          ]"
+        >
+        </grabbill-client-descriptions>
+
+        <div *ngIf="job.domainType === 'DIGITAL_FILING'">
+          <div>
+            <grabbill-client-descriptions
+              title="Record Status"
+              [items]="[{ span: 2, title: 'Total records', value: job.digitalFiling!.totalRecords, type: 'number' }]"
+            >
+            </grabbill-client-descriptions>
+          </div>
+        </div>
+
+        <div *ngIf="job.domainType === 'TRANSACTIONAL_EMAIL' && job.transactionalEmail">
+          <div class="pb-8">
+            <grabbill-client-descriptions
+              title="Record Status"
+              [items]="[
+                { span: 2, title: 'Total records', value: job.transactionalEmail.totalRecords, type: 'number' },
+                { span: 2, title: 'Total sent', value: job.transactionalEmail.totalRecordsSent, type: 'number' },
+                { span: 2, title: 'Total bounced', value: job.transactionalEmail.totalRecordsBounced, type: 'number' },
+                { span: 2, title: 'Total skipped', value: job.transactionalEmail.totalRecordsSkipped, type: 'number' }
+              ]"
+            >
+            </grabbill-client-descriptions>
+          </div>
+          <div>
+            <grabbill-client-descriptions
+              title="WhatsApp Record Status"
+              [items]="[
+                { span: 2, title: 'Total sent', value: job.transactionalEmail.whatsAppStatusSent, type: 'number' },
+                { span: 2, title: 'Total skipped', value: job.transactionalEmail.whatsAppStatusSkip, type: 'number' },
+                {
+                  span: 2,
+                  title: 'Total delivered',
+                  value: job.transactionalEmail.whatsAppStatusDelivered,
+                  type: 'number'
+                },
+                { span: 2, title: 'Total read', value: job.transactionalEmail.whatsAppStatusRead, type: 'number' },
+                {
+                  span: 2,
+                  title: 'Total acknowledged',
+                  value: job.transactionalEmail.whatsAppStatusAcknowledge,
+                  type: 'number'
+                },
+                { span: 2, title: 'Total failed', value: job.transactionalEmail.whatsAppStatusFailed, type: 'number' }
+              ]"
+            >
+            </grabbill-client-descriptions>
+          </div>
+        </div>
+
+        <div *ngIf="job.domainType === 'EMAIL_CAMPAIGN' && job.emailCampaign">
+          <div>
+            <grabbill-client-descriptions
+              title="Email Record Status"
+              [items]="[
+                { span: 2, title: 'Total records', value: job.emailCampaign.totalRecords, type: 'number' },
+                { span: 2, title: 'Total sent', value: job.emailCampaign.totalRecordsSent, type: 'number' },
+                { span: 2, title: 'Total bounced', value: job.emailCampaign.totalRecordsBounced, type: 'number' },
+                { span: 2, title: 'Total skipped', value: job.emailCampaign.totalRecordsSkipped, type: 'number' }
+              ]"
+            >
+            </grabbill-client-descriptions>
+          </div>
+        </div>
+
+        <div *ngIf="job.domainType === 'WHATSAPP' && job.whatsApp">
+          <div class="pb-8">
+            <grabbill-client-descriptions
+              title="Settings"
+              [items]="[
+                { span: 2, title: 'Template Name', value: job.whatsApp.whatsAppTemplateName, type: 'string' },
+                { span: 2, title: 'Content', value: job.whatsApp.whatsAppBodyContent, type: 'string' },
+                { span: 2, title: 'Document', value: job.whatsApp.whatsAppDocument, type: 'boolean' },
+                { span: 2, title: 'Footer', value: job.whatsApp.whatsAppFooterContent, type: 'string' },
+                { span: 2, title: 'Button', value: job.whatsApp.whatsAppButton, type: 'string' }
+              ]"
+            >
+            </grabbill-client-descriptions>
+          </div>
+          <div>
+            <grabbill-client-descriptions
+              title="Record Status"
+              [items]="[
+                { span: 2, title: 'Total records', value: job.whatsApp.totalRecords, type: 'number' },
+                { span: 2, title: 'Total sent', value: job.whatsApp.totalRecordsSent, type: 'number' },
+                { span: 2, title: 'Total skipped', value: job.whatsApp.totalRecordsSkipped, type: 'number' },
+                { span: 2, title: 'Total delivered', value: job.whatsApp.totalRecordsDelivered, type: 'number' },
+                { span: 2, title: 'Total read', value: job.whatsApp.totalRecordsRead, type: 'number' },
+                { span: 2, title: 'Total acknowledged', value: job.whatsApp.totalRecordsAcknowledged, type: 'number' },
+                { span: 2, title: 'Total failed', value: job.whatsApp.totalRecordsFailed, type: 'number' }
+              ]"
+            >
+            </grabbill-client-descriptions>
+          </div>
+        </div>
+
+        <div *ngIf="job.domainType === 'SMS' && job.sms">
+          <div class="pb-8">
+            <grabbill-client-descriptions
+              title="Settings"
+              [items]="[
+                { span: 2, title: 'Content', value: job.sms.smsContent, type: 'string' },
+                { span: 2, title: 'From', value: job.sms.smsFrom, type: 'string' }
+              ]"
+            >
+            </grabbill-client-descriptions>
+          </div>
+          <div>
+            <grabbill-client-descriptions
+              title="Record Status"
+              [items]="[
+                { span: 2, title: 'Total records', value: job.sms.totalRecords, type: 'number' },
+                { span: 2, title: 'Total sent', value: job.sms.totalRecordsSent, type: 'number' },
+                { span: 2, title: 'Total credit used', value: job.sms.totalCreditUsed, type: 'number' },
+                { span: 2, title: 'Total failed', value: job.sms.totalRecordsError, type: 'number' }
+              ]"
+            >
+            </grabbill-client-descriptions>
+          </div>
+        </div>
+      </nz-card>
+    </ng-container>
+  </div>
+</ng-container>

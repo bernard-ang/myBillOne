@@ -1,0 +1,47 @@
+<footer>
+  <div info-section>
+    <div>
+      <div vertical-menu class="container mx-auto">
+        <a link nz-button nzType="text" routerLink="/about-us">About Us</a>
+        <a link nz-button nzType="text" routerLink="/privacy-policy">Privacy Policy</a>
+        <a link nz-button nzType="text" routerLink="/terms-of-service">Terms of Service</a>
+      </div>
+      <div class="container mx-auto flex">
+        <div left-content>
+          <div contact-us>Contact Us</div>
+          <div company-name>BillOne Technology Sdn Bhd (201801010895) (1272911-V)</div>
+          <div enquiry-email>
+            Email: {{getSupportEmail()}}<br/>
+            Phone: 1700-81-93-81<br/>
+            Address: 7, Jalan PPU 3A, Pusat Teknologi Sinar Puchong, 47150 Puchong, Selangor.
+          </div>
+          <div *ngIf="hasSocialGroup()"  social-medias-container class="flex">
+            <a title="Facebook" target="_blank" [href]="getFacebookUrl()">
+              <img src="/assets/social-media-fb.png" alt="Facebook" social-media />
+            </a>
+            <a title="Instagram" target="_blank" [href]="getInstagramUrl()">
+              <img src="/assets/social-media-ig.png" alt="Instagram" social-media />
+            </a>
+            <a title="LinkedIn" target="_blank" [href]="getLinkedInUrl()">A
+              <img src="/assets/social-media-in.png" alt="LinkedIn" social-media />
+            </a>
+          </div>
+        </div>
+        <div class="hidden md:block" right-content>
+          <div class="flex items-center">
+            <a link nz-button nzType="text" routerLink="/about-us">About Us</a>
+            <div separator></div>
+            <a link nz-button nzType="text" routerLink="/privacy-policy">Privacy Policy</a>
+            <div separator></div>
+            <a link nz-button nzType="text" routerLink="/terms-of-service">Terms of Service</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div copyright-section>
+    <div class="container mx-auto">
+      <div>Copyright ©2022 BillOne Technology Sdn Bhd. All Right Reserved.</div>
+    </div>
+  </div>
+</footer>

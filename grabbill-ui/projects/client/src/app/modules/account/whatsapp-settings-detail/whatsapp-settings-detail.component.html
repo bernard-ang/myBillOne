@@ -1,0 +1,333 @@
+<div container class="mx-auto">
+  <grabbill-client-page-header title="WhatsApp Settings"></grabbill-client-page-header>
+
+  <nz-tabset nzLinkRouter nzSize="large" *ngIf="account">
+    <nz-tab *ngIf="isOnPremise">
+      <a *nzTabLink nz-tab-link [routerLink]="['.']" [queryParams]="{ tab: 'waba' }" queryParamsHandling="merge">
+        WhatsApp Business Account (WABA)
+      </a>
+      <div>
+        <nz-modal [nzVisible]="isUpdateWabaModalVisible" nzTitle="Update WABA Info" (nzOnCancel)="doCloseUpdateWabaInfoModal()">
+          <div *nzModalContent>
+            <div>
+              <form nz-form [formGroup]="updateWabaForm">
+                <nz-form-item>
+                  <nz-form-label [nzSm]="12" [nzXs]="24" nzRequired>WABA Email</nz-form-label>
+                  <nz-form-control [nzSm]="12" [nzXs]="24" nzHasFeedback [nzErrorTip]="getErrorMessage(updateWabaForm.controls['wabaEmail'])">
+                    <input nz-input formControlName="wabaEmail" placeholder="Please WABA email" />
+                  </nz-form-control>
+                </nz-form-item>
+
+                <nz-form-item>
+                  <nz-form-label [nzSm]="12" [nzXs]="24">WABA Password</nz-form-label>
+                  <nz-form-control [nzSm]="12" [nzXs]="24" nzHasFeedback [nzErrorTip]="getErrorMessage(updateWabaForm.controls['wabaPassword'])"
+                                   nzExtra="Key in password if you want to update password">
+                    <input nz-input formControlName="wabaPassword" placeholder="Please WABA password" type="password" />
+                  </nz-form-control>
+                </nz-form-item>
+
+                <nz-form-item>
+                  <nz-form-label [nzSm]="12" [nzXs]="24">WABA ID</nz-form-label>
+                  <nz-form-control [nzSm]="12" [nzXs]="24" nzHasFeedback [nzErrorTip]="getErrorMessage(updateWabaForm.controls['wabaId'])">
+                    <input nz-input formControlName="wabaId" placeholder="Please WABA ID" />
+                  </nz-form-control>
+                </nz-form-item>
+
+                <nz-form-item>
+                  <nz-form-label [nzSm]="12" [nzXs]="24" nzRequired>WABA GUID</nz-form-label>
+                  <nz-form-control [nzSm]="12" [nzXs]="24" nzHasFeedback [nzErrorTip]="getErrorMessage(updateWabaForm.controls['wabaGuid'])">
+                    <input nz-input formControlName="wabaGuid" placeholder="Please WABA GUID" />
+                  </nz-form-control>
+                </nz-form-item>
+
+                <nz-form-item>
+                  <nz-form-label [nzSm]="12" [nzXs]="24">WABA Name</nz-form-label>
+                  <nz-form-control [nzSm]="12" [nzXs]="24" nzHasFeedback [nzErrorTip]="getErrorMessage(updateWabaForm.controls['wabaName'])">
+                    <input nz-input formControlName="wabaName" placeholder="Please WABA Name" />
+                  </nz-form-control>
+                </nz-form-item>
+
+                <nz-form-item>
+                  <nz-form-label [nzSm]="12" [nzXs]="24">WABA Phone ID</nz-form-label>
+                  <nz-form-control [nzSm]="12" [nzXs]="24" nzHasFeedback [nzErrorTip]="getErrorMessage(updateWabaForm.controls['wabaPhoneId'])">
+                    <input nz-input formControlName="wabaPhoneId" placeholder="Please WABA Phone ID" />
+                  </nz-form-control>
+                </nz-form-item>
+
+                <nz-form-item>
+                  <nz-form-label [nzSm]="12" [nzXs]="24">WABA Phone</nz-form-label>
+                  <nz-form-control [nzSm]="12" [nzXs]="24" nzHasFeedback [nzErrorTip]="getErrorMessage(updateWabaForm.controls['wabaPhone'])">
+                    <input nz-input formControlName="wabaPhone" placeholder="Please WABA Phone" />
+                  </nz-form-control>
+                </nz-form-item>
+              </form>
+            </div>
+          </div>
+          <div *nzModalFooter>
+            <button nz-button nzType="primary" [nzLoading]="isUpdateWabaFormLoading" (click)="doUpdateWabaInfo()">Update</button>
+          </div>
+        </nz-modal>
+
+        <div>
+          <div class="text-right mb-4">
+            <button class="mr-2" nz-button (click)="doOpenUpdateWabaInfoModal(account)">Update WABA Information</button>
+            <button [disabled]="!account.wabaEmail" nz-button (click)="doTestWabaLogin()">Test WABA Login</button>
+          </div>
+          <nz-card>
+            <div>
+              <nz-descriptions nzBordered [nzColumn]="{ xxl: 2, xl: 2, lg: 2, md: 2, sm: 2, xs: 2 }">
+                <nz-descriptions-item nzTitle="WABA Email" [nzSpan]="2">{{account.wabaEmail}}</nz-descriptions-item>
+                <nz-descriptions-item nzTitle="WABA GUID" [nzSpan]="2">{{account.wabaGuid}}</nz-descriptions-item>
+                <nz-descriptions-item nzTitle="WABA ID" [nzSpan]="2">{{account.wabaId}}</nz-descriptions-item>
+                <nz-descriptions-item nzTitle="WABA Name" [nzSpan]="2">{{account.wabaName}}</nz-descriptions-item>
+                <nz-descriptions-item nzTitle="WABA Phone ID" [nzSpan]="2">{{account.wabaPhoneId}}</nz-descriptions-item>
+                <nz-descriptions-item nzTitle="WABA Phone" [nzSpan]="2">{{account.wabaPhone}}</nz-descriptions-item>
+                <nz-descriptions-item nzTitle="WABA Webhook ID" [nzSpan]="2">
+                  {{account.wabaWebhookId}}
+                  <button *ngIf="!account.wabaWebhookId" [disabled]="!account.wabaEmail" nz-button (click)="doRegisterWebhook()">Register Webhook</button>
+                  <button *ngIf="account.wabaWebhookId" nz-button (click)="doUnregisterWebhook()">Unregister Webhook</button>
+                </nz-descriptions-item>
+                <nz-descriptions-item nzTitle="WABA Webhook URL" [nzSpan]="2">{{account.wabaWebhookUrl}}</nz-descriptions-item>
+              </nz-descriptions>
+            </div>
+          </nz-card>
+        </div>
+      </div>
+    </nz-tab>
+    <nz-tab *ngIf="account.wabaGuid">
+      <a *nzTabLink nz-tab-link [routerLink]="['.']" [queryParams]="{ tab: 'template' }" queryParamsHandling="merge">
+        Templates
+      </a>
+      <div *ngIf="templates$ | async as templates">
+        <div>
+          <div class="flex pb-8">
+            <div class="flex-grow pr-8">
+              <nz-input-group search-group [nzPrefix]="searchIcon">
+                <input type="text" (input)="doFilter($event)" nz-input placeholder="Find by name" />
+              </nz-input-group>
+              <ng-template #searchIcon>
+                <i nz-icon nzType="search" class="mr-2"></i>
+              </ng-template>
+            </div>
+            <div>
+              <button nz-button nzType="default" (click)="doOpenCreateTemplate()">Create Template</button>
+            </div>
+          </div>
+          <nz-table
+            #table
+            nzBordered
+            [nzLoading]="isTableLoading"
+            [nzData]="getFilter(templates)"
+            [nzFrontPagination]="true"
+            nzSize="small"
+            nzTableLayout="fixed"
+          >
+            <thead>
+            <tr>
+              <th nzWidth="140px">Name</th>
+              <th nzWidth="100px">Status</th>
+              <th nzWidth="108px">Category</th>
+              <th nzWidth="108px">Header</th>
+              <th>Body</th>
+              <th nzWidth="140px">Footer</th>
+              <th nzWidth="120px">Button</th>
+              <th nzWidth="80px">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let data of table.data">
+              <td>{{ data.name }}</td>
+              <td><nz-tag [nzColor]="getStatusColor(data.status)">{{data.status}}</nz-tag></td>
+              <td>{{ data.category }}</td>
+              <td>{{ getHeader(data) }}</td>
+              <td>{{ getBody(data) }}</td>
+              <td>{{ getFooter(data) }}</td>
+              <td>{{ getButton(data) }}</td>
+              <td>
+                <a (click)="doDelete(data.name, data.waTemplateId)" nz-tooltip="Delete"><i nz-icon nzType="delete"
+                                                                                           class="mr-2"></i></a>
+              </td>
+            </tr>
+            </tbody>
+          </nz-table>
+        </div>
+
+        <nz-drawer
+          [nzBodyStyle]="{ overflow: 'auto' }"
+          [nzWidth]="540"
+          [nzClosable]="false"
+          [nzVisible]="isCreateFormVisible"
+          nzTitle="Create Template"
+          [nzFooter]="createFooterTemplate"
+          (nzOnClose)="closeCreateForm()"
+        >
+          <form nz-form *nzDrawerContent [formGroup]="createForm" nzLayout="vertical">
+            <div>
+              <div>
+                <nz-form-item>
+                  <nz-form-label nzRequired>Name</nz-form-label>
+                  <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['name'])">
+                    <input nz-input formControlName="name" placeholder="Please enter name" />
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <div>
+                <nz-form-item>
+                  <nz-form-label nzRequired>Category</nz-form-label>
+                  <nz-form-control [nzErrorTip]="getErrorMessage(createForm.controls['category'])">
+                    <nz-select formControlName="category" nzPlaceHolder="Select category">
+                      <nz-option
+                        *ngFor="let cat of [category.UTILITY, category.MARKETING]"
+                        [nzValue]="cat"
+                        [nzLabel]="cat"
+                      ></nz-option>
+                    </nz-select>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+
+              <div class="mb-2 underline">Header</div>
+              <div class="pb-4">
+                <div class="flex">
+                  <div class="grow">Document</div>
+                  <div>
+                    <nz-switch formControlName="hasAttachment"></nz-switch>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pb-8">
+                <div class="flex items-center">
+                  <div class="pr-4">
+                    <nz-form-control [nzErrorTip]="getErrorMessage(createForm.controls['sample'])">
+                      <nz-upload
+                        [nzMultiple]="false"
+                        [nzBeforeUpload]="beforeUpload"
+                        [nzDisabled]="isUploadSampleDisable"
+                        nzAccept="application/pdf"
+                        nzFileType="application/pdf"
+                      >
+                        <button nz-button [disabled]="isUploadSampleDisable">
+                          <i nz-icon nzType="upload"></i>
+                          Upload Sample Document
+                        </button>
+                      </nz-upload>
+                    </nz-form-control>
+                  </div>
+                  <div>{{this.file?.name}}</div>
+                </div>
+              </div>
+
+
+              <div>
+                <nz-form-item>
+                  <nz-form-label nzRequired>Body</nz-form-label>
+                  <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['body'])">
+                    <textarea nz-input formControlName="body" placeholder="Please enter body"></textarea>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+
+              <div>
+                <nz-form-item>
+                  <nz-form-label>Footer</nz-form-label>
+                  <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['footer'])">
+                    <textarea nz-input formControlName="footer" placeholder="Please enter footer"></textarea>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+
+              <div class="pb-4">
+                <div class="flex">
+                  <div class="grow">Acknowledgement Button</div>
+                  <div>
+                    <nz-switch formControlName="hasAcknowledgementButton"></nz-switch>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </form>
+
+          <ng-template #createFooterTemplate>
+            <div class="text-right">
+              <button
+                nz-button
+                [nzLoading]="isCreateFormLoading"
+                nzType="primary"
+                [disabled]="!createForm.valid"
+                (click)="doCreateTemplate()"
+              >
+                Create Template
+              </button>
+            </div>
+          </ng-template>
+        </nz-drawer>
+      </div>
+    </nz-tab>
+    <nz-tab *ngIf="account.wabaGuid">
+      <a *nzTabLink nz-tab-link [routerLink]="['.']" [queryParams]="{ tab: 'auto-reply' }" queryParamsHandling="merge">
+        Auto Reply
+      </a>
+      <div>
+        <nz-card nzTitle="Auto Reply">
+          <form [formGroup]="autoReplyForm" nz-form nzLayout="vertical">
+            <div class="pb-8">
+              <nz-collapse>
+                <nz-collapse-panel nzHeader="Text Formatting" [nzActive]="false" [nzDisabled]="false">
+                  <nz-table [nzData]="['a']" [nzShowPagination]="false">
+                    <thead>
+                    <tr>
+                      <th>Format</th>
+                      <th>Description</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                      <td>Bold</td>
+                      <td>
+                        Add an asterisk * on both sides of the text you want to be bold e.g.
+                        *New Opening Hours* for example, will display as <b>New Opening Hours</b>.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Italic</td>
+                      <td>
+                        Add an underscore _ on both sides of the text you want to be italic e.g.
+                        _New Opening Hours_ will display as <i>New Opening Hours</i>.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Strikethrough</td>
+                      <td>
+                        Add a tilde ~ on both sides of the text you want to be struck through
+                        ~Opening Hours~ will display as <del>Opening Hours</del>.
+                      </td>
+                    </tr>
+                    </tbody>
+                  </nz-table>
+                </nz-collapse-panel>
+              </nz-collapse>
+            </div>
+            <nz-form-item>
+              <nz-form-label nzRequired>Auto Reply Message</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(autoReplyForm.controls['message'])">
+                <textarea nz-input
+                          formControlName="message"
+                          placeholder="Please enter auto reply message"
+                          [nzAutosize]="{ minRows: 5, maxRows: 20 }">
+                </textarea>
+              </nz-form-control>
+            </nz-form-item>
+
+            <div class="text-right pt-4">
+              <button (click)="doUpdateAutoReplyMessage()" nz-button nzType="primary"
+                      [nzLoading]="isSavingAutoReplyMessage">Save
+              </button>
+            </div>
+          </form>
+        </nz-card>
+      </div>
+    </nz-tab>
+  </nz-tabset>
+</div>

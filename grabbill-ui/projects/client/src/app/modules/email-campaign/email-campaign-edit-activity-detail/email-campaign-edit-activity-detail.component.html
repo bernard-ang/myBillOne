@@ -1,0 +1,312 @@
+<div container class="mx-auto">
+  <ng-container>
+    <div top>
+      <grabbill-client-breadcrumb
+        rootTitle="Email Campaign"
+        [rootLink]="['/', 'email-campaign', 'list']"
+        [hasCrumb2]="true"
+        [crumb2Object]="emailCampaignType$ | async"
+        [crumb2Link]="['/', 'email-campaign', 'detail', typeId]"
+        [crumb2QueryParam]="{ tab: 'activities' }"
+      >
+      </grabbill-client-breadcrumb>
+
+      <div class="mb-8">
+        <grabbill-client-page-header title="Email Campaign Activity" [buttonTemplate]="buttonTemplate">
+          <ng-template #buttonTemplate>
+            <ng-container *ngIf="emailCampaignType$ | async as emailCampaignType">
+              <div class="flex items-center" *ngIf="emailCampaignActivityFiles$ | async as emailCampaignActivityFiles">
+                <a (click)="doSubmitForm(true, emailCampaignType, emailCampaignActivityFiles)" class="mr-4"
+                  >Finish later</a
+                >
+                <ng-container *ngIf="user">
+                  <button
+                    [disabled]="!user.subscription!.scheduleEmail"
+                    type="button"
+                    (click)="doOpenScheduleModal()"
+                    nz-button
+                    nzType="default"
+                    class="mr-4"
+                  >
+                    Schedule
+                  </button>
+                </ng-container>
+                <button
+                  type="button"
+                  (click)="doSubmitForm(false, emailCampaignType, emailCampaignActivityFiles)"
+                  nz-button
+                  nzType="primary"
+                >
+                  Send
+                </button>
+              </div>
+            </ng-container>
+          </ng-template>
+        </grabbill-client-page-header>
+      </div>
+
+      <div class="pb-8">
+        <nz-steps [nzCurrent]="index" (nzIndexChange)="doStepChange($event)">
+          <nz-step nzTitle="Setup Template"></nz-step>
+          <nz-step nzTitle="Preview Email"></nz-step>
+          <nz-step nzTitle="Upload Attachments"></nz-step>
+        </nz-steps>
+      </div>
+    </div>
+  </ng-container>
+
+  <div top-span>
+    <ng-template #elseActivity>
+      <div nz-list nzBordered>
+        <div nz-list-item>
+          <nz-skeleton [nzAvatar]="true" [nzActive]="true" [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-container *ngIf="emailCampaignActivity$ | async as emailCampaignActivity; else elseActivity">
+      <ng-container *ngIf="emailCampaignType$ | async as emailCampaignType">
+        <ng-container *ngIf="emailCampaignActivityFiles$ | async as emailCampaignActivityFiles">
+          <form nz-form [formGroup]="form" nzLayout="horizontal">
+            <ul class="bg-white" nz-list nzBordered nzSize="large">
+              <li nz-list-item list-item>
+                <div class="pr-4 pt-1">
+                  <i class="text-lg" nz-icon nzType="info-circle"></i>
+                </div>
+                <div class="flex-grow">
+                  <h5 nz-typography class="pb-4">Info</h5>
+                  <div>
+                    <nz-form-item>
+                      <nz-form-label [nzSpan]="5" nzRequired>Activity Name</nz-form-label>
+                      <nz-form-control
+                        [nzSpan]="18"
+                        nzHasFeedback
+                        [nzErrorTip]="getErrorMessage(form.controls['name'])"
+                      >
+                        <input nz-input formControlName="name" placeholder="name" />
+                      </nz-form-control>
+                    </nz-form-item>
+                  </div>
+                </div>
+              </li>
+
+              <li nz-list-item list-item>
+                <div class="pr-4 pt-1">
+                  <i class="text-lg" nz-icon nzType="mail"></i>
+                </div>
+                <div class="flex-grow" #step2>
+                  <h5 nz-typography class="pb-4">Preview Email</h5>
+                  <div>
+                    <nz-form-item>
+                      <nz-form-label [nzSpan]="5" nzRequired>Contact Group</nz-form-label>
+                      <nz-form-control
+                        [nzSpan]="18"
+                        nzHasFeedback
+                        [nzErrorTip]="getErrorMessage(form.controls['contactGroup'])"
+                      >
+                        <nz-select
+                          nzShowSearch
+                          nzServerSearch
+                          nzPlaceHolder="input search text"
+                          formControlName="contactGroup"
+                          [nzShowArrow]="false"
+                          [nzFilterOption]="nzFilterOption"
+                          (nzOnSearch)="search($event)"
+                        >
+                          <ng-container *ngFor="let option of listOfOption">
+                            <nz-option *ngIf="!isContactGroupLoading" [nzValue]="option.value" [nzLabel]="option.text"></nz-option>
+                          </ng-container>
+                          <nz-option *ngIf="isContactGroupLoading" nzDisabled nzCustomContent>
+                            <i nz-icon nzType="loading" class="loading-icon"></i>
+                            Loading Data...
+                          </nz-option>
+                        </nz-select>
+                      </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item>
+                      <nz-form-label [nzSpan]="5" nzRequired>From Email</nz-form-label>
+                      <nz-form-control
+                        [nzSpan]="18"
+                        nzHasFeedback
+                        [nzErrorTip]="getErrorMessage(form.controls['emailFrom'])"
+                      >
+                        <input nz-input formControlName="emailFrom" placeholder="From email" type="email" />
+                      </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item>
+                      <nz-form-label [nzSpan]="5" nzRequired>From Name</nz-form-label>
+                      <nz-form-control
+                        [nzSpan]="18"
+                        nzHasFeedback
+                        [nzErrorTip]="getErrorMessage(form.controls['emailFromName'])"
+                      >
+                        <input nz-input formControlName="emailFromName" placeholder="from email" />
+                      </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item>
+                      <nz-form-label [nzSpan]="5" nzRequired>Subject</nz-form-label>
+                      <nz-form-control
+                        [nzSpan]="18"
+                        nzHasFeedback
+                        [nzErrorTip]="getErrorMessage(form.controls['emailSubject'])"
+                      >
+                        <input nz-input formControlName="emailSubject" placeholder="email subject" />
+                      </nz-form-control>
+                    </nz-form-item>
+                    <nz-form-item>
+                      <nz-form-label [nzSpan]="5">Content</nz-form-label>
+                      <nz-form-control [nzSpan]="18">
+                        <div class="mt-1 mb-4"><a (click)="doEditEmailTemplate()">Edit email template</a></div>
+                        <grabbill-client-html-preview [html]="html"></grabbill-client-html-preview>
+
+                        <nz-drawer
+                          *ngIf="(emailCampaignActivity$ | async) && (contactFields$ | async)"
+                          [nzBodyStyle]="{ overflow: 'auto', padding: '0' }"
+                          [nzWidth]="'100%'"
+                          [nzClosable]="true"
+                          [nzKeyboard]="false"
+                          [nzVisible]="isEditorVisible"
+                          nzTitle="Email Editor"
+                          [nzFooter]="createFooterTemplate"
+                          (nzOnClose)="closeEditor()"
+                        >
+                          <div *nzDrawerContent>
+                            <grabbill-client-email-editor
+                              #editor
+                              [defaultComponents]="mjml"
+                              [fields]="getIndexFields()"
+                              (htmlInit)="updateHtml($event)"
+                            >
+                            </grabbill-client-email-editor>
+                          </div>
+
+                          <ng-template #createFooterTemplate>
+                            <div class="text-right">
+                              <button
+                                nz-button
+                                [nzLoading]="isEditorLoading"
+                                nzType="primary"
+                                (click)="doUpdateTemplate()"
+                              >
+                                Update Template
+                              </button>
+                            </div>
+                          </ng-template>
+                        </nz-drawer>
+                      </nz-form-control>
+                    </nz-form-item>
+                  </div>
+                </div>
+              </li>
+              <li nz-list-item list-item>
+                <div class="pr-4 pt-1">
+                  <i class="text-lg" nz-icon nzType="file-pdf"></i>
+                </div>
+                <div class="flex-grow" #step3>
+                  <h5 nz-typography class="pb-4">Upload Attachments</h5>
+                  <div>
+                    <nz-form-item>
+                      <div class="w-full">
+                        <div class="pb-4">
+                          <nz-spin [nzSpinning]="!canUploadAttachment">
+                            <nz-upload
+                              nzType="drag"
+                              [nzMultiple]="true"
+                              [nzBeforeUpload]="beforeUploadAttachment"
+                              nzAccept="application/pdf,application/zip"
+                              nzFileType="application/pdf,application/zip"
+                            >
+                              <p class="ant-upload-drag-icon">
+                                <i nz-icon nzType="file"></i>
+                              </p>
+                              <p class="ant-upload-text">Click or drag PDF file to this area to upload</p>
+                            </nz-upload>
+                          </nz-spin>
+                        </div>
+
+                        <div>
+                          <ul
+                            nz-list
+                            nzBordered
+                            nzSize="small"
+                            [nzDataSource]="getFilterAttachments(emailCampaignActivityFiles)"
+                            [nzPagination]="pagination"
+                          >
+                            <nz-list-header>
+                              <div class="flex items-center">
+                                <div class="flex-1">
+                                  <nz-input-group [nzPrefix]="searchIcon">
+                                    <input
+                                      type="text"
+                                      nz-input
+                                      (input)="doSearchAttachment($event)"
+                                      placeholder="Find by attachment filename"
+                                    />
+                                  </nz-input-group>
+                                  <ng-template #searchIcon>
+                                    <i nz-icon nzType="search" class="mr-2"></i>
+                                  </ng-template>
+                                </div>
+                                <div class="flex-1 text-right"></div>
+                              </div>
+                            </nz-list-header>
+
+                            <li
+                              nz-list-item
+                              *ngFor="let item of doPageAttachments(emailCampaignActivityFiles)"
+                              nzNoFlex
+                            >
+                              <ul nz-list-item-actions>
+                                <nz-list-item-action>
+                                  <a (click)="doDeleteAttachment(item)">Delete</a>
+                                </nz-list-item-action>
+                              </ul>
+                              {{ item.name }}
+                            </li>
+                          </ul>
+                          <ng-template #pagination>
+                            <nz-pagination
+                              [nzPageIndex]="attachmentPageIndex"
+                              [nzPageSize]="attachmentPageSize"
+                              [nzTotal]="getFilterAttachments(emailCampaignActivityFiles).length"
+                              (nzPageIndexChange)="doAttachmentPageIndexChange($event)"
+                            ></nz-pagination>
+                          </ng-template>
+                        </div>
+                      </div>
+                    </nz-form-item>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </form>
+
+          <nz-modal [nzVisible]="isScheduleModalVisible" nzTitle="Schedule" (nzOnCancel)="doCloseScheduleModal()">
+            <div *nzModalContent>
+              <div>
+                <form nz-form [formGroup]="scheduleForm">
+                  <nz-form-item>
+                    <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>Schedule Time</nz-form-label>
+                    <nz-form-control [nzSm]="12" [nzXs]="24">
+                      <nz-date-picker
+                        [nzDisabledDate]="disabledDate"
+                        nzShowTime
+                        nzFormat="yyyy-MM-dd HH:mm:ss"
+                        formControlName="scheduledTimestamp"
+                      ></nz-date-picker>
+                    </nz-form-control>
+                  </nz-form-item>
+                </form>
+              </div>
+            </div>
+            <div *nzModalFooter>
+              <button nz-button nzType="primary" (click)="doSchedule(emailCampaignType, emailCampaignActivityFiles)">
+                Schedule
+              </button>
+            </div>
+          </nz-modal>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+  </div>
+</div>

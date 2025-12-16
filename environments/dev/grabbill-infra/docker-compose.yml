@@ -1,0 +1,143 @@
+version: "3.9"
+
+services:
+  traefik:
+    image: traefik:v2.6
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+      - 3306:3306
+      - 5672:5672
+      - 1025:1025
+    networks:
+      - traefik-network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${HOME}/.grabbill-infra/config/traefik/htpasswd:/htpasswd:ro
+      - ${HOME}/.grabbill-infra/config/traefik/config:/traefik-config:ro
+
+    command:
+      - "--log.level=debug"
+      - "--ping=true"
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+      - "--entrypoints.mariadb.address=:3306"
+      - "--entrypoints.rabbitmq.address=:5672"
+      - "--entrypoints.mailhog.address=:1025"
+      - "--providers.file.directory=/traefik-config"
+      - "--providers.file.watch=true"
+
+    labels:
+      traefik.enable: true
+      traefik.docker.network: traefik-network
+
+      traefik.http.routers.traefik-ping.service: ping@internal
+      traefik.http.routers.traefik-ping.tls: true
+      traefik.http.routers.traefik-ping.rule: Host(`traefik.grabbill.localhost`) && Path(`/ping`)
+      traefik.http.routers.traefik-ping.entrypoints: websecure
+
+      traefik.http.routers.traefik.service: api@internal
+      traefik.http.routers.traefik.tls: true
+      traefik.http.routers.traefik.entrypoints: websecure
+      traefik.http.routers.traefik.rule: Host(`traefik.grabbill.localhost`)
+      traefik.http.routers.traefik.middlewares: traefik-auth
+      traefik.http.middlewares.traefik-auth.basicauth.usersfile: /htpasswd/traefik
+
+  mariadb:
+    image: mariadb:10.7.3
+    restart: unless-stopped
+    networks:
+      - traefik-network
+    environment:
+      - MARIADB_DATABASE=grabbill
+      - MARIADB_ROOT_PASSWORD=test12345
+      - MARIADB_USER=grabbill.root
+      - MARIADB_PASSWORD=test12345
+    labels:
+      traefik.enable: true
+      traefik.docker.network: traefik-network
+      traefik.tcp.routers.mariadb.rule: HostSNI(`*`)
+      traefik.tcp.routers.mariadb.entrypoints: mariadb
+    volumes:
+      - ${HOME}/.grabbill-infra/config/mariadb/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - ${HOME}/.grabbill-infra/data/mariadb/var-lib-mysql:/var/lib/mysql
+
+  rabbitmq:
+    image: rabbitmq:3.9.14-management
+    restart: unless-stopped
+    networks:
+      - traefik-network
+    environment:
+      - RABBITMQ_DEFAULT_USER=grabbill.root
+      - RABBITMQ_DEFAULT_PASS=test12345
+    labels:
+      traefik.enable: true
+      traefik.docker.network: traefik-network
+      traefik.tcp.routers.rabbitmq.rule: HostSNI(`*`)
+      traefik.tcp.routers.rabbitmq.entrypoints: rabbitmq
+      traefik.tcp.services.rabbitmq.loadbalancer.server.port: 5672
+      traefik.http.routers.rabbitmq-ui.tls: true
+      traefik.http.routers.rabbitmq-ui.rule: Host(`queue-console.grabbill.localhost`)
+      traefik.http.routers.rabbitmq-ui.entrypoints: websecure
+      traefik.http.services.rabbitmq-ui.loadbalancer.server.port: 15672
+    # TODO: figure out data n log directories
+    # volumes:
+    # - ./data/rabbitmq/etc-rabbitmq:/etc/rabbitmq
+
+  minio:
+    image: minio/minio:RELEASE.2022-04-01T03-41-39Z
+    restart: unless-stopped
+    ports:
+      - 9000:9000
+      - 9001:9001
+    networks:
+      - traefik-network
+    volumes:
+      - ${HOME}/.grabbill-infra/data/minio/data:/data
+    environment:
+      MINIO_ROOT_USER: grabbill.root
+      MINIO_ROOT_PASSWORD: test12345
+      MINIO_BROWSER_REDIRECT_URL: https://storage-console.grabbill.localhost
+    command: server /data --console-address ":9001"
+    labels:
+      traefik.enable: true
+      traefik.docker.network: traefik-network
+      traefik.http.routers.minio-api.service: minio-api
+      traefik.http.routers.minio-api.rule: Host(`storage.grabbill.localhost`)
+      traefik.http.routers.minio-api.entrypoints: websecure
+      traefik.http.routers.minio-api.tls: true
+      traefik.http.services.minio-api.loadbalancer.server.port: 9000
+      traefik.http.routers.minio-console.service: minio-console
+      traefik.http.routers.minio-console.rule: Host(`storage-console.grabbill.localhost`)
+      traefik.http.routers.minio-console.entrypoints: websecure
+      traefik.http.routers.minio-console.tls: true
+      traefik.http.services.minio-console.loadbalancer.server.port: 9001
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    restart: unless-stopped
+    ports:
+      - 8025:8025
+    networks:
+      - traefik-network
+    labels:
+      traefik.enable: true
+      traefik.docker.network: traefik-network
+      traefik.tcp.routers.mailhog.rule: HostSNI(`*`)
+      traefik.tcp.routers.mailhog.entrypoints: mailhog
+      traefik.tcp.services.mailhog.loadbalancer.server.port: 1025
+      traefik.http.routers.mailhog-console.rule: Host(`mail-console.grabbill.localhost`)
+      traefik.http.routers.mailhog-console.entrypoints: websecure
+      traefik.http.routers.mailhog-console.tls: true
+      traefik.http.services.mailhog-console.loadbalancer.server.port: 8025
+
+networks:
+  traefik-network:
+    external: true

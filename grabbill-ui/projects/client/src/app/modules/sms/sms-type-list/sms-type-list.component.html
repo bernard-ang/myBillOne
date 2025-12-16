@@ -1,0 +1,55 @@
+<div container class="mx-auto">
+  <grabbill-client-page-header
+    title="SMS"
+    [button]="canTopUpSms || isSaas ? {
+      label: 'Create SMS Template',
+      privilege: privilege.TRX_EMAIL_EDIT,
+      link: ['/', 'sms', 'detail', 'new']
+    }: undefined"
+  >
+  </grabbill-client-page-header>
+  <nz-divider></nz-divider>
+  <grabbill-client-list
+    [store]="store"
+    [actions$]="actions$"
+    [pageable$]="smsTypePageable$"
+    [result$]="smsTypeSearchResult$"
+    [isListLoading]="isListLoading"
+    [queryAction]="queryAction"
+    [resetAction]="resetAction"
+    [loadMoreAction]="loadMoreAction"
+    [pageableState]="state.smsTypePageable"
+    [typeNameState]="state.typeName"
+    [getSubtitle]="getMessage()"
+    [contentTemplate]="contentTemplate"
+    [actionsTemplate]="actionsTemplate"
+    (selectItem)="doSelect($event)"
+    icon="file-pdf"
+    searchText="Find by sms name"
+    noRecordText="No sms found"
+  >
+    <ng-template #contentTemplate let-item>
+      <div class="flex-grow ml-8">
+        <ng-container *ngIf="item.hasAttachment">
+          <div total list-title>{{ item.noOfFiles | number: "1.0" }}</div>
+          <div>Files</div>
+        </ng-container>
+      </div>
+    </ng-template>
+    <ng-template #actionsTemplate let-item>
+      <ul nz-list-item-actions>
+        <nz-list-item-action>
+          <a list-title (click)="doSelect(item)" nz-tooltip="Select"><i nz-icon nzType="select"></i></a
+        ></nz-list-item-action>
+        <ng-container *ngIf="hasPrivilege(privilege.TRX_EMAIL_EDIT)">
+          <nz-list-item-action>
+            <a list-title (click)="doDuplicate(item)" nz-tooltip="Duplicate"><i nz-icon nzType="copy"></i></a
+          ></nz-list-item-action>
+          <nz-list-item-action *ngIf="!item.lastSentDate">
+            <a list-title (click)="doDelete(item)" nz-tooltip="Delete"><i nz-icon nzType="delete"></i></a>
+          </nz-list-item-action>
+        </ng-container>
+      </ul>
+    </ng-template>
+  </grabbill-client-list>
+</div>

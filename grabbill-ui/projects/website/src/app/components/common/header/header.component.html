@@ -1,0 +1,59 @@
+<header header class="flex items-center">
+  <div class="container mx-auto flex items-center">
+    <a routerLink="/"><img header-logo alt="myBillOne Logo" src="assets/logo.png"></a>
+
+    <nav class="flex-grow text-center">
+      <div class="hidden lg:block">
+        <a [routerLinkActive]="['selected']" routerLink="/home" header-link>Home</a>
+        <a header-link nz-dropdown [nzDropdownMenu]="menu">Solutions</a>
+        <nz-dropdown-menu #menu="nzDropdownMenu">
+          <ul nz-menu nzSelectable>
+            <li nz-menu-item routerLink="/digital-filing">Digital Filing</li>
+            <li nz-menu-item routerLink="/transactional-email">Transactional Email</li>
+            <li nz-menu-item routerLink="/email-marketing">Email Marketing</li>
+          </ul>
+        </nz-dropdown-menu>
+        <a [routerLinkActive]="['selected']" routerLink="/pricing" header-link>Pricing</a>
+        <a [routerLinkActive]="['selected']" routerLink="/contact-us" header-link>Contact Us</a>
+      </div>
+    </nav>
+    <div class="text-right flex items-center">
+      <a [href]="getLoginUrl()" login-button nz-button nzSize="large" nzType="text">Log in</a>
+      <a [href]="getRegisterUrl()" sign-up-button nz-button nzType="primary" nzSize="large" nzShape="round">Sign Up</a>
+      <i (click)="open()" menu nz-icon nzType="menu" nzTheme="outline"></i>
+    </div>
+  </div>
+</header>
+<div header-padding></div>
+
+<nz-drawer
+  [nzClosable]="false"
+  [nzVisible]="visible"
+  [nzWidth]="360"
+  nzPlacement="right"
+  (nzOnClose)="close()"
+  [nzBodyStyle]="{ padding: 0 }"
+>
+  <ng-container *nzDrawerContent>
+    <div drawer>
+      <div drawer-header class="flex items-center">
+        <a class="flex-grow" routerLink="/"><img header-logo alt="myBillOne Logo" src="assets/logo.png"></a>
+        <div class="text-right flex items-center">
+          <i (click)="close()" menu nz-icon nzType="close" nzTheme="outline"></i>
+        </div>
+      </div>
+    </div>
+    <ul nz-menu (nzClick)="close()" nzMode="inline" nzTheme="light">
+      <li nz-menu-item routerLink="/">Home</li>
+      <li nz-submenu nzTitle="Solutions" [nzOpen]="true">
+        <ul>
+          <li nz-menu-item routerLink="/digital-filing">Digital Filing</li>
+          <li nz-menu-item routerLink="/transactional-email">Transactional Email</li>
+          <li nz-menu-item routerLink="/email-marketing">Email Marketing</li>
+        </ul>
+      </li>
+      <li nz-menu-item routerLink="/pricing">Pricing</li>
+      <li nz-menu-item routerLink="/contact-us">Contact Us</li>
+    </ul>
+  </ng-container>
+</nz-drawer>

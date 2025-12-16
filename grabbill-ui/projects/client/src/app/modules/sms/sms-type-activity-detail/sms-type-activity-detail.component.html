@@ -1,0 +1,159 @@
+<ng-container>
+  <div container class="mx-auto">
+    <grabbill-client-breadcrumb
+      rootTitle="SMS"
+      [rootLink]="['/', 'sms', 'list']"
+      [hasCrumb2]="true"
+      [crumb2Object]="smsType$ | async"
+      [crumb2Link]="['/', 'sms', 'detail', typeId]"
+      [crumb2QueryParam]="{ tab: 'activities' }"
+    >
+    </grabbill-client-breadcrumb>
+
+    <ng-template #elseActivity>
+      <nz-skeleton [nzActive]="true" [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+    </ng-template>
+    <ng-container *ngIf="smsActivity$ | async as smsActivity; else elseActivity">
+      <ng-container *ngIf="smsType$ | async as smsType">
+        <div class="mb-4">
+          <grabbill-client-page-header
+            [title]="smsActivity.name"
+            [subtitle]="getCode(smsType)"
+          ></grabbill-client-page-header>
+        </div>
+
+        <grabbill-client-sms-stat
+          [totalSms]="smsActivity.totalSms"
+          [smsSent]="smsActivity.smsStatusSent"
+          [smsError]="smsActivity.smsStatusError"
+          [totalCreditUsed]="smsActivity.smsCreditUsed"
+        ></grabbill-client-sms-stat>
+
+        <nz-tabset nzSize="large" nzLinkRouter>
+          <nz-tab>
+            <a
+              *nzTabLink
+              nz-tab-link
+              [routerLink]="['.']"
+              [queryParams]="{ tab: 'records' }"
+              queryParamsHandling="merge"
+            >
+              Records
+            </a>
+            <div class="flex pb-4">
+              <div class="flex-1">
+                <nz-input-group [nzPrefix]="searchIcon">
+                  <input type="text" nz-input placeholder="Find by record mobile no" (input)="doSearch($event)" />
+                </nz-input-group>
+                <ng-template #searchIcon>
+                  <i nz-icon nzType="search" class="mr-2"></i>
+                </ng-template>
+              </div>
+              <div class="flex-1"></div>
+            </div>
+
+            <nz-table
+              #recordTable
+              nzBordered
+              [nzShowPagination]="true"
+              [nzData]="getFilterRecords(smsActivity.records)"
+              nzSize="small"
+              nzTableLayout="fixed"
+            >
+              <thead>
+                <tr>
+                  <th nzWidth="44px">No</th>
+                  <th>Date</th>
+                  <th>Mobile No</th>
+                  <th>SMS Content</th>
+                  <th>Credit Used</th>
+                  <th>Sent</th>
+                  <th>Status Code</th>
+                  <th>Error Message</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let data of recordTable.data; let i = index">
+                  <td>{{ data.indexRow.seqOrder }}</td>
+                  <td>{{ data.processedTimestamp | date: "medium" }}</td>
+                  <td>{{ data.name }}</td>
+                  <td>{{ data.smsContent }}</td>
+                  <td>{{ data.creditUsed }}</td>
+                  <td><i *ngIf="data.smsStatusSent" green nz-icon nzType="check"></i><i *ngIf="!data.smsStatusSent" red nz-icon nzType="close"></i></td>
+                  <td>{{ data.smsStatusCode }}</td>
+                  <td>{{ data.smsErrorMessage ? data.smsErrorMessage : '-' }}</td>
+                </tr>
+              </tbody>
+            </nz-table>
+          </nz-tab>
+          <nz-tab>
+            <a *nzTabLink nz-tab-link [routerLink]="['.']" [queryParams]="{ tab: 'info' }" queryParamsHandling="merge">
+              Info
+            </a>
+            <nz-card>
+              <grabbill-client-descriptions
+                [items]="[
+                { span: 2, title: 'SMS Content', value: smsActivity.smsContent, type: 'string' },
+                  {
+                    span: 2,
+                    title: 'Status',
+                    value: smsActivity.status,
+                    type: 'tag',
+                    typeFn: getStatusTag,
+                    object: smsActivity.status
+                  },
+                  {
+                    span: 2,
+                    title: 'Message',
+                    value: smsActivity.message,
+                    type: 'string'
+                  },
+                  {
+                    span: 2,
+                    title: 'Scheduled at',
+                    value: smsActivity.scheduledTimestamp,
+                    type: 'date'
+                  },
+                  {
+                    span: 2,
+                    title: 'Submitted at',
+                    value: smsActivity.submittedTimestamp,
+                    type: 'date'
+                  },
+                  {
+                    span: 2,
+                    title: 'Processing at',
+                    value: smsActivity.processingTimestamp,
+                    type: 'date'
+                  },
+                  {
+                    span: 2,
+                    title: 'Processed at',
+                    value: smsActivity.processedTimestamp,
+                    type: 'date'
+                  },
+                  { span: 2, title: 'Error at', value: smsActivity.errorTimestamp, type: 'date' },
+                  { span: 2, title: 'Created by', value: smsActivity.createdBy, type: 'string' },
+                  { span: 2, title: 'Created at', value: smsActivity.createdDate, type: 'date' },
+                  {
+                    span: 2,
+                    title: 'Last updated by',
+                    value: smsActivity.lastModifiedBy,
+                    type: 'string'
+                  },
+                  {
+                    span: 2,
+                    title: 'Last updated at',
+                    value: smsActivity.lastModifiedDate,
+                    type: 'date'
+                  }
+                ]"
+              >
+              </grabbill-client-descriptions>
+            </nz-card>
+          </nz-tab>
+        </nz-tabset>
+      </ng-container>
+    </ng-container>
+  </div>
+</ng-container>

@@ -1,0 +1,80 @@
+<div container class="mx-auto">
+  <grabbill-client-page-header title="Account" [margin]="true"></grabbill-client-page-header>
+
+  <form nz-form [formGroup]="form" nzLayout="vertical" (ngSubmit)="submitForm()">
+    <div>
+      <div class="mb-8">
+        <nz-card nzTitle="Company Information">
+          <nz-form-item>
+            <nz-form-label nzRequired>Company Name</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['companyName'])">
+              <input nz-input formControlName="companyName" />
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label nzRequired>Company Contact No</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['companyContactNo'])">
+              <input nz-input formControlName="companyContactNo" />
+            </nz-form-control>
+          </nz-form-item>
+
+          <h5 nz-typography class="pb-4">Address</h5>
+          <nz-form-item>
+            <nz-form-label nzRequired>Country</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['country'])">
+              <nz-select
+                formControlName="country"
+                nzShowSearch
+                nzPlaceHolder="Country"
+                class="activity-type-select flex-grow"
+              >
+                <nz-option
+                  *ngFor="let country of getCountries()"
+                  [nzValue]="country"
+                  [nzLabel]="country.name"
+                ></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label>State</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['state'])">
+              <input nz-input formControlName="state" />
+            </nz-form-control>
+          </nz-form-item>
+          <div class="flex gap-4">
+            <nz-form-item>
+              <nz-form-label>Postcode</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['postcode'])">
+                <input nz-input formControlName="postcode" />
+              </nz-form-control>
+            </nz-form-item>
+            <nz-form-item class="flex-grow">
+              <nz-form-label>City</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['city'])">
+                <input nz-input formControlName="city" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <nz-form-item>
+            <nz-form-label>Street 1</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['addrLine1'])">
+              <input nz-input formControlName="addrLine1" />
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label>Street 2</nz-form-label>
+            <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['addrLine2'])">
+              <input nz-input formControlName="addrLine2" />
+            </nz-form-control>
+          </nz-form-item>
+        </nz-card>
+
+        <div class="text-right pt-4">
+          <button nz-button nzType="primary" [nzLoading]="isLoading">Save</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

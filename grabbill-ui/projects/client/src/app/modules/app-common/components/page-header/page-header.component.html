@@ -1,0 +1,26 @@
+<div class="flex">
+  <div class="flex-grow">
+    <h3 *ngIf="title" nz-typography class="flex-grow">
+      {{ title }}
+      <span *ngIf="subtitle" page-secondary nz-typography nzType="secondary">{{ subtitle }}</span>
+    </h3>
+    <div *ngIf="description" page-description class="text-md">{{ description }}</div>
+  </div>
+  <ng-container *ngIf="extraTemplate">
+    <ng-container *ngTemplateOutlet="extraTemplate; context: { $implicit: user }"></ng-container>
+  </ng-container>
+  <div>
+    <ng-container *ngIf="buttonTemplate">
+      <ng-container *ngTemplateOutlet="buttonTemplate; context: { $implicit: user }"></ng-container>
+    </ng-container>
+    <button
+      *ngIf="button && button.privilege && hasPrivilege(button.privilege)"
+      [routerLink]="button.link"
+      (click)="handleButtonClick()"
+      nz-button
+      nzType="primary"
+    >
+      {{ button.label }}
+    </button>
+  </div>
+</div>

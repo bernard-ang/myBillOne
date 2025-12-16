@@ -1,0 +1,164 @@
+<div container class="mx-auto" *ngIf="userResult$ | async as userResult">
+  <div class="flex pb-8">
+    <div class="flex-grow">
+      <h2 title nz-typography class="flex-grow mb-8">Admin Users</h2>
+      <div class="text-lg">You have {{userResult.totalItems | number: '1.0'}} users.</div>
+    </div>
+    <div>
+      <button nz-button nzType="primary" nzSize="large" (click)="doOpenCreateForm()">Add Admin User</button>
+    </div>
+  </div>
+
+  <div *ngIf="userPageable$ | async as userPageable">
+    <div class="flex pb-8">
+      <div class="flex-1">
+        <nz-input-group [nzPrefix]="searchIcon" nzSize="large">
+          <input type="text" (input)="doSearch($event)" nz-input placeholder="Find by name"/>
+        </nz-input-group>
+        <ng-template #searchIcon>
+          <i nz-icon nzType="search" class="mr-2"></i>
+        </ng-template>
+      </div>
+    </div>
+    <nz-table nzBordered
+              [nzLoading]="isTableLoading"
+              [nzData]="userResult.items"
+              [nzFrontPagination]="false"
+              [nzTotal]="userResult.totalItems"
+              [nzPageSize]="userPageable.size"
+              [nzPageIndex]="userPageable.page"
+              (nzQueryParams)="doQuery($event)"
+              nzSize="small"
+              nzTableLayout="fixed">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th nzWidth="74px">Active</th>
+          <th>MFA</th>
+          <th>Last Signed At</th>
+          <th nzWidth="160px">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of userResult.items; let i = index">
+          <td>{{ data.name }}</td>
+          <td>{{ data.email }}</td>
+          <td><i *ngIf="data.active" nz-icon nzType="check" class="mr-2"></i></td>
+          <td>
+            <div *ngIf="data.email2FAEnabled">Email</div>
+            <div *ngIf="data.google2FAEnabled">Google Authenticator</div>
+          </td>
+          <td>{{ data.lastLoggedIn | date: dateTimeFormat() }}</td>
+          <td nzRight>
+            <a (click)="doOpenEditForm(data)" class="mr-4"><i nz-icon nzType="edit" class="mr-2"></i>Edit</a><br/>
+            <a (click)="doDeleteUser(data)"><i nz-icon nzType="delete" class="mr-2"></i>Delete</a><br/>
+            <a *ngIf="data.active" (click)="doDeactivateUser(data)"><i nz-icon nzType="close" class="mr-2"></i>Deactivate</a>
+            <a *ngIf="!data.active" (click)="doActivateUser(data)"><i nz-icon nzType="check" class="mr-2"></i>Activate</a>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </div>
+
+  <div>
+    <nz-drawer
+      [nzBodyStyle]="{ overflow: 'auto' }"
+      [nzWidth]="540"
+      [nzClosable]="false"
+      [nzVisible]="isCreateFormVisible"
+      nzTitle="Add New User"
+      [nzFooter]="createFooterTemplate"
+      (nzOnClose)="closeCreateForm()"
+    >
+      <form nz-form *nzDrawerContent [formGroup]="createForm" nzLayout="vertical">
+        <div>
+          <div>
+            <nz-form-item>
+              <nz-form-label nzRequired>Name</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['name'])">
+                <input nz-input formControlName="name" placeholder="Please enter name"/>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div>
+            <nz-form-item>
+              <nz-form-label nzRequired>Email</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(createForm.controls['email'])">
+                <nz-input-group>
+                  <input type="text" formControlName="email" nz-input placeholder="Please enter email address"/>
+                </nz-input-group>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div>
+            <nz-form-item>
+              <nz-form-label nzRequired>Password</nz-form-label>
+              <nz-form-control [nzErrorTip]="getErrorMessage(createForm.controls['password'])">
+                <input nz-input formControlName="password" placeholder="Please enter password" type="password"/>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+      </form>
+
+      <ng-template #createFooterTemplate>
+        <div class="text-right">
+          <button nz-button [nzLoading]="isCreateFormLoading" nzType="primary" [disabled]="!createForm.valid"
+                  (click)="doCreateUser()">Create New Admin User
+          </button>
+        </div>
+      </ng-template>
+    </nz-drawer>
+
+    <nz-drawer
+      [nzBodyStyle]="{ overflow: 'auto' }"
+      [nzWidth]="540"
+      [nzClosable]="false"
+      [nzVisible]="isEditFormVisible"
+      nzTitle='Update User'
+      [nzFooter]="editFooterTemplate"
+      (nzOnClose)="closeEditForm()"
+    >
+      <form nz-form *nzDrawerContent [formGroup]="editForm" nzLayout="vertical">
+        <div>
+          <div>
+            <input nz-input type="hidden" formControlName="id"/>
+            <nz-form-item>
+              <nz-form-label nzRequired>Name</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(editForm.controls['name'])">
+                <input nz-input formControlName="name" placeholder="Please enter name"/>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div>
+            <nz-form-item>
+              <nz-form-label nzRequired>Email</nz-form-label>
+              <nz-form-control nzHasFeedback [nzErrorTip]="getErrorMessage(editForm.controls['email'])">
+                <nz-input-group>
+                  <input type="text" formControlName="email" nz-input placeholder="Please enter email address"/>
+                </nz-input-group>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div>
+            <nz-form-item>
+              <nz-form-label nzRequired>Password</nz-form-label>
+              <nz-form-control [nzErrorTip]="getErrorMessage(editForm.controls['password'])">
+                <input nz-input formControlName="password" placeholder="Key in if you want to update password" type="password"/>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+      </form>
+
+      <ng-template #editFooterTemplate>
+        <div class="text-right">
+          <button nz-button [nzLoading]="isEditFormLoading" nzType="primary" [disabled]="!editForm.valid"
+                  (click)="doUpdateUser()">Update Admin User
+          </button>
+        </div>
+      </ng-template>
+    </nz-drawer>
+  </div>
+</div>

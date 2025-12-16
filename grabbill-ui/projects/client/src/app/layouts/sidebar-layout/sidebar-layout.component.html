@@ -1,0 +1,173 @@
+<nz-layout app-layout *ngIf="user$ | async as user">
+  <nz-sider menu-sidebar nzCollapsible nzWidth="256px" nzTheme="light" nzBreakpoint="md" [(nzCollapsed)]="isCollapsed">
+    <div sidebar-logo>
+      <a routerLink="/">
+        <div class="logo" [ngClass]="{ 'collapse-logo': isCollapsed }"></div>
+      </a>
+    </div>
+    <ul nz-menu sider-menu nzTheme="dark" nzMode="inline" [nzInlineCollapsed]="isCollapsed">
+      <li *ngIf="hasPrivilege(user, privilege.DASHBOARD)" nz-menu-item [nzSelected]="url === '/' || url === ''">
+        <a [routerLink]="['/']">
+          <i nz-icon route-icon nzType="dashboard"></i>
+          <span>Dashboard</span>
+        </a>
+      </li>
+
+      <ng-container *ngFor="let route of typeRoutes">
+        <li
+          *ngIf="hasPrivilege(user, route.privilege)
+            && displayExperimentalFeature(route.isExperimental)
+            && hasWaba(user, route.isWabaRequired)
+            && isSameMode(route.mode)"
+          nz-menu-item
+          nzMatchRouter
+        >
+          <a [routerLink]="route.path" [queryParams]="route.queryParams">
+            <i nz-icon route-icon [nzType]="route.icon"></i>
+            <span>{{ route.menuTitle }}</span>
+          </a>
+        </li>
+      </ng-container>
+      <li nz-menu-item nzMatchRouter *ngIf="hasPrivilege(user, privilege.SEARCH_RECORD)" [routerLink]="['/', 'search']">
+        <a>
+          <i nz-icon route-icon nzType="search"></i>
+          <span>Search Records</span>
+        </a>
+      </li>
+      <li nz-menu-item nzMatchRouter nz-tooltip="View and export reports."
+          *ngIf="user.subscription!.reporting && hasPrivilege(user, privilege.SEARCH_RECORD)"
+          [routerLink]="['/', 'report']">
+        <a>
+          <i nz-icon route-icon nzType="file"></i>
+          <span>Reports</span>
+        </a>
+      </li>
+    </ul>
+  </nz-sider>
+  <nz-layout>
+    <nz-header header>
+      <div class="flex-grow" header-logo>
+        <div class="logo" [ngClass]="{ 'collapse-logo': isCollapsed }"></div>
+      </div>
+      <ng-container *ngIf="currentStatistics$ | async as currentStatistics">
+        <div *ngIf="url.includes('/sms/') && isSaas" sms-credit-container class="mr-4 text-md">
+          Remaining SMS Credits: {{ currentStatistics.smsRemainingCredits }}
+        </div>
+      </ng-container>
+      <div *ngIf="contextSensitiveHelp" help-container class="mr-2 text-2xl">
+        <a (click)="doHelp()"><span nz-icon nzType="question-circle"></span></a>
+      </div>
+      <div class="mr-4">
+        <a nz-dropdown [nzDropdownMenu]="menu" [nzOverlayStyle]="{ 'margin-top': '12px' }">
+          <nz-avatar nz-dropdown nzPlacement="bottomRight" nzIcon="user" avatar></nz-avatar>
+          <span account-name>{{ user.name }}</span>
+        </a>
+        <nz-dropdown-menu #menu="nzDropdownMenu">
+          <ul nz-menu>
+            <ng-container *ngFor="let route of accountRoutes">
+              <a
+                *ngIf="hasPrivilege(user, route.privilege) && isSameMode(route.mode)"
+                [routerLink]="route.path"
+                [queryParams]="route.queryParams"
+              >
+                <li nz-menu-item><i nz-icon [nzType]="route.icon" class="mr-2"></i>{{ route.menuTitle }}</li>
+              </a>
+            </ng-container>
+            <nz-divider
+              *ngIf="
+                hasSomePrivileges(user, [
+                  privilege.MANAGE_SMTP_IMAP,
+                  privilege.MANAGE_IMAGES,
+                  privilege.MANAGE_BOUNCED_EMAIL,
+                  privilege.MANAGE_UNSUBSCRIBED_EMAIL
+                ])
+              "
+              menu-divider
+            ></nz-divider>
+            <ng-container *ngFor="let route of miscRoutes">
+              <a
+                *ngIf="hasPrivilege(user, route.privilege) && hasWaba(user, route.isWabaRequired) && isSameMode(route.mode)"
+                [routerLink]="route.path" [queryParams]="route.queryParams">
+                <li nz-menu-item><i nz-icon [nzType]="route.icon" class="mr-2"></i>{{ route.menuTitle }}</li>
+              </a>
+            </ng-container>
+            <nz-divider menu-divider></nz-divider>
+            <a (click)="logout()">
+              <li nz-menu-item><i nz-icon nzType="logout" class="mr-2"></i>Logout</li>
+            </a>
+          </ul>
+        </nz-dropdown-menu>
+      </div>
+      <div></div>
+    </nz-header>
+    <nz-content>
+      <div class="inner-content" [ngClass]="{ 'collapse-inner-content': isCollapsed }">
+        <div inner-fixed-top-wrapper>
+          <div inner-fixed-top></div>
+        </div>
+        <div inner-top-padding>
+          <div
+            container
+            class="mx-auto mb-8"
+            *ngIf="user.outstandingAmount > 0 && !url.includes('edit') && !url.includes('new') && isSaas"
+          >
+            <nz-alert
+              nzShowIcon
+              nzType="error"
+              nzMessage="Previous Payment Failed"
+              nzDescription="Unfortunately one of your previous payment not go through. Please settle the outstanding amount RM{{
+                user.outstandingAmount | number: '1.2'
+              }} in Billing History."
+              [nzAction]="actionTemplate"
+            ></nz-alert>
+            <ng-template #actionTemplate>
+              <nz-space nzDirection="vertical">
+                <button
+                  *nzSpaceItem
+                  nz-button
+                  nzSize="small"
+                  nzType="default"
+                  nzDanger
+                  [routerLink]="['/', 'account', 'plan']"
+                  [queryParams]="{ tab: 'billing-history' }"
+                >
+                  View Billing History
+                </button>
+              </nz-space>
+            </ng-template>
+          </div>
+
+          <div
+            container
+            class="mx-auto mb-8"
+            *ngIf="user.paymentGracePeriodExceeded && !url.includes('edit') && !url.includes('new') && isSaas"
+          >
+            <nz-alert
+              nzShowIcon
+              nzType="error"
+              nzMessage="Grace Period Exceeded"
+              nzDescription="Please resolve payment issue in billing history."
+              [nzAction]="actionTemplate"
+            ></nz-alert>
+            <ng-template #actionTemplate>
+              <button
+                nz-button
+                nzSize="small"
+                nzType="default"
+                nzDanger
+                [routerLink]="['/', 'account', 'plan']"
+                [queryParams]="{ tab: 'billing-history' }"
+              >
+                View Billing History
+              </button>
+            </ng-template>
+          </div>
+          <router-outlet></router-outlet>
+        </div>
+      </div>
+    </nz-content>
+    <nz-footer footer>Version: client:{{ buildInfo.git.createdAt }}</nz-footer>
+  </nz-layout>
+</nz-layout>
+
+<grabbill-client-help-modal></grabbill-client-help-modal>

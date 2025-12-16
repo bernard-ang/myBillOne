@@ -1,0 +1,26 @@
+<nz-modal *ngIf="contactGroupSearchResult$ | async as contactGroupSearchResult" [nzVisible]="isVisible" nzTitle="Manage Groups" [nzMaskClosable]="false" (nzOnCancel)="doClose()">
+  <div *nzModalContent>
+    <div>
+      <form nz-form nzLayout="vertical" [formGroup]="form">
+        <nz-form-item *ngIf="contactGroupSearchResult.items.length > 0; else noGroup">
+          <nz-form-label nzRequired>Groups</nz-form-label>
+          <nz-form-control>
+            <nz-select
+              formControlName="groups" nzMode="multiple">
+              <ng-container *ngFor="let group of contactGroupSearchResult.items; let i = index">
+                <nz-option [nzValue]="group.id" [nzLabel]="group.name"></nz-option>
+              </ng-container>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <ng-template #noGroup>
+          No contact group found.
+        </ng-template>
+      </form>
+    </div>
+  </div>
+  <div *nzModalFooter>
+    <button nz-button class="mr-2" (click)="doClose()">Cancel</button>
+    <button nz-button nzType="primary" [disabled]="contactGroupSearchResult.items.length === 0" (click)="doSubmit()">Update</button>
+  </div>
+</nz-modal>

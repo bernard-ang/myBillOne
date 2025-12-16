@@ -1,0 +1,5 @@
+export enum PaymentType {
+  CC_PRE_AUTH = 'CC_PRE_AUTH',
+  CC_PRE_AUTH_CHARGE = 'CC_PRE_AUTH_CHARGE',
+  CC_CHARGE = 'CC_CHARGE',
+}

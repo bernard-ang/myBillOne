@@ -1,0 +1,15 @@
+<div box>
+  <div title class="pb-4">Summary</div>
+  <nz-spin [nzSpinning]="isLoading">
+    <div summary-box class="border w-full mr-20 flex flex-col">
+      <nz-result [nzStatus]="getStatus()" [nzTitle]="getStatusMessage()" [nzSubTitle]="getDescription()">
+        <div nz-result-extra>
+          <button [routerLink]="['/']" *ngIf="isSuccess()" nz-button nzType="primary">Back to Home</button>
+          <button [routerLink]="['/', 'register', 'plan-selection']" *ngIf="!isSuccess()" nz-button nzType="primary">
+            Back to Plan Selection
+          </button>
+        </div>
+      </nz-result>
+    </div>
+  </nz-spin>
+</div>

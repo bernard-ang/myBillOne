@@ -1,0 +1,35 @@
+<div box>
+  <div title>Two Factor Authentication</div>
+  <div>
+    <div class="pt-4 pb-8 text-left">
+      <div *ngIf="isGoogleAuth && !isEmailAuth">
+        The Google Authenticator app will generate a 6-digit code. Please enter the code to continue.
+      </div>
+      <div *ngIf="!isGoogleAuth && isEmailAuth">
+        A message with a verification code has been sent to your email. Please enter the code to continue.
+      </div>
+      <div *ngIf="isGoogleAuth && isEmailAuth">
+        The Google Authenticator app will generate a 6-digit code or enter verification code which has been sent to your
+        email. Please enter the code to continue.
+      </div>
+    </div>
+    <form nz-form [formGroup]="form" (ngSubmit)="submitForm()">
+      <nz-form-item>
+        <nz-form-control nzErrorTip="Required">
+          <nz-input-group nzPrefixIcon="number" nzSize="large">
+            <input type="text" nz-input formControlName="code" placeholder="Code"/>
+          </nz-input-group>
+        </nz-form-control>
+      </nz-form-item>
+      <button [nzLoading]="isLoading" nzSize="large" nz-button nzBlock nzType="primary">
+        Verify
+      </button>
+      <div class="text-center pt-4">
+        <a *ngIf="isGoogleAuth && isEmailAuth" class="mr-8" (click)="doResendCode()">Send code to email</a>
+        <a *ngIf="!isGoogleAuth && isEmailAuth" class="mr-8" (click)="doResendCode()">Resend code</a>
+        <a [routerLink]="['/', 'login']">Back to login page</a>
+      </div>
+    </form>
+  </div>
+
+</div>

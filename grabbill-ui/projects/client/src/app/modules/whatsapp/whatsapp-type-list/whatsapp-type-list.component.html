@@ -1,0 +1,74 @@
+<div container class="mx-auto">
+  <grabbill-client-page-header
+    title="WhatsApp"
+    description="Send personalised WhatsApp with unique PDF attachments in bulk to your customers."
+    [button]="{
+      label: 'Create WhatsApp Template',
+      privilege: privilege.WA_EDIT,
+      link: ['/', 'whatsapp', 'detail', 'new']
+    }"
+  >
+  </grabbill-client-page-header>
+  <nz-divider></nz-divider>
+  <grabbill-client-list
+    [store]="store"
+    [actions$]="actions$"
+    [pageable$]="whatsAppTypePageable$"
+    [result$]="whatsAppTypeSearchResult$"
+    [isListLoading]="isListLoading"
+    [queryAction]="queryAction"
+    [resetAction]="resetAction"
+    [loadMoreAction]="loadMoreAction"
+    [pageableState]="state.whatsAppTypePageable"
+    [typeNameState]="state.typeName"
+    [getSubtitle]="getMessage()"
+    [contentTemplate]="contentTemplate"
+    [actionsTemplate]="actionsTemplate"
+    (selectItem)="doSelect($event)"
+    icon="file-pdf"
+    searchText="Find by whatsapp name"
+    noRecordText="No whatsapp found"
+  >
+    <ng-template #contentTemplate let-item>
+      <div class="mr-8 ml-8">
+        <ng-container *ngIf="item.hasAttachment">
+          <div total list-title>{{ item.noOfFiles | number: "1.0" }}</div>
+          <div>Files</div>
+        </ng-container>
+      </div>
+      <div class="flex-grow text-lg" *ngIf="item.hasAttachment">
+        <span class="mr-2 text-green-600"
+          ><span
+            nz-icon
+            nz-tooltip="Attachment is archived"
+            nzType="cloud-upload"
+            nzTheme="outline"
+          ></span
+        ></span>
+        <span
+          [nz-tooltip]="item.passwordProtected ? 'Attachment is password protected' : 'Attachment is not password protected'"
+          [ngClass]="{ 'text-green-600': item.passwordProtected }"
+          nz-icon
+          nzType="lock"
+          nzTheme="outline"
+        ></span>
+      </div>
+      <div class="flex-grow" *ngIf="!item.hasAttachment"></div>
+    </ng-template>
+    <ng-template #actionsTemplate let-item>
+      <ul nz-list-item-actions>
+        <nz-list-item-action>
+          <a list-title (click)="doSelect(item)" nz-tooltip="Select"><i nz-icon nzType="select"></i></a
+        ></nz-list-item-action>
+        <ng-container *ngIf="hasPrivilege(privilege.WA_EDIT)">
+          <nz-list-item-action>
+            <a list-title (click)="doDuplicate(item)" nz-tooltip="Duplicate"><i nz-icon nzType="copy"></i></a
+          ></nz-list-item-action>
+          <nz-list-item-action *ngIf="!item.lastSentDate">
+            <a list-title (click)="doDelete(item)" nz-tooltip="Delete"><i nz-icon nzType="delete"></i></a>
+          </nz-list-item-action>
+        </ng-container>
+      </ul>
+    </ng-template>
+  </grabbill-client-list>
+</div>

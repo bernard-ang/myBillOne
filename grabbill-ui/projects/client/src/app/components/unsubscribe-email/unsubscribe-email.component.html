@@ -1,0 +1,41 @@
+<div box>
+  <div title>Unsubscribe Email</div>
+  <div *ngIf="isUnsubscribeSuccessful">
+    <div class="pt-4 pb-8 text-left">
+      You have successfully unsubscribe following email. You will no longer receive email from this list.
+    </div>
+
+    <button nzSize="large" [routerLink]="['/', 'login']" type="button" nz-button nzBlock nzType="primary">
+      Back to website
+    </button>
+  </div>
+  <div *ngIf="!isUnsubscribeSuccessful">
+    <div class="pt-4 pb-4 text-left">
+      Please let us know why you want to unsubscribe:
+    </div>
+    <form nz-form [formGroup]="form" (ngSubmit)="submitForm()">
+      <nz-form-item>
+        <nz-form-control [nzErrorTip]="getErrorMessage(form.controls['reason'])">
+          <nz-radio-group formControlName="reason" nzSize="large" (ngModelChange)="doChange($event)">
+            <label nz-radio nzValue="No longer want to receive">I no longer want to receive these emails</label>
+            <label nz-radio nzValue="Never signed up">I never signed up for this mailing list</label>
+            <label nz-radio nzValue="Email inappropriate">The emails are inappropriate</label>
+            <label nz-radio nzValue="Spam email">The emails are spam and should be reported</label>
+            <label nz-radio nzValue="O">
+              Other
+              <input type="text" nzSize="large" formControlName="otherReason" nz-input *ngIf="form.get('reason')!.value === 'O'" />
+              <div class="color-red">{{getErrorMessage(form.controls['otherReason'])}}</div>
+            </label>
+          </nz-radio-group>
+        </nz-form-control>
+      </nz-form-item>
+      <button [nzLoading]="isLoading" nzSize="large" nz-button nzBlock nzType="primary">
+        Unsubscribe Email
+      </button>
+      <div class="text-center pt-4">
+        <a [href]="environment.websiteUrl">Back to website</a>
+      </div>
+    </form>
+  </div>
+
+</div>

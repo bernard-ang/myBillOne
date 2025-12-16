@@ -1,0 +1,243 @@
+<div container class="mx-auto" *ngIf="accountSearchResult$ | async as accountSearchResult">
+  <div class="flex pb-8">
+    <div class="flex-grow">
+      <h2 title nz-typography class="flex-grow mb-8">Accounts</h2>
+      <div class="text-lg">You have {{accountSearchResult.totalItems | number: '1.0'}} accounts.</div>
+    </div>
+    <div>
+      <button nz-button nzType="primary" nzSize="large" (click)="doOpenDownloadReportModal()">Download Report</button>
+    </div>
+  </div>
+
+  <div *ngIf="accountPageable$ | async as accountPageable">
+    <div class="flex">
+      <div class="flex-1">
+        <nz-input-group [nzPrefix]="searchIcon" nzSize="large">
+          <input type="text" (input)="doSearch($event)" nz-input placeholder="Find by name" />
+        </nz-input-group>
+        <ng-template #searchIcon>
+          <i nz-icon nzType="search" class="mr-2"></i>
+        </ng-template>
+      </div>
+      <div>
+        <div [formGroup]="form">
+          <nz-range-picker formControlName="range"
+                           (ngModelChange)="doDateRange($event)"
+                           nzSize="large">
+          </nz-range-picker>
+        </div>
+      </div>
+    </div>
+    <div toolbar class="flex items-center p-2">
+      <div class="flex-grow">
+        <nz-tag
+          *ngFor="let tag of getFilters(); let i = index"
+          nzMode="closeable"
+          (nzOnClose)="doRemoveFilter(tag[0])"
+        >
+          {{ getFilterLabel(tag[0]) }} = {{ tag[1] }}
+        </nz-tag>
+      </div>
+      <div>
+        <button nz-button (click)="doOpenFilterModal()"  nzType="link"><i nz-icon nzType="filter"></i>Add Filter</button>
+      </div>
+    </div>
+    <nz-table nzBordered
+              [nzLoading]="isTableLoading"
+              [nzData]="accountSearchResult.items"
+              [nzFrontPagination]="false"
+              [nzTotal]="accountSearchResult.totalItems"
+              [nzPageSize]="accountPageable.size"
+              [nzPageIndex]="accountPageable.page"
+              (nzQueryParams)="doQuery($event)"
+              nzSize="small"
+              nzTableLayout="fixed">
+      <thead>
+      <tr>
+        <th>Email</th>
+        <th nzColumnKey="companyName" [nzSortFn]="true">Company Name</th>
+        <th>Contact No</th>
+        <th>Plan</th>
+        <th nzWidth="70px">Status</th>
+        <th nzColumnKey="createdDate" [nzSortFn]="true" nzWidth="120px">Created at</th>
+        <th nzColumnKey="lastModifiedDate" [nzSortFn]="true" nzWidth="120px">Modified at</th>
+        <th nzWidth="180px">Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let data of accountSearchResult.items; let i = index">
+        <td>{{ data.email }}</td>
+        <td><a [routerLink]="['/', 'account', 'detail', data.id]">{{ data.companyName }}</a></td>
+        <td>{{ data.companyContactNo }}</td>
+        <td>{{ data.plan }}</td>
+        <td>
+          <i nz-tooltip="Account Active" *ngIf="data.active" green nz-icon nzType="check" class="mr-2"></i>
+          <i nz-tooltip="Account Inactive" *ngIf="!data.active" red nz-icon nzType="close" class="mr-2"></i>
+
+          <i nz-tooltip="Payment Exempted" *ngIf="data.paymentExempted" red nz-icon nzType="dollar" class="mr-2"></i>
+          <i nz-tooltip="Payment Required" *ngIf="!data.paymentExempted" green nz-icon nzType="dollar" class="mr-2"></i>
+        </td>
+        <td>{{ data.createdTime | date: getDateTimeFormat() }}</td>
+        <td>{{ data.lastModifiedTime | date: getDateTimeFormat() }}</td>
+        <td nzRight>
+          <div>
+            <a *ngIf="data.active" (click)="doUpdateAccountStatus(data.id, data.email, false)">
+              <i nz-icon nzType="close" class="mr-2"></i>Deactivate</a>
+            <a *ngIf="!data.active" (click)="doUpdateAccountStatus(data.id, data.email, true)">
+              <i nz-icon nzType="check" class="mr-2"></i>Activate</a>
+          </div>
+
+          <div>
+            <a *ngIf="data.paymentExempted" (click)="doUpdateAccountPaymentExemptionStatus(data.id, data.email, false)">
+              <i nz-icon nzType="dollar" class="mr-2"></i>Activate payment</a>
+            <a *ngIf="!data.paymentExempted" (click)="doUpdateAccountPaymentExemptionStatus(data.id, data.email, true)">
+              <i nz-icon nzType="dollar" class="mr-2"></i>Exempt payment</a>
+          </div>
+
+          <div>
+            <a (click)="doOpenSwitchPlanModal(data.id, data.email)">
+              <i nz-icon nzType="swap" class="mr-2"></i>Switch plan</a>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </div>
+
+  <nz-modal [nzVisible]="isSwitchPlanModalVisible" nzTitle="Switch Plan" (nzOnCancel)="doCloseSwitchPlanModal()">
+    <div *nzModalContent>
+      <div>
+        <form nz-form [formGroup]="switchPlanForm">
+          <nz-form-item>
+            <nz-form-label [nzSm]="12" [nzXs]="24" nzRequired>Plan</nz-form-label>
+            <nz-form-control [nzSm]="12" [nzXs]="24">
+              <nz-select
+                formControlName="plan"
+                (ngModelChange)="doPlanChange($event)"
+              >
+                <ng-container *ngFor="let field of planOptions; let i = index">
+                  <nz-option [nzValue]="field.key" [nzLabel]="field.label"></nz-option>
+                </ng-container>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSm]="12" [nzXs]="24" nzRequired>Storage</nz-form-label>
+            <nz-form-control [nzSm]="12" [nzXs]="24">
+              <nz-select formControlName="storage">
+                <ng-container *ngFor="let field of storageOptions; let i = index">
+                  <nz-option [nzValue]="field.key" [nzLabel]="field.label"></nz-option>
+                </ng-container>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSm]="12" [nzXs]="24" nzRequired>Transactional Email</nz-form-label>
+            <nz-form-control [nzSm]="12" [nzXs]="24">
+              <nz-select formControlName="transactionalEmail">
+                <ng-container *ngFor="let field of txOptions; let i = index">
+                  <nz-option [nzValue]="field.key" [nzLabel]="field.label"></nz-option>
+                </ng-container>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSm]="12" [nzXs]="24" nzRequired>Email Campaign</nz-form-label>
+            <nz-form-control [nzSm]="12" [nzXs]="24">
+              <nz-select formControlName="emailCampaign">
+                <ng-container *ngFor="let field of ecOptions; let i = index">
+                  <nz-option [nzValue]="field.key" [nzLabel]="field.label"></nz-option>
+                </ng-container>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item>
+            <nz-form-label [nzSm]="12" [nzXs]="24" nzRequired>Subscription Mode</nz-form-label>
+            <nz-form-control [nzSm]="12" [nzXs]="24">
+              <nz-select formControlName="subscriptionMode">
+                <ng-container *ngFor="let option of subscriptionOptions; let i = index">
+                  <nz-option [nzValue]="option" [nzLabel]="option"></nz-option>
+                </ng-container>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </form>
+      </div>
+    </div>
+    <div *nzModalFooter>
+      <button nz-button nzType="primary" (click)="doSwitchPlan()">Switch</button>
+    </div>
+  </nz-modal>
+
+  <nz-modal [nzVisible]="isReportModalVisible" nzTitle="Download Report" (nzOnCancel)="doCloseReportModal()">
+    <div *nzModalContent>
+      <div>
+        <form nz-form [formGroup]="reportForm">
+          <nz-form-item>
+            <nz-form-label [nzSm]="10" [nzXs]="24" nzRequired>Date</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <nz-range-picker [nzShowTime]="true" formControlName="dates"></nz-range-picker>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="10" [nzXs]="24">Affiliate Code</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <input nz-input formControlName="affiliateCode" />
+            </nz-form-control>
+          </nz-form-item>
+        </form>
+      </div>
+    </div>
+    <div *nzModalFooter>
+      <button nz-button nzType="primary" (click)="doDownloadReport()">Download</button>
+    </div>
+  </nz-modal>
+
+  <nz-modal [nzVisible]="isFilterModalVisible" nzTitle="Add Filter" (nzOnCancel)="doCloseFilterModal()">
+    <div *nzModalContent>
+      <div>
+        <form nz-form [formGroup]="filterForm">
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Field</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <nz-select
+                formControlName="field"
+                (ngModelChange)="doFilterFieldChange($event)"
+              >
+                <ng-container *ngFor="let field of filterOptions; let i = index">
+                  <nz-option [nzValue]="field.key" [nzLabel]="field.label"></nz-option>
+                </ng-container>
+              </nz-select>
+              <input type="hidden" formControlName="type"/>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item *ngIf="filterForm.get('type')!.value === 'TEXT'">
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Value</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <input nz-input formControlName="value"/>
+            </nz-form-control>
+          </nz-form-item>
+
+          <nz-form-item *ngIf="filterForm.get('type')!.value === 'OPTION'">
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Value</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <nz-select formControlName="value">
+                <ng-container *ngFor="let option of options; let i = index">
+                  <nz-option [nzValue]="option" [nzLabel]="option"></nz-option>
+                </ng-container>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </form>
+      </div>
+    </div>
+    <div *nzModalFooter>
+      <button nz-button nzType="primary" (click)="doAddFilter()">Add</button>
+    </div>
+  </nz-modal>
+</div>

@@ -1,0 +1,129 @@
+<div container class="mx-auto">
+  <div class="pb-8" *ngIf="rootFolder$ | async as rootFolder">
+    <grabbill-client-page-header
+      title="Images"
+      description="You have {{ rootFolder.imageCount | number }} images."
+      [buttonTemplate]="buttonTemplate"
+    >
+      <ng-template #buttonTemplate>
+        <button nz-button nzType="default" class="mr-4" (click)="doOpenCreateFolderModal()">Add Folder</button>
+        <nz-upload
+          [nzMultiple]="true"
+          [nzBeforeUpload]="beforeUploadImage"
+          nzAccept="image/*"
+          nzFileType="image/jpg,image/png,image/jpeg,image/gif"
+        >
+          <button nz-button nzType="primary">
+            <i nz-icon nzType="upload"></i>
+            Upload Image
+          </button>
+        </nz-upload>
+      </ng-template>
+    </grabbill-client-page-header>
+  </div>
+
+  <ng-template #elseImage>
+    <nz-list nzBordered>
+      <nz-list-item>
+        <nz-skeleton [nzAvatar]="true" [nzActive]="true" [nzParagraph]="false"></nz-skeleton>
+      </nz-list-item>
+      <nz-list-item>
+        <nz-skeleton [nzAvatar]="true" [nzActive]="true" [nzParagraph]="false"></nz-skeleton>
+      </nz-list-item>
+      <nz-list-item>
+        <nz-skeleton [nzAvatar]="true" [nzActive]="true" [nzParagraph]="false"></nz-skeleton>
+      </nz-list-item>
+    </nz-list>
+  </ng-template>
+
+  <div *ngIf="rootFolder$ | async as rootFolder; else elseImage">
+    <nz-list nzBordered class="bg-white" *ngIf="rootFolder.imageFolders.length > 0 || rootFolder.images.length > 0">
+      <ng-container *ngFor="let folder of rootFolder.imageFolders">
+        <nz-list-item>
+          <div class="pr-4">
+            <nz-avatar nzIcon="folder" folder-avatar></nz-avatar>
+          </div>
+          <div class="flex-grow">
+            {{ folder.name }}
+          </div>
+          <ul nz-list-item-actions>
+            <nz-list-item-action>
+              <nz-upload
+                [nzMultiple]="true"
+                [nzBeforeUpload]="beforeUploadFolderImage(folder.name)"
+                nzAccept="image/*"
+                nzFileType="image/jpg,image/png,image/jpeg,image/gif"
+              >
+                <a>Upload</a>
+              </nz-upload>
+            </nz-list-item-action>
+            <nz-list-item-action>
+              <a (click)="doDeleteFolder(folder.name)">Delete</a>
+            </nz-list-item-action>
+          </ul>
+        </nz-list-item>
+        <ng-container *ngFor="let image of folder.images">
+          <nz-list-item>
+            <div nested-image class="pr-4">
+              <nz-avatar image-avatar nzShape="square" [nzSrc]="image.externalUrl"></nz-avatar>
+            </div>
+            <div class="flex-grow">
+              <a [title]="image.filename" target="_blank" [href]="image.externalUrl">{{ image.filename }}</a>
+            </div>
+            <ul nz-list-item-actions>
+              <nz-list-item-action>
+                <p nz-typography nzCopyable [nzCopyText]="image.externalUrl"> </p>
+              </nz-list-item-action>
+              <nz-list-item-action>
+                <a (click)="doDeleteImage(image.filename, image.id)">Delete</a>
+              </nz-list-item-action>
+            </ul>
+          </nz-list-item>
+        </ng-container>
+      </ng-container>
+      <ng-container *ngFor="let image of rootFolder.images">
+        <nz-list-item>
+          <div class="pr-4">
+            <nz-avatar image-avatar nzIcon="image" nzShape="square" [nzSrc]="image.externalUrl"></nz-avatar>
+          </div>
+          <div class="flex-grow">
+            <a [title]="image.filename" target="_blank" [href]="image.externalUrl">{{ image.filename }}</a>
+          </div>
+          <ul nz-list-item-actions>
+            <nz-list-item-action>
+              <p nz-typography nzCopyable [nzCopyText]="image.externalUrl"> </p>
+            </nz-list-item-action>
+            <nz-list-item-action>
+              <a (click)="doDeleteImage(image.filename, image.id)">Delete</a>
+            </nz-list-item-action>
+          </ul>
+        </nz-list-item>
+      </ng-container>
+    </nz-list>
+    <nz-card *ngIf="rootFolder.imageFolders.length === 0 && rootFolder.images.length === 0">
+      <nz-empty empty-search [nzNotFoundContent]="contentTpl">
+        <ng-template #contentTpl>
+          <span>No image found</span>
+        </ng-template>
+      </nz-empty>
+    </nz-card>
+  </div>
+</div>
+
+<nz-modal [nzVisible]="isCreateFolderModalVisible" nzTitle="Create Folder" (nzOnCancel)="doCloseCreateFolderModal()">
+  <div *nzModalContent>
+    <div>
+      <form nz-form [formGroup]="createFolderForm">
+        <nz-form-item>
+          <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Folder name</nz-form-label>
+          <nz-form-control [nzSm]="14" [nzXs]="24" [nzErrorTip]="getErrorMessage(createFolderForm.controls['name'])">
+            <input nz-input formControlName="name" />
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </div>
+  </div>
+  <div *nzModalFooter>
+    <button nz-button nzType="primary" (click)="doCreateFolder()">Create</button>
+  </div>
+</nz-modal>

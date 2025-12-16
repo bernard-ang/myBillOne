@@ -1,0 +1,166 @@
+@import '../../../styles/variables';
+
+:host {
+  display: flex;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.logo {
+  background-image: @logo-big;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 100%;
+  background-position: left;
+  background-size: contain;
+}
+
+.collapse-logo {
+  background-image: url("/assets/logo_small.png");
+}
+
+[sider-menu] {
+  background-color: @accent-color;
+}
+
+[menu-sidebar] {
+  position: fixed;
+  z-index: 11;
+  min-height: 100vh;
+  box-shadow: 0 1px 4px rgb(0 21 41 / 8%);
+}
+
+[header-trigger] {
+  height: 64px;
+  padding: 20px 24px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s, padding 0s;
+}
+
+[trigger]:hover {
+  color: @primary-color;
+}
+
+[sidebar-logo] {
+  position: relative;
+  height: 60px;
+  padding: 8px 20px;
+  overflow: hidden;
+  line-height: 64px;
+  transition: all 0.3s;
+  margin-bottom: 16px;
+  margin-top: 8px;
+}
+
+[sidebar-logo] img {
+  display: inline-block;
+  height: 32px;
+  width: 32px;
+  vertical-align: middle;
+}
+
+[sidebar-logo] h1 {
+  display: inline-block;
+  margin: 0 0 0 20px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 20px;
+  vertical-align: middle;
+}
+
+[highlight] {
+  color: @primary-color;
+}
+
+[route-icon] {
+  color: @ant-blue-color;
+}
+
+nz-header {
+  padding: 0;
+  width: 100%;
+  z-index: 2;
+}
+
+[header] {
+  position: fixed;
+  padding: 0;
+  height: 64px;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  display: flex;
+  z-index: 30;
+}
+
+[header-logo] {
+  height: 40px;
+  margin-top: 12px;
+  margin-left: 20px;
+}
+
+[user-container] {
+  margin-right: 20px;
+}
+
+[account-name] {
+  font-size: 14px;
+  margin-right: 8px;
+}
+
+[menu-divider] {
+  margin: 8px 0;
+}
+
+[avatar] {
+  background-color: @primary-color;
+  margin-right: 8px;
+}
+
+.inner-content {
+  margin-left: 256px;
+  margin-top: 64px;
+  padding: 0 36px 36px 36px;
+  background: @grey-color;
+  height: calc(100% - 65px);
+}
+
+.collapse-inner-content {
+  margin-left: 80px;
+}
+
+[inner-fixed-top-wrapper] {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+[inner-fixed-top] {
+  background-color: @grey-color;
+  height: 36px;
+  z-index: 3;
+  position: fixed;
+  width: calc(100vw - 328px);
+}
+
+[inner-top-padding] {
+  padding-top: 36px;
+  z-index: 2;
+}
+
+[sms-credit-container] {
+  height: 32px;
+}
+
+[help-container] {
+  height: 32px;
+  margin-top: 18px;
+}
+
+[footer] {
+  z-index: 10;
+  font-size: 12px;
+  text-align: right;
+  background-color: white;
+  padding: 14px;
+}

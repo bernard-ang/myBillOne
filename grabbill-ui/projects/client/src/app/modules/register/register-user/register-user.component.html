@@ -1,0 +1,51 @@
+<div box>
+  <div box-title>Register an Account</div>
+  <div class="pb-8 text-left"></div>
+  <form nz-form [formGroup]="form" (ngSubmit)="submitForm()">
+    <nz-form-item>
+      <nz-form-control [nzErrorTip]="getErrorMessage(form.controls['email'])">
+        <nz-input-group nzPrefixIcon="user" nzSize="large">
+          <input type="text" nz-input formControlName="email" placeholder="Email" />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control [nzErrorTip]="getErrorMessage(form.controls['password'])">
+        <nz-input-group nzPrefixIcon="lock" nzSize="large">
+          <input
+            type="password"
+            nz-input
+            formControlName="password"
+            placeholder="Password"
+          />
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+    <div nz-row class="mb-6">
+      <div nz-col [nzSpan]="24">
+        <label nz-checkbox formControlName="term"></label>
+        I agree to the <a target="_blank" [href]="environment.websiteUrl + '/terms-of-service'">terms</a> and the
+        <a target="_blank" [href]="environment.websiteUrl + '/privacy-policy'">privacy statement</a>.
+      </div>
+    </div>
+    <button nzBlock nz-button nzSize="large" nzType="primary" [nzLoading]="isLoading">Sign Up</button>
+    <nz-divider nzText="OR"></nz-divider>
+    <div>
+      <button
+        (click)="doGoogleLogin()"
+        nz-button
+        nzBlock
+        nzSize="large"
+        nzType="default"
+        type="button"
+        [nzLoading]="isGoogleLoading"
+      >
+        <i nz-icon nzType="google"></i>
+        Sign Up with Google
+      </button>
+    </div>
+    <div class="text-center pt-4">
+      <a [routerLink]="['/', 'login']">Back to login page</a>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,29 @@
+<div box>
+  <div title><div logo class="mb-10"></div></div>
+  <form nz-form [formGroup]="form" (ngSubmit)="login()">
+    <nz-form-item>
+      <nz-form-control [nzErrorTip]="getErrorMessage(form.controls['email'])">
+        <nz-input-group nzPrefixIcon="user" nzSize="large">
+          <input type="text" nz-input formControlName="email" placeholder="Email"/>
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control [nzErrorTip]="getErrorMessage(form.controls['password'])">
+        <nz-input-group nzPrefixIcon="lock" nzSize="large">
+          <input type="password" nz-input formControlName="password" placeholder="Password"/>
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+    <button nzSize="large"
+            nzType="primary"
+            nz-button
+            nzBlock
+            [nzLoading]="isLoading">
+      Log in
+    </button>
+    <div class="text-center pt-4">
+      <a [routerLink]="['/', 'forget-password']">Forgot password</a>
+    </div>
+  </form>
+</div>

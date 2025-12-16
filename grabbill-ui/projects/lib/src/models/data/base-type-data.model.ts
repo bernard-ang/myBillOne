@@ -1,0 +1,32 @@
+export interface BaseTypeDataModel {
+  text1: string;
+  number1: number;
+  date1: Date;
+  text2: string;
+  number2: number;
+  date2: Date;
+  text3: string;
+  number3: number;
+  date3: Date;
+  text4: string;
+  number4: number;
+  date4: Date;
+  text5: string;
+  number5: number;
+  date5: Date;
+  text6: string;
+  number6: number;
+  date6: Date;
+  text7: string;
+  number7: number;
+  date7: Date;
+  text8: string;
+  number8: number;
+  date8: Date;
+  text9: string;
+  number9: number;
+  date9: Date;
+  text10: string;
+  number10: number;
+  date10: Date;
+}

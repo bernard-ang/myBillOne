@@ -1,0 +1,159 @@
+<ng-container>
+  <div container class="mx-auto">
+    <grabbill-client-breadcrumb
+      rootTitle="Digital Filing"
+      [rootLink]="['/', 'digital-filing', 'list']"
+      [hasCrumb2]="true"
+      [crumb2Object]="digitalFilingType$ | async"
+      [crumb2Link]="['/', 'digital-filing', 'detail', typeId]"
+      [crumb2QueryParam]="{ tab: 'activities' }"
+    ></grabbill-client-breadcrumb>
+
+    <ng-template #elseActivity>
+      <nz-skeleton [nzActive]="true" [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+    </ng-template>
+    <ng-container *ngIf="digitalFilingActivity$ | async as digitalFilingActivity; else elseActivity">
+      <ng-container *ngIf="digitalFilingType$ | async as digitalFilingType">
+        <grabbill-client-page-header
+          [title]="digitalFilingActivity.name"
+          [subtitle]="getCode(digitalFilingType)"
+          description="You have {{ digitalFilingActivity.files.length | number: '1.0' }} files."
+        ></grabbill-client-page-header>
+
+        <nz-divider></nz-divider>
+
+        <nz-tabset nzSize="large" nzLinkRouter>
+          <nz-tab>
+            <a
+              *nzTabLink
+              nz-tab-link
+              [routerLink]="['.']"
+              [queryParams]="{ tab: 'records' }"
+              queryParamsHandling="merge"
+            >
+              Records
+            </a>
+            <div class="flex pb-4">
+              <div class="flex-1">
+                <nz-input-group [nzPrefix]="searchIcon">
+                  <input type="text" nz-input placeholder="Find by filename" (input)="doSearch($event)" />
+                </nz-input-group>
+                <ng-template #searchIcon>
+                  <i nz-icon nzType="search" class="mr-2"></i>
+                </ng-template>
+              </div>
+              <div class="flex-1"></div>
+            </div>
+
+            <nz-table
+              #recordTable
+              nzBordered
+              [nzShowPagination]="true"
+              [nzData]="getFilterRecords(digitalFilingActivity.records)"
+              nzSize="small"
+              nzTableLayout="fixed"
+            >
+              <thead>
+                <tr>
+                  <th nzWidth="44px">No</th>
+                  <th *ngFor="let fieldLabel of getIndexFieldLabels(digitalFilingType)">{{ fieldLabel }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let data of recordTable.data; let i = index">
+                  <td>{{ data.indexRow.seqOrder }}</td>
+                  <td *ngFor="let value of getIndexRowValues(data.indexRow, digitalFilingType); let i = index">
+                    <div *ngIf="i === 0 && data.indexRow && data.indexRow.file; else elseBlock">
+                      <a (click)="doDownloadFile(data.indexRow)">{{ value }}</a>
+                    </div>
+                    <ng-template #elseBlock>{{ value }}</ng-template>
+                  </td>
+                </tr>
+              </tbody>
+            </nz-table>
+          </nz-tab>
+          <nz-tab>
+            <a *nzTabLink nz-tab-link [routerLink]="['.']" [queryParams]="{ tab: 'info' }" queryParamsHandling="merge">
+              Info
+            </a>
+            <nz-card>
+              <grabbill-client-descriptions
+                [items]="[
+                  {
+                    span: 2,
+                    title: 'Status',
+                    type: 'tag',
+                    object: digitalFilingActivity,
+                    typeFn: getStatusTag,
+                    value: digitalFilingActivity.status
+                  },
+                  { span: 2, title: 'Message', type: 'string', value: digitalFilingActivity.message },
+                  {
+                    span: 2,
+                    title: 'Expected purged at',
+                    type: 'date',
+                    value: digitalFilingActivity.expectedPurgedTimestamp
+                  },
+                  {
+                    title: 'Purged at',
+                    span: 2,
+                    type: 'date',
+                    value: digitalFilingActivity.purgedTimestamp
+                  },
+                  {
+                    title: 'Submitted at',
+                    span: 2,
+                    type: 'date',
+                    value: digitalFilingActivity.submittedTimestamp
+                  },
+                  {
+                    title: 'Processing at',
+                    span: 2,
+                    type: 'date',
+                    value: digitalFilingActivity.processingTimestamp
+                  },
+                  {
+                    title: 'Processed at',
+                    span: 2,
+                    type: 'date',
+                    value: digitalFilingActivity.processedTimestamp
+                  },
+                  {
+                    title: 'Error at',
+                    span: 2,
+                    type: 'date',
+                    value: digitalFilingActivity.errorTimestamp
+                  },
+                  {
+                    title: 'Created by',
+                    span: 2,
+                    type: 'string',
+                    value: digitalFilingActivity.createdBy
+                  },
+                  {
+                    title: 'Created at',
+                    span: 2,
+                    type: 'date',
+                    value: digitalFilingActivity.createdDate
+                  },
+                  {
+                    title: 'Last updated by',
+                    span: 2,
+                    type: 'string',
+                    value: digitalFilingActivity.lastModifiedBy
+                  },
+                  {
+                    title: 'Last updated at',
+                    span: 2,
+                    type: 'date',
+                    value: digitalFilingActivity.lastModifiedDate
+                  }
+                ]"
+              ></grabbill-client-descriptions>
+            </nz-card>
+          </nz-tab>
+        </nz-tabset>
+      </ng-container>
+    </ng-container>
+  </div>
+</ng-container>

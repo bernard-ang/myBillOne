@@ -1,0 +1,259 @@
+@import 'tailwind.css';
+
+@import '../../../node_modules/@fontsource/poppins/index.css';
+
+// Custom Theming for NG-ZORRO
+// For more information: https://ng.ant.design/docs/customize-theme/en
+@import '../../../node_modules/ng-zorro-antd/ng-zorro-antd.less';
+
+// Override less variables to here
+// View all variables: https://github.com/NG-ZORRO/ng-zorro-antd/blob/master/components/style/themes/default.less
+
+@import 'styles/variables';
+@import 'styles/zorro-overwrite';
+@import 'styles/mjml-editor-overwrite';
+
+body {
+  font-family: @font-family;
+}
+
+[remark] {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+[container] {
+  max-width: 1200px;
+}
+
+[toolbar] {
+  border-left: 1px solid #f0f0f0;
+  border-right: 1px solid #f0f0f0;
+}
+
+[search-toolbar] {
+  border-top: 1px solid #f0f0f0;
+  border-left: 1px solid #f0f0f0;
+  border-right: 1px solid #f0f0f0;
+}
+
+[search-group] {
+  border-color: #f0f0f0;
+}
+
+[filter-tag] {
+  font-size: 14px;
+}
+
+[icon-background] {
+  background-color: @accent-color;
+}
+
+[progress-chart] {
+  max-width: 800px;
+}
+
+[secondary] {
+  font-size: 20px;
+}
+
+[actions-width] {
+  width: 120px;
+  text-align: right;
+
+  @media @media-xl {
+    width: 200px;
+  }
+}
+
+
+[list-item] {
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+// fix sidebar being pushed up after modal or drawer open
+.cdk-global-scrollblock {
+  position: static !important;
+  width: initial !important;
+  overflow-y: inherit !important;
+}
+
+[result] svg {
+  display: inherit;
+}
+
+[app-layout] {
+  min-height: 100vh;
+}
+
+.logo {
+  background-image: @logo-big;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 100%;
+  background-position: left;
+  background-size: contain;
+}
+
+[list-title] {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+[list-description] {
+  color: @dark-grey-color-2;
+  font-size: 15px;
+}
+
+[missing-error] {
+  color: @red-color;
+}
+
+[error-table] {
+  height: 50vh;
+  overflow-y: auto;
+}
+
+[top] {
+  width: calc(100vw - 328px);
+  position: fixed;
+  z-index: 3;
+  background: @grey-color;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+[top-span] {
+  padding-top: 200px;
+  z-index: 2;
+}
+
+[logo] {
+  background-image: @logo-big;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 80px;
+  background-position: center;
+  background-size: contain;
+}
+
+[box] {
+  width: 294px;
+
+  @media @media-md {
+    width: 400px;
+  }
+}
+
+[box-title] {
+  font-size: 38px;
+  font-weight: 900;
+}
+
+[markdown] {
+  h1 {
+    font-size: 2em;
+    font-weight: bold;
+  }
+
+  h2 {
+    font-size: 1.5em;
+    font-weight: bold;
+  }
+
+  h3 {
+    font-size: 1.17em;
+    font-weight: bold;
+  }
+
+  h4 {
+    font-weight: bold;
+  }
+
+
+  ol {
+    display: block;
+    list-style-type: decimal;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+    padding-inline-start: 40px;
+    line-height: 1.5;
+  }
+
+  ul {
+    display: block;
+    list-style-type: disc;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+    padding-inline-start: 40px;
+    line-height: 1.5;
+  }
+
+  table {
+    width: 100%;
+    display: table;
+    border-collapse: separate;
+    box-sizing: border-box;
+    text-indent: initial;
+    border-spacing: 2px;
+    border-color: grey;
+
+    tr {
+      display: table-row;
+      vertical-align: inherit;
+      border-color: inherit;
+    }
+
+    th {
+      font-weight: 500;
+      height: 56px;
+      color: #0000008a
+    }
+
+    td {
+      font-size: 15px;
+      height: 48px;
+    }
+
+    td, th {
+      padding: 0;
+      border-bottom-width: 1px;
+      border-bottom-style: solid;
+      border-bottom-color: #0000001f
+    }
+
+    .mat-ripple-element {
+      background-color: #0000001a
+    }
+  }
+}
+
+[wrap-tag] {
+  display: inline-block;
+  white-space: normal;
+}
+
+[list-button] {
+  height: 30px;
+  padding: 0 12px;
+}
+
+.ant-table-thead > tr > th.text-right {
+  text-align: right;
+}
+
+.ant-table-thead > tr > th.text-center {
+  text-align: center;
+}
+
+.ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table > thead > tr > th.excel-header-cell {
+  background-color: aliceblue;
+  color: black;
+}

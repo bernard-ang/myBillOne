@@ -1,0 +1,35 @@
+package com.grabbill.core.model;
+
+/**
+ * @author michaellow
+ */
+public enum AdminActionType {
+
+    // admin user action(s)
+    ADMIN_USER_CREATE,
+    ADMIN_USER_UPDATE,
+    ADMIN_USER_ACTIVATE,
+    ADMIN_USER_DEACTIVATE,
+    ADMIN_USER_DELETE,
+    ADMIN_USER_FORGET_PASSWORD,
+    ADMIN_USER_RESET_PASSWORD,
+    ADMIN_USER_GENERATE_EMAIL_OTP,
+
+    // account action(s)
+    ACCOUNT_ACTIVATE,
+    ACCOUNT_DEACTIVATE,
+    ACCOUNT_SET_PAYMENT_EXEMPTED,
+    ACCOUNT_UNSET_PAYMENT_EXEMPTED,
+    ACCOUNT_SWITCH_PLAN,
+    ACCOUNT_WABA_UPDATE,
+    ACCOUNT_WABA_WEBHOOK_REGISTERED,
+    ACCOUNT_WABA_WEBHOOK_UNREGISTERED,
+
+    // job action(s)
+    JOB_RETRY,
+
+    // auth actions(s)
+    LOGIN,
+    LOGOUT
+
+}

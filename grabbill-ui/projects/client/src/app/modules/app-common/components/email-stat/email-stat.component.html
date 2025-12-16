@@ -1,0 +1,20 @@
+<div class="flex text-center mb-8 bg-white">
+  <div class="stat-block flex-1">
+    <nz-statistic [nzValue]="(emailTotal | number)!" nzTitle="Total"></nz-statistic>
+  </div>
+  <div class="stat-block flex-1">
+    <nz-statistic [nzValue]="(emailSent | number)!" nzTitle="Sent"></nz-statistic>
+  </div>
+  <div class="stat-block flex-1">
+    <nz-statistic [nzValue]="(emailOpened | number)!" nzTitle="Opened"></nz-statistic>
+  </div>
+  <div class="stat-block flex-1">
+    <nz-statistic [nzValue]="(emailBounced | number)!" nzTitle="Bounced"></nz-statistic>
+  </div>
+  <div class="stat-block flex-1">
+    <nz-statistic [nzValue]="(emailUnsubscribed | number)!" nzTitle="Unsubscribed"></nz-statistic>
+  </div>
+  <div class="stat-block flex-1">
+    <nz-statistic [nzValue]="(emailSkip | number)!" nzTitle="Skip"></nz-statistic>
+  </div>
+</div>

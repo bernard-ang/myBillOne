@@ -1,0 +1,48 @@
+<div container class="mx-auto">
+  <div class="mb-4">
+    <nz-breadcrumb>
+      <nz-breadcrumb-item [routerLink]="['/']">
+        <a><i nz-icon class="cursor-pointer" nzType="home"></i></a>
+      </nz-breadcrumb-item>
+      <nz-breadcrumb-item [routerLink]="['/', 'stripe-event', 'list']">
+        <a>
+          <i nz-icon nzType="dollar"></i>
+          <span>Stripe Event</span>
+        </a>
+      </nz-breadcrumb-item>
+    </nz-breadcrumb>
+  </div>
+
+  <ng-template #elseType>
+    <nz-skeleton [nzActive]="true" [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+  </ng-template>
+
+  <div *ngIf="stripeEvent$|async as stripeEvent; else elseType">
+    <div class="flex">
+      <div class="flex-grow mb-8">
+        <h2 nz-typography title>{{stripeEvent.eventType}}</h2>
+      </div>
+    </div>
+
+
+    <div class="pb-8">
+      <h5 nz-typography>Information</h5>
+      <nz-descriptions nzBordered [nzColumn]="{ xxl: 4, xl: 4, lg: 4, md: 4, sm: 4, xs: 2 }">
+        <nz-descriptions-item nzTitle="Date" [nzSpan]="2">{{ stripeEvent.createdDate | date: dateTimeFormat() }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Event Id" [nzSpan]="2">{{stripeEvent.eventId}}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Type" [nzSpan]="2">{{stripeEvent.type}}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Event" [nzSpan]="2">{{stripeEvent.eventType}}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Ref Id" [nzSpan]="2">{{ stripeEvent.refId }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Account Id" [nzSpan]="2">{{ stripeEvent.accountId }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Account Name" [nzSpan]="2">{{ stripeEvent.accountName }}</nz-descriptions-item>
+        <nz-descriptions-item nzTitle="Created By" [nzSpan]="2">{{stripeEvent.createdBy}}</nz-descriptions-item>
+      </nz-descriptions>
+    </div>
+
+    <ng-template #noResponse>
+      <h5 nz-typography>Response</h5>
+      <div>No response</div>
+    </ng-template>
+  </div>
+
+</div>

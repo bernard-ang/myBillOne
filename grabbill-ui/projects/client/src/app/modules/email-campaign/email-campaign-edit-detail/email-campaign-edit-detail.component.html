@@ -1,0 +1,168 @@
+<div container class="mx-auto">
+  <div top>
+    <grabbill-client-breadcrumb
+      rootTitle="Email Campaign"
+      [rootLink]="['/', 'email-campaign', 'list']"
+      [hasCrumb2]="!isNew"
+      [crumb2Object]="emailCampaignType$ | async"
+      [crumb2Link]="['/', 'email-campaign', 'detail', typeId]"
+      [crumb2QueryParam]="{ tab: 'settings' }"
+    ></grabbill-client-breadcrumb>
+
+    <div class="mb-8">
+      <grabbill-client-page-header
+        title="{{ isNew ? 'Create' : 'Edit' }} Email Campaign Template"
+        [buttonTemplate]="buttonTemplate"
+      >
+        <ng-template #buttonTemplate>
+          <button [nzLoading]="isLoading" (click)="submitForm()" nz-button nzType="primary">Save</button>
+        </ng-template>
+      </grabbill-client-page-header>
+    </div>
+
+    <div class="pb-8">
+      <nz-steps [nzCurrent]="0">
+        <nz-step nzTitle="Setup Template"></nz-step>
+        <nz-step nzTitle="Preview Email"></nz-step>
+        <nz-step nzTitle="Upload Attachments"></nz-step>
+      </nz-steps>
+    </div>
+  </div>
+  <div top-span>
+    <form nz-form [formGroup]="form" nzLayout="horizontal">
+      <div nz-list nzBordered *ngIf="!isInitialize">
+        <div nz-list-item>
+          <nz-skeleton [nzAvatar]="true" [nzActive]="true" [nzParagraph]="{ rows: 1 }"></nz-skeleton>
+        </div>
+      </div>
+
+      <ul nz-list class="bg-white" nzBordered nzSize="large" *ngIf="isInitialize">
+        <li nz-list-item list-item>
+          <div class="pr-4 pt-1">
+            <i class="text-lg" nz-icon nzType="info-circle"></i>
+          </div>
+          <div class="flex-grow">
+            <h5 nz-typography class="pb-4">Basic Settings</h5>
+            <div>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5" nzRequired>Name</nz-form-label>
+                <nz-form-control [nzSpan]="18" nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['name'])">
+                  <input nz-input formControlName="name" placeholder="Email campaign name" />
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5">Code</nz-form-label>
+                <nz-form-control [nzSpan]="18" nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['code'])">
+                  <input nz-input formControlName="code" placeholder="Unique code identifier" />
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </div>
+        </li>
+        <li nz-list-item list-item>
+          <div class="pr-4 pt-1">
+            <i class="text-lg" nz-icon nzType="mail"></i>
+          </div>
+          <div class="flex-grow">
+            <h5 nz-typography class="pb-4">Email Settings</h5>
+            <div>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5" nzRequired>Contact Group</nz-form-label>
+                <nz-form-control
+                  [nzSpan]="18"
+                  nzHasFeedback
+                  [nzErrorTip]="getErrorMessage(form.controls['contactGroup'])"
+                >
+                  <nz-select
+                    nzShowSearch
+                    nzServerSearch
+                    nzPlaceHolder="input search text"
+                    formControlName="contactGroup"
+                    [nzShowArrow]="false"
+                    [nzFilterOption]="nzFilterOption"
+                    (nzOnSearch)="search($event)"
+                  >
+                    <ng-container *ngFor="let option of listOfOption">
+                      <nz-option
+                        *ngIf="!isContactGroupLoading"
+                        [nzValue]="option.value"
+                        [nzLabel]="option.text"
+                      ></nz-option>
+                    </ng-container>
+                    <nz-option *ngIf="isContactGroupLoading" nzDisabled nzCustomContent>
+                      <i nz-icon nzType="loading" class="loading-icon"></i>
+                      Loading Data...
+                    </nz-option>
+                  </nz-select>
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5" nzRequired>From Email</nz-form-label>
+                <nz-form-control [nzSpan]="18" nzHasFeedback [nzErrorTip]="getErrorMessage(form.controls['emailFrom'])">
+                  <input nz-input formControlName="emailFrom" placeholder="From email" type="email" />
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5" nzRequired>From Name</nz-form-label>
+                <nz-form-control
+                  [nzSpan]="18"
+                  nzHasFeedback
+                  [nzErrorTip]="getErrorMessage(form.controls['emailFromName'])"
+                >
+                  <input nz-input formControlName="emailFromName" placeholder="From name" />
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5" nzRequired>Subject</nz-form-label>
+                <nz-form-control
+                  [nzSpan]="18"
+                  nzHasFeedback
+                  [nzErrorTip]="getErrorMessage(form.controls['emailSubject'])"
+                >
+                  <input nz-input formControlName="emailSubject" placeholder="Email subject" />
+                </nz-form-control>
+              </nz-form-item>
+              <nz-form-item>
+                <nz-form-label [nzSpan]="5">Template</nz-form-label>
+                <nz-form-control [nzSpan]="18">
+                  <div class="mt-1 mb-4"><a (click)="doEditEmailTemplate()">Edit email template</a></div>
+                  <grabbill-client-html-preview [html]="html"></grabbill-client-html-preview>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </form>
+  </div>
+</div>
+
+<nz-drawer
+  [nzBodyStyle]="{ overflow: 'auto', padding: '0' }"
+  [nzWidth]="'100%'"
+  [nzClosable]="true"
+  [nzKeyboard]="false"
+  [nzVisible]="isEditorVisible"
+  nzTitle="Email Editor"
+  [nzFooter]="createFooterTemplate"
+  (nzOnClose)="closeEditor()"
+  *ngIf="isNew || ((emailCampaignType$ | async) && (contactFields$ | async))"
+>
+  <div *nzDrawerContent>
+    <grabbill-client-email-editor
+      #editor
+      [defaultComponents]="mjml"
+      [fields]="getIndexFields()"
+      (htmlInit)="updateHtml($event)"
+    >
+    </grabbill-client-email-editor>
+  </div>
+
+  <ng-template #createFooterTemplate>
+    <div class="text-right">
+      <button nz-button [nzLoading]="isEditorLoading" nzType="primary" (click)="doUpdateTemplate()">
+        Update Template
+      </button>
+    </div>
+  </ng-template>
+</nz-drawer>
