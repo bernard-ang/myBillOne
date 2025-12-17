@@ -7,7 +7,6 @@ services:
     ports:
       - 80:80
       - 443:443
-      - 3306:3306
       - 5672:5672
       - 1025:1025
     networks:
@@ -28,7 +27,7 @@ services:
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
       - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
-      - "--entrypoints.mariadb.address=:3306"
+      - "--entrypoints.mariadb.address=:3307"
       - "--entrypoints.rabbitmq.address=:5672"
       - "--entrypoints.mailhog.address=:1025"
       - "--providers.file.directory=/traefik-config"
@@ -51,8 +50,10 @@ services:
       traefik.http.middlewares.traefik-auth.basicauth.usersfile: /htpasswd/traefik
 
   mariadb:
-    image: mariadb:10.7.3
+    image: mariadb:10.2.44
     restart: unless-stopped
+    ports:
+      - 3307:3306
     networks:
       - traefik-network
     environment:

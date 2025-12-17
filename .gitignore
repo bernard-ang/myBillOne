@@ -12,7 +12,7 @@ yarn-error.log
 grabbill-backend/grabbill-engine/src/main/resources
 grabbill-backend/grabbill-server/src/main/resources/grabbill-dev-firebase-adminsdk-zakbz-5a99322a13.json
 grabbill-backend/grabbill-server/src/main/resources/grabbill-firebase-adminsdk-981sk-64cfe89c8d.json
-grabbill-backend/grabbill-server/src/main/resources/grabbill-uat-firebase-adminsdk-c6j5s-fc11d3f25e.jso
+grabbill-backend/grabbill-server/src/main/resources/grabbill-uat-firebase-adminsdk-c6j5s-fc11d3f25e.json
 ._.
 # Compiled Java class files
 *.class

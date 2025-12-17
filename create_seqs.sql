@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS plan_id_seq (next_val bigint(20)); INSERT INTO plan_id_seq SELECT 1 WHERE NOT EXISTS (SELECT * FROM plan_id_seq);
+CREATE TABLE IF NOT EXISTS privilege_id_seq (next_val bigint(20)); INSERT INTO privilege_id_seq SELECT 1 WHERE NOT EXISTS (SELECT * FROM privilege_id_seq);
+CREATE TABLE IF NOT EXISTS role_id_seq (next_val bigint(20)); INSERT INTO role_id_seq SELECT 1 WHERE NOT EXISTS (SELECT * FROM role_id_seq);
+CREATE TABLE IF NOT EXISTS account_id_seq (next_val bigint(20)); INSERT INTO account_id_seq SELECT 1 WHERE NOT EXISTS (SELECT * FROM account_id_seq);
+CREATE TABLE IF NOT EXISTS user_id_seq (next_val bigint(20)); INSERT INTO user_id_seq SELECT 1 WHERE NOT EXISTS (SELECT * FROM user_id_seq);
+CREATE TABLE IF NOT EXISTS storage_po_id_seq (next_val bigint(20)); INSERT INTO storage_po_id_seq SELECT 1 WHERE NOT EXISTS (SELECT * FROM storage_po_id_seq);
+CREATE TABLE IF NOT EXISTS txe_po_id_seq (next_val bigint(20)); INSERT INTO txe_po_id_seq SELECT 1 WHERE NOT EXISTS (SELECT * FROM txe_po_id_seq);
+CREATE TABLE IF NOT EXISTS ec_po_id_seq (next_val bigint(20)); INSERT INTO ec_po_id_seq SELECT 1 WHERE NOT EXISTS (SELECT * FROM ec_po_id_seq);
+CREATE TABLE IF NOT EXISTS credits_po_id_seq (next_val bigint(20)); INSERT INTO credits_po_id_seq SELECT 1 WHERE NOT EXISTS (SELECT * FROM credits_po_id_seq);
