@@ -10,15 +10,36 @@ GRANT ALL ON `grabbill`.* TO 'grabbill.root'@'%';
  */
 USE grabbill;
 
-CREATE SEQUENCE plan_id_seq START WITH 1000 INCREMENT BY 1;
-CREATE SEQUENCE privilege_id_seq START WITH 1000 INCREMENT BY 1;
-CREATE SEQUENCE role_id_seq START WITH 1000 INCREMENT BY 1;
-CREATE SEQUENCE account_id_seq START WITH 1000 INCREMENT BY 1;
-CREATE SEQUENCE user_id_seq START WITH 1000 INCREMENT BY 1;
-CREATE SEQUENCE storage_po_id_seq START WITH 1000 INCREMENT BY 1;
-CREATE SEQUENCE txe_po_id_seq START WITH 1000 INCREMENT BY 1;
-CREATE SEQUENCE ec_po_id_seq START WITH 1000 INCREMENT BY 1;
-CREATE SEQUENCE credits_po_id_seq START WITH 1000 INCREMENT BY 1;
+-- Sequence emulation tables for MariaDB 10.2 (which doesn't support CREATE SEQUENCE)
+CREATE TABLE IF NOT EXISTS plan_id_seq (next_val BIGINT NOT NULL);
+INSERT INTO plan_id_seq VALUES (1000);
+
+CREATE TABLE IF NOT EXISTS privilege_id_seq (next_val BIGINT NOT NULL);
+INSERT INTO privilege_id_seq VALUES (1000);
+
+CREATE TABLE IF NOT EXISTS role_id_seq (next_val BIGINT NOT NULL);
+INSERT INTO role_id_seq VALUES (1000);
+
+CREATE TABLE IF NOT EXISTS account_id_seq (next_val BIGINT NOT NULL);
+INSERT INTO account_id_seq VALUES (1000);
+
+CREATE TABLE IF NOT EXISTS user_id_seq (next_val BIGINT NOT NULL);
+INSERT INTO user_id_seq VALUES (1000);
+
+CREATE TABLE IF NOT EXISTS storage_po_id_seq (next_val BIGINT NOT NULL);
+INSERT INTO storage_po_id_seq VALUES (1000);
+
+CREATE TABLE IF NOT EXISTS txe_po_id_seq (next_val BIGINT NOT NULL);
+INSERT INTO txe_po_id_seq VALUES (1000);
+
+CREATE TABLE IF NOT EXISTS ec_po_id_seq (next_val BIGINT NOT NULL);
+INSERT INTO ec_po_id_seq VALUES (1000);
+
+CREATE TABLE IF NOT EXISTS credits_po_id_seq (next_val BIGINT NOT NULL);
+INSERT INTO credits_po_id_seq VALUES (1000);
+
+CREATE TABLE IF NOT EXISTS account_sub_id_seq (next_val BIGINT NOT NULL);
+INSERT INTO account_sub_id_seq VALUES (1000);
 
 create table role
 (
@@ -411,7 +432,7 @@ INSERT INTO account
              'MY',
              '43300',
              'Selangor',
-             false,
+             true,
              'system',
              '2024-03-17 22:53:13.692952',
              'system',
@@ -419,6 +440,7 @@ INSERT INTO account
          );
 
 
+-- Original BCrypt hash from repository (password is NOT test12345)
 INSERT INTO grabbill.user (id, email, name, password, role_id, active, verified, account_active, account_id, created_by, created_date, last_modified_by, last_modified_date) VALUES (1, 'owner@demo.com', 'owner', '$2a$10$p1UGdCBeQHyHDx7wS5WJtOrkG8JczBxN6/wsMTZ23XVcG.58jf0N.', 1, true, true, true, 1, 'system', '2022-04-09 20:26:32.226366', 'system', '2022-04-09 20:26:32.226366');
 INSERT INTO grabbill.user (id, email, name, password, role_id, active, verified, account_active, account_id, created_by, created_date, last_modified_by, last_modified_date) VALUES (2, 'admin@demo.com', 'admin', '$2a$10$p1UGdCBeQHyHDx7wS5WJtOrkG8JczBxN6/wsMTZ23XVcG.58jf0N.', 2, true, true, true, 1, 'system', '2022-04-09 20:26:32.226366', 'system', '2022-04-09 20:26:32.226366');
 INSERT INTO grabbill.user (id, email, name, password, role_id, active, verified, account_active, account_id, created_by, created_date, last_modified_by, last_modified_date) VALUES (3, 'manager@demo.com', 'manager', '$2a$10$p1UGdCBeQHyHDx7wS5WJtOrkG8JczBxN6/wsMTZ23XVcG.58jf0N.', 3, true, true, true, 1, 'system', '2022-04-09 20:26:32.226366', 'system', '2022-04-09 20:26:32.226366');
@@ -436,10 +458,17 @@ CREATE TABLE admin_user (
     email varchar(255) DEFAULT NULL,
     last_logged_in datetime(6) DEFAULT NULL,
     name varchar(255) DEFAULT NULL,
-    password varchar(255) DEFAULT NULL
+    password varchar(255) DEFAULT NULL,
+    email2faenabled bit(1) DEFAULT b'0',
+    email2faotp int(11) DEFAULT 0,
+    email2faotp_requested_time datetime(6) DEFAULT NULL,
+    google2faenabled bit(1) DEFAULT b'0',
+    google2fasecret_key varchar(255) DEFAULT NULL,
+    google2favalidation_code int(11) DEFAULT 0,
+    verification_code varchar(255) DEFAULT NULL
 );
 
-INSERT INTO grabbill.admin_user (id, created_by, created_date, last_modified_by, last_modified_date, active, email, name, password) VALUES (0, 'system', '2022-04-09 20:26:32.226366', 'system', '2022-04-09 20:26:32.226366', b'1', 'admin@grabbill.com', 'Admin', '$2a$10$p1UGdCBeQHyHDx7wS5WJtOrkG8JczBxN6/wsMTZ23XVcG.58jf0N.');
+INSERT INTO grabbill.admin_user (id, created_by, created_date, last_modified_by, last_modified_date, active, email, name, password) VALUES (1, 'system', '2022-04-09 20:26:32.226366', 'system', '2022-04-09 20:26:32.226366', b'1', 'admin@grabbill.com', 'Admin', 'test12345');
 
 create table account_usage_stats
 (
@@ -454,9 +483,59 @@ create table account_usage_stats
     total_ec_sent      bigint       null,
     total_storage_used bigint       null,
     total_txe_sent     bigint       null,
+    total_wa_sent      bigint       null,
+    total_sms_sent     bigint       null,
+    sms_credit         int          default 0,
+    sms_credit_used    int          default 0,
     account_id         int          not null,
     constraint UK_ACCT_USG_STATS_ACCOUNT_ID     unique (account_id),
     constraint FK_ACCT_USG_STATS_ACCOUNT_ID     foreign key (account_id) references account (id)
 );
 
-INSERT INTO grabbill.account_usage_stats (id, created_by, created_date, last_modified_by, last_modified_date, max_ec_sent, max_storage_size, max_txe_sent, total_ec_sent, total_storage_used, total_txe_sent, account_id) VALUES (1, 'system', '2022-08-13 23:54:50.0', 'system', '2022-08-13 23:54:58.0', null, null, null, 0, 0, 0, 1);
+INSERT INTO grabbill.account_usage_stats (id, created_by, created_date, last_modified_by, last_modified_date, max_ec_sent, max_storage_size, max_txe_sent, total_ec_sent, total_storage_used, total_txe_sent, total_wa_sent, total_sms_sent, sms_credit, sms_credit_used, account_id) 
+VALUES (1, 'system', '2022-08-13 23:54:50.0', 'system', '2022-08-13 23:54:58.0', 5000, 2147483648, 1000, 0, 0, 0, 0, 0, 1000, 0, 1);
+
+/* Account Subscription Table */
+create table account_subscription
+(
+    id                        int          not null    primary key,
+    created_by                varchar(255) not null,
+    created_date              datetime(6)  null,
+    last_modified_by          varchar(255) not null,
+    last_modified_date        datetime(6)  null,
+    plan_name                 varchar(255) null,
+    plan_description          varchar(255) null,
+    storage_size              bigint       null,
+    storage_price             double       null,
+    transactional_email_size  bigint       null,
+    transactional_email_price double       null,
+    email_campaign_size       bigint       null,
+    email_campaign_price      double       null,
+    max_attachment_size       bigint       null,
+    grabbill_logo             bit(1)       null,
+    custom_smtp               bit(1)       null,
+    max_user                  int          null,
+    support_days              int          null,
+    reporting                 bit(1)       null,
+    schedule_email            bit(1)       null,
+    export_file               bit(1)       null,
+    start_date                datetime(6)  null,
+    end_date                  datetime(6)  null,
+    cycle_start_date          datetime(6)  null,
+    cycle_end_date            datetime(6)  null,
+    mode                      varchar(255) null,
+    promo_code                varchar(255) null,
+    disc_occurrence           varchar(255) null,
+    disc_occurrence_count     int          null,
+    account_id                int          not null,
+    constraint FK_ACCT_SUB_ACCOUNT_ID foreign key (account_id) references account (id)
+);
+
+/* Professional plan subscription for demo account */
+INSERT INTO grabbill.account_subscription (id, created_by, created_date, last_modified_by, last_modified_date, plan_name, plan_description, storage_size, storage_price, transactional_email_size, transactional_email_price, email_campaign_size, email_campaign_price, max_attachment_size, grabbill_logo, custom_smtp, max_user, support_days, reporting, schedule_email, export_file, start_date, cycle_start_date, cycle_end_date, mode, account_id) 
+VALUES (1, 'system', NOW(), 'system', NOW(), 'Professional', 'Professional equipment for large scale business.', 2147483648, 0, 1000, 0, 5000, 0, 10000000, b'0', b'1', 10, 90, b'1', b'1', b'1', NOW(), '2025-11-29 00:00:00', '2025-12-29 23:59:59', 'MONTHLY', 1);
+
+/* Default contact field for demo account */
+INSERT INTO grabbill.contact_field (id, seq_order, name, label, required, date_type, referenced, account_id, created_by, created_date, last_modified_by, last_modified_date)
+VALUES (1, 1, 'name', 'Name', false, 'TEXT', false, 1, 'system', NOW(), 'system', NOW());
+

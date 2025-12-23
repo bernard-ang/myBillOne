@@ -36,7 +36,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
-
 /**
  * @author michaellow
  */
@@ -88,15 +87,13 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private CustomerService customerService;
 
-
     @Transactional
     @Override
     public GrabbillAuthData loginForUser(final Authentication authentication) {
         if (authentication.isAuthenticated()) {
             String email = ((GrabbillUserDetails) authentication.getPrincipal()).getUser().getEmail();
             User user = userService.getByEmail(email).orElseThrow(
-                    () -> new UsernameNotFoundException("User [" + email + "] is not found!")
-            );
+                    () -> new UsernameNotFoundException("User [" + email + "] is not found!"));
 
             HttpHeaders responseHeaders = new HttpHeaders();
             if (!user.isEmail2FAEnabled() && !user.isGoogle2FAEnabled()) {
@@ -112,8 +109,7 @@ public class AuthServiceImpl implements AuthService {
 
             GrabbillApiResponse responseBody = new GrabbillApiResponse(
                     GrabbillServerApiVersion.V1.getVersion(),
-                    getUserAuthorityPayload(user)
-            );
+                    getUserAuthorityPayload(user));
 
             user.setLastLoggedIn(OffsetDateTime.now(ZoneOffset.UTC));
             userService.save(user);
@@ -129,8 +125,7 @@ public class AuthServiceImpl implements AuthService {
         if (authentication.isAuthenticated()) {
             String email = ((GrabbillAdminUserDetails) authentication.getPrincipal()).getAdminUser().getEmail();
             AdminUser adminUser = adminUserService.getByEmail(email).orElseThrow(
-                    () -> new UsernameNotFoundException("Admin user [" + email + "] is not found!")
-            );
+                    () -> new UsernameNotFoundException("Admin user [" + email + "] is not found!"));
 
             HttpHeaders responseHeaders = new HttpHeaders();
             if (!adminUser.isEmail2FAEnabled() && !adminUser.isGoogle2FAEnabled()) {
@@ -146,8 +141,7 @@ public class AuthServiceImpl implements AuthService {
 
             GrabbillApiResponse responseBody = new GrabbillApiResponse(
                     GrabbillServerApiVersion.V1.getVersion(),
-                    AdminUserPayload.from(adminUser)
-            );
+                    AdminUserPayload.from(adminUser));
 
             adminUser.setLastLoggedIn(OffsetDateTime.now(ZoneOffset.UTC));
             adminUserService.save(adminUser);
@@ -162,8 +156,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public GrabbillAuthData authorize(final String email) {
         User user = userService.getByEmail(email).orElseThrow(
-                () -> new UsernameNotFoundException("User [" + email + "] is not found!")
-        );
+                () -> new UsernameNotFoundException("User [" + email + "] is not found!"));
 
         HttpHeaders responseHeaders = new HttpHeaders();
         if (!user.isEmail2FAEnabled() && !user.isGoogle2FAEnabled()) {
@@ -173,8 +166,7 @@ public class AuthServiceImpl implements AuthService {
 
         GrabbillApiResponse responseBody = new GrabbillApiResponse(
                 GrabbillServerApiVersion.V1.getVersion(),
-                getUserAuthorityPayload(user)
-        );
+                getUserAuthorityPayload(user));
 
         return new GrabbillAuthData(responseHeaders, responseBody);
     }
@@ -183,13 +175,12 @@ public class AuthServiceImpl implements AuthService {
     public GrabbillAuthData twoFactorAuthorizeForUser(
             final TwoFactorAuthType authType,
             final String email,
-            final int otp
-    ) {
+            final int otp) {
         User user = userService.getByEmail(email).orElseThrow(
-                () -> new UsernameNotFoundException("User [" + email + "] is not found!")
-        );
+                () -> new UsernameNotFoundException("User [" + email + "] is not found!"));
 
-        long authSessionInSeconds = ChronoUnit.SECONDS.between(user.getLastLoggedIn(), OffsetDateTime.now(ZoneOffset.UTC));
+        long authSessionInSeconds = ChronoUnit.SECONDS.between(user.getLastLoggedIn(),
+                OffsetDateTime.now(ZoneOffset.UTC));
         if (authSessionInSeconds > authSessionTtlInSeconds) {
             throw new PreAuthenticatedCredentialsNotFoundException("User [" + email + "] is not pre-authenticated!");
         }
@@ -220,8 +211,7 @@ public class AuthServiceImpl implements AuthService {
 
         GrabbillApiResponse responseBody = new GrabbillApiResponse(
                 GrabbillServerApiVersion.V1.getVersion(),
-                getUserAuthorityPayload(user)
-        );
+                getUserAuthorityPayload(user));
 
         return new GrabbillAuthData(responseHeaders, responseBody);
     }
@@ -230,15 +220,15 @@ public class AuthServiceImpl implements AuthService {
     public GrabbillAuthData twoFactorAuthorizeForAdmin(
             final TwoFactorAuthType authType,
             final String email,
-            final int otp
-    ) {
+            final int otp) {
         AdminUser adminUser = adminUserService.getByEmail(email).orElseThrow(
-                () -> new UsernameNotFoundException("Admin user [" + email + "] is not found!")
-        );
+                () -> new UsernameNotFoundException("Admin user [" + email + "] is not found!"));
 
-        long authSessionInSeconds = ChronoUnit.SECONDS.between(adminUser.getLastLoggedIn(), OffsetDateTime.now(ZoneOffset.UTC));
+        long authSessionInSeconds = ChronoUnit.SECONDS.between(adminUser.getLastLoggedIn(),
+                OffsetDateTime.now(ZoneOffset.UTC));
         if (authSessionInSeconds > authSessionTtlInSeconds) {
-            throw new PreAuthenticatedCredentialsNotFoundException("Admin user [" + email + "] is not pre-authenticated!");
+            throw new PreAuthenticatedCredentialsNotFoundException(
+                    "Admin user [" + email + "] is not pre-authenticated!");
         }
 
         boolean authorized = false;
@@ -248,13 +238,15 @@ public class AuthServiceImpl implements AuthService {
             addAdminRefreshTokenCookie(responseHeaders, tokenServices.createRefreshToken(adminUser));
             authorized = true;
 
-        } else if (TwoFactorAuthType.GOOGLE.equals(authType) && adminUserGoogleAuthenticator.authorizeUser(email, otp)) {
+        } else if (TwoFactorAuthType.GOOGLE.equals(authType)
+                && adminUserGoogleAuthenticator.authorizeUser(email, otp)) {
             addAdminAccessTokenCookie(responseHeaders, tokenServices.createAccessToken(adminUser));
             addAdminRefreshTokenCookie(responseHeaders, tokenServices.createRefreshToken(adminUser));
             authorized = true;
 
         } else if (TwoFactorAuthType.BOTH.equals(authType)) {
-            if (adminUserEmailAuthenticator.authorize(email, otp) || adminUserGoogleAuthenticator.authorizeUser(email, otp)) {
+            if (adminUserEmailAuthenticator.authorize(email, otp)
+                    || adminUserGoogleAuthenticator.authorizeUser(email, otp)) {
                 addAdminAccessTokenCookie(responseHeaders, tokenServices.createAccessToken(adminUser));
                 addAdminRefreshTokenCookie(responseHeaders, tokenServices.createRefreshToken(adminUser));
                 authorized = true;
@@ -267,8 +259,7 @@ public class AuthServiceImpl implements AuthService {
 
         GrabbillApiResponse responseBody = new GrabbillApiResponse(
                 GrabbillServerApiVersion.V1.getVersion(),
-                AdminUserPayload.from(adminUser)
-        );
+                AdminUserPayload.from(adminUser));
 
         return new GrabbillAuthData(responseHeaders, responseBody);
     }
@@ -278,8 +269,7 @@ public class AuthServiceImpl implements AuthService {
     public GrabbillAuthData refresh(
             final UserDetails userDetails,
             final String accessToken,
-            final String refreshToken
-    ) {
+            final String refreshToken) {
         boolean refreshTokenValid = tokenServices.validateToken(refreshToken);
         if (!refreshTokenValid) {
             throw new BadCredentialsException("Invalid Refresh Token from user [" + userDetails.getUsername() + "]");
@@ -292,30 +282,26 @@ public class AuthServiceImpl implements AuthService {
         if (!isAdmin) {
             String email = tokenServices.getEmailFromToken(refreshToken);
             User user = userService.getByEmail(email).orElseThrow(
-                    () -> new UsernameNotFoundException("User [" + email + "] is not found!")
-            );
+                    () -> new UsernameNotFoundException("User [" + email + "] is not found!"));
 
             responseHeaders = new HttpHeaders();
             addAccessTokenCookie(responseHeaders, tokenServices.createAccessToken(user));
             addRefreshTokenCookie(responseHeaders, tokenServices.createRefreshToken(user));
             responseBody = new GrabbillApiResponse(
                     GrabbillServerApiVersion.V1.getVersion(),
-                    getUserAuthorityPayload(user)
-            );
+                    getUserAuthorityPayload(user));
 
         } else {
             String email = tokenServices.getEmailFromToken(refreshToken);
             AdminUser adminUser = adminUserService.getByEmail(email).orElseThrow(
-                    () -> new UsernameNotFoundException("Admin user [" + email + "] is not found!")
-            );
+                    () -> new UsernameNotFoundException("Admin user [" + email + "] is not found!"));
 
             responseHeaders = new HttpHeaders();
             addAdminAccessTokenCookie(responseHeaders, tokenServices.createAccessToken(adminUser));
             addAdminRefreshTokenCookie(responseHeaders, tokenServices.createRefreshToken(adminUser));
             responseBody = new GrabbillApiResponse(
                     GrabbillServerApiVersion.V1.getVersion(),
-                    AdminUserPayload.from(adminUser)
-            );
+                    AdminUserPayload.from(adminUser));
         }
 
         return new GrabbillAuthData(responseHeaders, responseBody);
@@ -323,8 +309,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public GrabbillAuthData logout(
-            final UserDetails userDetails
-    ) {
+            final UserDetails userDetails) {
         HttpHeaders responseHeaders = new HttpHeaders();
         if (userDetails instanceof GrabbillUserDetails) {
             deleteAccessTokenCookie(responseHeaders);
@@ -337,8 +322,7 @@ public class AuthServiceImpl implements AuthService {
 
         GrabbillApiResponse responseBody = new GrabbillApiResponse(
                 GrabbillServerApiVersion.V1.getVersion(),
-                new ApiMessage("User [" + userDetails.getUsername() + "] is logout successfully.")
-        );
+                new ApiMessage("User [" + userDetails.getUsername() + "] is logout successfully."));
 
         return new GrabbillAuthData(responseHeaders, responseBody);
     }
@@ -353,16 +337,26 @@ public class AuthServiceImpl implements AuthService {
         Customer customer = null;
         Account account = user.getAccount();
         if (account != null) {
-            customer = customerService.getOrCreate(account);
+            // Skip Stripe customer lookup/creation for payment exempted accounts
+            if (!account.isPaymentExempted()) {
+                customer = customerService.getOrCreate(account);
+            }
             activeSubscription = accountSubscriptionService.getActiveSubscriptionByAccountId(account.getId());
 
-            if(activeSubscription.isPresent()) {
+            if (activeSubscription.isPresent()) {
                 AccountSubscription accountSubscription = activeSubscription.get();
-                if(!accountSubscription.getPlanName().equals("Free")) {
+                if (!accountSubscription.getPlanName().equals("Free")) {
                     List<Invoice> paidInvoices = invoiceService.getPaidInvoices(account);
 
-                    com.stripe.model.PaymentMethod defaultPaymentMethod = customerPaymentMethodService.getDefaultPaymentMethodByCustomerId(customer.getId());
-                    paymentMethodRequired = (defaultPaymentMethod == null) && paidInvoices.isEmpty() && !account.isPaymentExempted();
+                    // Only check Stripe payment method if customer exists (non-payment-exempted
+                    // accounts)
+                    com.stripe.model.PaymentMethod defaultPaymentMethod = null;
+                    if (customer != null) {
+                        defaultPaymentMethod = customerPaymentMethodService
+                                .getDefaultPaymentMethodByCustomerId(customer.getId());
+                    }
+                    paymentMethodRequired = (defaultPaymentMethod == null) && paidInvoices.isEmpty()
+                            && !account.isPaymentExempted();
 
                     // paid subscription, check if any unpaid invoice that is more than 14 days!
                     paymentGracePeriodExceeded = accountPaymentCheckService.isPaymentGracePeriodOver(account);
@@ -380,18 +374,15 @@ public class AuthServiceImpl implements AuthService {
                 activeSubscription.orElse(null),
                 paymentMethodRequired,
                 paymentGracePeriodExceeded,
-                outstandingAmount
-        );
+                outstandingAmount);
     }
 
     @Transactional
     @Override
     public UserAuthorityPayload getUserAuthority(
-            final GrabbillUserDetails userDetails
-    ) {
+            final GrabbillUserDetails userDetails) {
         User user = userService.getByEmail(userDetails.getUsername()).orElseThrow(
-                () -> new UsernameNotFoundException("User [" + userDetails.getUsername() + "] is not found!")
-        );
+                () -> new UsernameNotFoundException("User [" + userDetails.getUsername() + "] is not found!"));
 
         return getUserAuthorityPayload(user);
     }
@@ -399,11 +390,9 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     @Override
     public UserAuthorityPayload getAdminUserAuthority(
-            final GrabbillAdminUserDetails adminUserDetails
-    ) {
+            final GrabbillAdminUserDetails adminUserDetails) {
         AdminUser adminUser = adminUserService.getByEmail(adminUserDetails.getUsername()).orElseThrow(
-                () -> new UsernameNotFoundException("User [" + adminUserDetails.getUsername() + "] is not found!")
-        );
+                () -> new UsernameNotFoundException("User [" + adminUserDetails.getUsername() + "] is not found!"));
 
         return UserAuthorityPayload.from(adminUser);
     }
@@ -413,9 +402,7 @@ public class AuthServiceImpl implements AuthService {
                 HttpHeaders.SET_COOKIE,
                 tokenCookieServices.createAccessTokenCookie(
                         grabbillToken.getJwtTokenValue(),
-                        grabbillToken.getDuration()
-                ).toString()
-        );
+                        grabbillToken.getDuration()).toString());
     }
 
     private void addRefreshTokenCookie(final HttpHeaders httpHeaders, final GrabbillToken grabbillToken) {
@@ -423,23 +410,19 @@ public class AuthServiceImpl implements AuthService {
                 HttpHeaders.SET_COOKIE,
                 tokenCookieServices.createRefreshTokenCookie(
                         grabbillToken.getJwtTokenValue(),
-                        grabbillToken.getDuration()
-                ).toString()
-        );
+                        grabbillToken.getDuration()).toString());
     }
 
     private void deleteAccessTokenCookie(final HttpHeaders httpHeaders) {
         httpHeaders.add(
                 HttpHeaders.SET_COOKIE,
-                tokenCookieServices.deleteAccessTokenCookie().toString()
-        );
+                tokenCookieServices.deleteAccessTokenCookie().toString());
     }
 
     private void deleteRefreshTokenCookie(final HttpHeaders httpHeaders) {
         httpHeaders.add(
                 HttpHeaders.SET_COOKIE,
-                tokenCookieServices.deleteRefreshTokenCookie().toString()
-        );
+                tokenCookieServices.deleteRefreshTokenCookie().toString());
     }
 
     private void addAdminAccessTokenCookie(final HttpHeaders httpHeaders, final GrabbillToken grabbillToken) {
@@ -447,9 +430,7 @@ public class AuthServiceImpl implements AuthService {
                 HttpHeaders.SET_COOKIE,
                 tokenCookieServices.createAdminAccessTokenCookie(
                         grabbillToken.getJwtTokenValue(),
-                        grabbillToken.getDuration()
-                ).toString()
-        );
+                        grabbillToken.getDuration()).toString());
     }
 
     private void addAdminRefreshTokenCookie(final HttpHeaders httpHeaders, final GrabbillToken grabbillToken) {
@@ -457,23 +438,19 @@ public class AuthServiceImpl implements AuthService {
                 HttpHeaders.SET_COOKIE,
                 tokenCookieServices.createAdminRefreshTokenCookie(
                         grabbillToken.getJwtTokenValue(),
-                        grabbillToken.getDuration()
-                ).toString()
-        );
+                        grabbillToken.getDuration()).toString());
     }
 
     private void deleteAdminAccessTokenCookie(final HttpHeaders httpHeaders) {
         httpHeaders.add(
                 HttpHeaders.SET_COOKIE,
-                tokenCookieServices.deleteAdminAccessTokenCookie().toString()
-        );
+                tokenCookieServices.deleteAdminAccessTokenCookie().toString());
     }
 
     private void deleteAdminRefreshTokenCookie(final HttpHeaders httpHeaders) {
         httpHeaders.add(
                 HttpHeaders.SET_COOKIE,
-                tokenCookieServices.deleteAdminRefreshTokenCookie().toString()
-        );
+                tokenCookieServices.deleteAdminRefreshTokenCookie().toString());
     }
 
 }

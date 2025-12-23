@@ -1,0 +1,12 @@
+{
+    "type": "service_account",
+    "project_id": "grabbill-mock",
+    "private_key_id": "mock-key-id",
+    "private_key": "-----BEGIN RSA PRIVATE KEY-----\nMIIBOgIBAAJBALRiMLAhA3wQ8hxKCAAz30xFDT50Qn9m2C4ql0EiBj8nC1NnlbKm\nmvCkxvtMq3R4COwMi1w6DqA7MXBqk9YHqfMCAwEAAQJAT6z4hnS/l3g4hvV5c3m/\nQItUHnflZd3S4RVfO9dXLGRMNyXNLMr01eAJvWkTDMnMV7l/B3qbxMsu/dL5WqBV\nvQIhAOT3h7ksVP3z1tQvJa8n/hL4f+cHPV5l8xM7D3V8yB3tAiEAyKXbDIoPMF0q\nJaWM+ghC9oLt9WKnz/c+dL2Bm4D/Bv8CIQCR2Lj+K4D56NZ6P3SKVBL/fQNwrPBn\n6sT8mBPi8+vA9QIgOi567hGKLe9jvPKJfJ2LBPS0e8nQM+RMjWaKJBqyb3MCIGzY\n2qvqgk6xZrPj9g0FjvQi9S07N/l6qVj/1/5wP3A1\n-----END RSA PRIVATE KEY-----\n",
+    "client_email": "mock@grabbill-mock.iam.gserviceaccount.com",
+    "client_id": "123456789",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/mock%40grabbill-mock.iam.gserviceaccount.com"
+}

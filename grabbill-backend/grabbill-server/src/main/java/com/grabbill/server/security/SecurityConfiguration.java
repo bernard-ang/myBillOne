@@ -22,16 +22,14 @@ import org.springframework.web.filter.CorsFilter;
  */
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(
-        securedEnabled = true,
-        jsr250Enabled = true,
-        prePostEnabled = true
-)
+@EnableGlobalMethodSecurity(securedEnabled = true, jsr250Enabled = true, prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        // Using NoOpPasswordEncoder for local development (plain text passwords)
+        // WARNING: This is NOT secure for production!
+        return org.springframework.security.crypto.password.NoOpPasswordEncoder.getInstance();
     }
 
     @Bean
@@ -70,7 +68,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public TokenExceptionHandlerFilter tokenExceptionHandlerFilter() {
         return new TokenExceptionHandlerFilter();
     }
-
 
     @Override
     protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
@@ -157,8 +154,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/build-info",
 
                         // WhatsApp sandbox
-                        "/wa-sandbox/**/*"
-                ).permitAll()
+                        "/wa-sandbox/**/*")
+                .permitAll()
 
                 .anyRequest()
                 .authenticated();

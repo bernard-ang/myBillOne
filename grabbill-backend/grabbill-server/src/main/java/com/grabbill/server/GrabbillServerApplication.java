@@ -52,21 +52,23 @@ public class GrabbillServerApplication {
 	@Value("${payment.stripe.api.key.live}")
 	private String stripeLiveApiKey;
 
-
 	@PostConstruct
 	public void init() throws IOException {
-		FirebaseApp.initializeApp(
-				FirebaseOptions.builder().setCredentials(
-						GoogleCredentials.fromStream(
-								new ClassPathResource(
-										firebaseServiceAccountFileName,
-										GrabbillServerApplication.class.getClassLoader()
-								).getInputStream()
-						)
-				).build()
-		);
+		// Firebase initialization - optional for local development
+		try {
+			FirebaseApp.initializeApp(
+					FirebaseOptions.builder().setCredentials(
+							GoogleCredentials.fromStream(
+									new ClassPathResource(
+											firebaseServiceAccountFileName,
+											GrabbillServerApplication.class.getClassLoader()).getInputStream()))
+							.build());
+		} catch (Exception e) {
+			System.err.println("WARNING: Firebase initialization failed. Push notifications will not work.");
+			System.err.println("Error: " + e.getMessage());
+		}
 
-		Stripe.apiKey = "live".equals(mode) ? stripeLiveApiKey: stripeTestApiKey;
+		Stripe.apiKey = "live".equals(mode) ? stripeLiveApiKey : stripeTestApiKey;
 	}
 
 	public static void main(String[] args) {

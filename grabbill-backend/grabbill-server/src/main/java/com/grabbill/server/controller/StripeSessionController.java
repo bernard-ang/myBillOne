@@ -47,19 +47,25 @@ public class StripeSessionController {
     @Autowired
     private CustomerService customerService;
 
-
     @PostMapping
     public ResponseEntity<GrabbillApiResponse> createSetupSession(
             @AuthenticationPrincipal GrabbillUserDetails userDetails,
             @RequestParam StripeSessionType type,
-            @RequestBody(required=false) UserPlanUpdateRequest request
-    ) {
+            @RequestBody(required = false) UserPlanUpdateRequest request) {
         Account account = userDetails.getUser().getAccount();
+
+        // Skip Stripe operations for payment-exempted accounts
+        if (account.isPaymentExempted()) {
+            throw new GrabbillServerException(
+                    GrabbillServerErrorCode.GRB0001,
+                    "Payment operations are not available for exempted accounts");
+        }
+
         if (!StringUtils.hasLength(account.getStripeCustomerId())) {
 
             try {
                 Customer customer = customerService.getOrCreate(account);
-                if (customer == null) {
+                if (customer != null) {
                     account.setStripeCustomerId(customer.getId());
                     account = accountService.save(account);
                 }
@@ -67,8 +73,7 @@ public class StripeSessionController {
             } catch (GrabbillException e) {
                 throw new GrabbillServerException(
                         GrabbillServerErrorCode.GRB0001,
-                        "Failed to create Stripe customer instance for account with id [" + account.getId() + "]!"
-                );
+                        "Failed to create Stripe customer instance for account with id [" + account.getId() + "]!");
             }
         }
 
@@ -76,7 +81,7 @@ public class StripeSessionController {
         if (StripeSessionType.PAYMENT_SETUP_SESSION.equals(type)) {
             url = createPaymentSetupSession(account, request).getUrl();
 
-        } else if(StripeSessionType.PAYMENT_UPDATE_SESSION.equals(type)) {
+        } else if (StripeSessionType.PAYMENT_UPDATE_SESSION.equals(type)) {
             url = createPaymentUpdateSession(account).getUrl();
 
         } else {
@@ -86,52 +91,51 @@ public class StripeSessionController {
         return ResponseEntity.ok().body(
                 new GrabbillApiResponse(
                         GrabbillServerApiVersion.V1.getVersion(),
-                        HostedPaymentUIPayload.from(url)
-                )
-        );
+                        HostedPaymentUIPayload.from(url)));
     }
 
     private com.stripe.model.checkout.Session createPaymentSetupSession(
             final Account account, final UserPlanUpdateRequest request) {
-        com.stripe.param.checkout.SessionCreateParams params =
-                com.stripe.param.checkout.SessionCreateParams.builder()
-                        .setMode(com.stripe.param.checkout.SessionCreateParams.Mode.SETUP)
-                        .addPaymentMethodType(com.stripe.param.checkout.SessionCreateParams.PaymentMethodType.CARD)
-                        .setCustomer(account.getStripeCustomerId())
-                        .setClientReferenceId(account.getStripeCustomerId())
-                        .setCurrency(MYR)
-                        .setBillingAddressCollection(com.stripe.param.checkout.SessionCreateParams.BillingAddressCollection.REQUIRED)
-                        .setSuccessUrl(successUrl)
-                        .setCancelUrl(cancelUrl)
-                        .putMetadata("planId", request.getPlanId())
-                        .putMetadata("storageSize", request.getStorageSize().toString())
-                        .putMetadata("emailCampaignSize", request.getEmailCampaignSize().toString())
-                        .putMetadata("transactionalEmailSize", request.getTransactionalEmailSize().toString())
-                        .putMetadata("subscriptionMode", request.getSubscriptionMode().toString())
-                        .putMetadata("promoCode", request.getPromoCode())
-                        .build();
+        com.stripe.param.checkout.SessionCreateParams params = com.stripe.param.checkout.SessionCreateParams.builder()
+                .setMode(com.stripe.param.checkout.SessionCreateParams.Mode.SETUP)
+                .addPaymentMethodType(com.stripe.param.checkout.SessionCreateParams.PaymentMethodType.CARD)
+                .setCustomer(account.getStripeCustomerId())
+                .setClientReferenceId(account.getStripeCustomerId())
+                .setCurrency(MYR)
+                .setBillingAddressCollection(
+                        com.stripe.param.checkout.SessionCreateParams.BillingAddressCollection.REQUIRED)
+                .setSuccessUrl(successUrl)
+                .setCancelUrl(cancelUrl)
+                .putMetadata("planId", request.getPlanId())
+                .putMetadata("storageSize", request.getStorageSize().toString())
+                .putMetadata("emailCampaignSize", request.getEmailCampaignSize().toString())
+                .putMetadata("transactionalEmailSize", request.getTransactionalEmailSize().toString())
+                .putMetadata("subscriptionMode", request.getSubscriptionMode().toString())
+                .putMetadata("promoCode", request.getPromoCode())
+                .build();
 
         try {
             return com.stripe.model.checkout.Session.create(params);
         } catch (StripeException e) {
             log.error("Failed to create payment setup session!", e);
-            throw new GrabbillServerException(GrabbillServerErrorCode.GRB0001, "Failed to create payment setup session!");
+            throw new GrabbillServerException(GrabbillServerErrorCode.GRB0001,
+                    "Failed to create payment setup session!");
         }
     }
 
     private com.stripe.model.billingportal.Session createPaymentUpdateSession(final Account account) {
-        com.stripe.param.billingportal.SessionCreateParams params =
-                com.stripe.param.billingportal.SessionCreateParams
-                        .builder()
-                        .setCustomer(account.getStripeCustomerId())
-                        .setReturnUrl(returnUrl)
-                        .build();
+        com.stripe.param.billingportal.SessionCreateParams params = com.stripe.param.billingportal.SessionCreateParams
+                .builder()
+                .setCustomer(account.getStripeCustomerId())
+                .setReturnUrl(returnUrl)
+                .build();
 
         try {
             return com.stripe.model.billingportal.Session.create(params);
         } catch (StripeException e) {
             log.error("Failed to create payment update session!", e);
-            throw new GrabbillServerException(GrabbillServerErrorCode.GRB0001, "Failed to create payment update session!");
+            throw new GrabbillServerException(GrabbillServerErrorCode.GRB0001,
+                    "Failed to create payment update session!");
         }
     }
 

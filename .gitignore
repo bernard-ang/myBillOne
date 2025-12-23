@@ -3,7 +3,7 @@
 # Learn more about .gitignore:
 #     https://www.atlassian.com/git/tutorials/saving-changes/gitignore
 
-grabbill-backend/grabbill-server/src/main/resources/application.properties
+
 # Node artifact files
 node_modules/
 npm-debug.log
